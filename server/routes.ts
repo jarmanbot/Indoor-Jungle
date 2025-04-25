@@ -100,7 +100,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
         // Validate plant data
         const result = insertPlantSchema.safeParse(plantData);
         
+        console.log("Plant data to validate:", plantData);
+        
         if (!result.success) {
+          console.error("Validation errors:", result.error.errors);
           return res.status(400).json({ 
             message: "Invalid plant data", 
             errors: result.error.errors 

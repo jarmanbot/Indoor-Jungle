@@ -63,6 +63,8 @@ const PlantForm = ({ onSuccess, initialValues, plantId }: PlantFormProps) => {
       // Create a FormData object to handle the image upload
       const formData = new FormData();
       
+      console.log("Submitting form data:", data);
+      
       // Add all form fields to the FormData
       Object.entries(data).forEach(([key, value]) => {
         if (value !== undefined && value !== null) {
@@ -86,8 +88,12 @@ const PlantForm = ({ onSuccess, initialValues, plantId }: PlantFormProps) => {
         credentials: 'include',
       });
       
+      // Log response for debugging
+      console.log("Response status:", response.status);
+      
       if (!response.ok) {
         const errorData = await response.json();
+        console.error("Server error response:", errorData);
         throw new Error(errorData.message || "Failed to save plant");
       }
       
