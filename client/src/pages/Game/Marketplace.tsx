@@ -7,7 +7,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, Plant, Tag, ShoppingBag, ArrowLeft, Info } from "lucide-react";
+import { Loader2, Flower2 as Plant, Tag, ShoppingBag, ArrowLeft, Info } from "lucide-react";
 
 interface VirtualPlant {
   id: number;
@@ -39,26 +39,12 @@ export default function GameMarketplace() {
   const { data: listings, isLoading: listingsLoading } = useQuery({
     queryKey: ['/api/game/marketplace/listings'],
     enabled: activeTab === "buy",
-    onError: (error: any) => {
-      toast({
-        title: "Error Loading Marketplace",
-        description: error.message || "Failed to load marketplace listings",
-        variant: "destructive",
-      });
-    }
   });
   
   // Query player's plants (for selling)
   const { data: playerPlants, isLoading: plantsLoading } = useQuery({
     queryKey: ['/api/game/plants/owned'],
     enabled: activeTab === "sell",
-    onError: (error: any) => {
-      toast({
-        title: "Error Loading Plants",
-        description: error.message || "Failed to load your plants",
-        variant: "destructive",
-      });
-    }
   });
   
   // Purchase plant mutation

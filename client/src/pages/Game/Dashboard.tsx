@@ -7,7 +7,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, Home, Plant, ShoppingBag, Flower, Trophy, Wallet } from "lucide-react";
+import { Loader2, Home, Flower2 as Plant, ShoppingBag, Flower, Trophy, Wallet } from "lucide-react";
 
 export default function GameDashboard() {
   const { toast } = useToast();
@@ -19,15 +19,8 @@ export default function GameDashboard() {
   // Query game player data
   const { data: playerData, isLoading: playerLoading } = useQuery({
     queryKey: ['/api/game/player'],
-    onError: (error: any) => {
-      toast({
-        title: "Error Loading Player Data",
-        description: error.message || "Failed to load player data",
-        variant: "destructive",
-      });
-    },
     // Only try to fetch if we have a wallet connected
-    enabled: walletConnected
+    enabled: walletConnected,
   });
 
   // Connect wallet function
