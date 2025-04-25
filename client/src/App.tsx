@@ -12,13 +12,18 @@ import Tasks from "@/pages/Tasks";
 import Settings from "@/pages/Settings";
 import Navigation from "@/components/Navigation";
 import Header from "@/components/Header";
+// Import Game pages
+import GameDashboard from "@/pages/Game/Dashboard";
+import GameMarketplace from "@/pages/Game/Marketplace";
 
 function Router() {
   const [location] = useLocation();
   
+  const isGameRoute = location.startsWith("/game");
+      
   return (
-    <div className="max-w-md mx-auto bg-neutral-lightest min-h-screen shadow-sm">
-      <Header />
+    <div className={`${isGameRoute ? '' : 'max-w-md'} mx-auto bg-neutral-lightest min-h-screen shadow-sm`}>
+      {!isGameRoute && <Header />}
       
       <Switch>
         <Route path="/" component={Home} />
@@ -27,11 +32,14 @@ function Router() {
         <Route path="/calendar" component={Calendar} />
         <Route path="/tasks" component={Tasks} />
         <Route path="/settings" component={Settings} />
+        {/* Game routes */}
+        <Route path="/game" component={GameDashboard} />
+        <Route path="/game/marketplace" component={GameMarketplace} />
         <Route component={NotFound} />
       </Switch>
       
-      {/* Only show navigation on main pages */}
-      {!location.includes("/add") && <Navigation />}
+      {/* Only show navigation on main app pages */}
+      {!location.includes("/add") && !isGameRoute && <Navigation />}
     </div>
   );
 }

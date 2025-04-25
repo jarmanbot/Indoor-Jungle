@@ -5,6 +5,7 @@ import { insertPlantSchema } from "@shared/schema";
 import multer from "multer";
 import path from "path";
 import fs from "fs";
+import gameRouter from "./gameRoutes";
 
 // Configure multer for image uploads
 const upload = multer({
@@ -38,7 +39,10 @@ const upload = multer({
 });
 
 export async function registerRoutes(app: Express): Promise<Server> {
-  // API routes
+  // Register the game API routes under /api/game
+  app.use("/api/game", gameRouter);
+  
+  // Plant API routes
   
   // Get all plants
   app.get("/api/plants", async (req: Request, res: Response) => {

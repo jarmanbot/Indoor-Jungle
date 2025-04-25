@@ -4,7 +4,7 @@ import PlantCard from "@/components/PlantCard";
 import FilterBar from "@/components/FilterBar";
 import { Plant } from "@shared/schema";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Plus } from "lucide-react";
+import { Plus, Gamepad2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 const Home = () => {
@@ -62,9 +62,15 @@ const Home = () => {
         )}
       </div>
       
-      {/* Floating Action Button */}
+      {/* Floating Action Buttons */}
       {plants && plants.length > 0 && (
-        <div className="fixed bottom-20 z-10" style={{ left: '50%', transform: 'translateX(-50%)', maxWidth: '448px' }}>
+        <div className="fixed bottom-20 z-10 flex gap-4" style={{ left: '50%', transform: 'translateX(-50%)', maxWidth: '448px' }}>
+          <Link href="/game">
+            <a className="bg-amber-500 hover:bg-amber-600 text-white rounded-full p-4 shadow-lg flex items-center justify-center transition-colors duration-300">
+              <Gamepad2 className="h-6 w-6" />
+              <span className="ml-2 font-medium">Indoor Jungle</span>
+            </a>
+          </Link>
           <Link href="/add">
             <a className="bg-primary hover:bg-primary-dark text-white rounded-full p-4 shadow-lg flex items-center justify-center transition-colors duration-300">
               <Plus className="h-6 w-6" />
