@@ -93,6 +93,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
           plantData.imageUrl = `/uploads/${req.file.filename}`;
         }
 
+        // Get the next plant number for auto-numbering
+        const nextPlantNumber = await storage.getNextPlantNumber();
+        plantData.plantNumber = nextPlantNumber;
+
         // Validate plant data
         const result = insertPlantSchema.safeParse(plantData);
         
