@@ -1,6 +1,6 @@
 import { Link } from "wouter";
 import { format } from "date-fns";
-import { MoreVertical, Droplet, Clock, Package, MapPin } from "lucide-react";
+import { MoreVertical, Droplet, Clock, Package, MapPin, Hash } from "lucide-react";
 import { Plant, PlantStatus } from "@shared/schema";
 
 interface PlantCardProps {
@@ -49,6 +49,12 @@ const PlantCard = ({ plant }: PlantCardProps) => {
         <div className="absolute top-3 right-3 bg-white rounded-full p-1 shadow">
           <MoreVertical className="h-5 w-5 text-neutral-dark" />
         </div>
+        {plant.plantNumber && (
+          <div className="absolute top-3 left-3 bg-primary text-white rounded-full px-2 py-1 shadow text-sm font-bold flex items-center">
+            <Hash className="h-3 w-3 mr-0.5" />
+            {plant.plantNumber}
+          </div>
+        )}
       </div>
       <div className="p-4">
         <div className="flex justify-between items-start">

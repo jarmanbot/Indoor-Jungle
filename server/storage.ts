@@ -2,6 +2,8 @@ import {
   users, type User, type InsertUser,
   plants, type Plant, type InsertPlant 
 } from "@shared/schema";
+import { db } from "./db";
+import { eq, max, desc } from "drizzle-orm";
 
 export interface IStorage {
   // User methods
@@ -15,95 +17,73 @@ export interface IStorage {
   createPlant(plant: InsertPlant): Promise<Plant>;
   updatePlant(id: number, plant: Partial<InsertPlant>): Promise<Plant | undefined>;
   deletePlant(id: number): Promise<boolean>;
+  getNextPlantNumber(): Promise<number>;
 }
 
-export class MemStorage implements IStorage {
-  private users: Map<number, User>;
-  private plants: Map<number, Plant>;
-  private userCurrentId: number;
-  private plantCurrentId: number;
-
-  constructor() {
-    this.users = new Map();
-    this.plants = new Map();
-    this.userCurrentId = 1;
-    this.plantCurrentId = 1;
-  }
-
-  // User methods
+export class DatabaseStorage implements IStorage {
   async getUser(id: number): Promise<User | undefined> {
-    return this.users.get(id);
+    const [user] = await db.select().from(users).where(eq(users.id, id));
+    return user || undefined;
   }
 
   async getUserByUsername(username: string): Promise<User | undefined> {
-    return Array.from(this.users.values()).find(
-      (user) => user.username === username,
-    );
+    const [user] = await db.select().from(users).where(eq(users.username, username));
+    return user || undefined;
   }
 
   async createUser(insertUser: InsertUser): Promise<User> {
-    const id = this.userCurrentId++;
-    const user: User = { ...insertUser, id };
-    this.users.set(id, user);
+    const [user] = await db
+      .insert(users)
+      .values(insertUser)
+      .returning();
     return user;
   }
 
-  // Plant methods
   async getPlants(): Promise<Plant[]> {
-    return Array.from(this.plants.values());
+    return db.select().from(plants).orderBy(desc(plants.createdAt));
   }
 
   async getPlant(id: number): Promise<Plant | undefined> {
-    return this.plants.get(id);
+    const [plant] = await db.select().from(plants).where(eq(plants.id, id));
+    return plant || undefined;
+  }
+
+  async getNextPlantNumber(): Promise<number> {
+    const [result] = await db.select({ maxNum: max(plants.plantNumber) }).from(plants);
+    return (result?.maxNum || 0) + 1;
   }
 
   async createPlant(insertPlant: InsertPlant): Promise<Plant> {
-    const id = this.plantCurrentId++;
-    const now = new Date();
+    // Get the next plant number
+    const nextPlantNumber = await this.getNextPlantNumber();
     
-    // Convert string dates to Date objects if they exist
-    const lastWatered = insertPlant.lastWatered ? new Date(insertPlant.lastWatered) : undefined;
-    const nextCheck = insertPlant.nextCheck ? new Date(insertPlant.nextCheck) : undefined;
-    const lastFed = insertPlant.lastFed ? new Date(insertPlant.lastFed) : undefined;
-    
-    const plant: Plant = { 
-      ...insertPlant, 
-      id, 
-      createdAt: now,
-      lastWatered,
-      nextCheck,
-      lastFed
-    };
-    
-    this.plants.set(id, plant);
+    const [plant] = await db
+      .insert(plants)
+      .values({
+        ...insertPlant,
+        plantNumber: nextPlantNumber
+      })
+      .returning();
     return plant;
   }
 
   async updatePlant(id: number, updates: Partial<InsertPlant>): Promise<Plant | undefined> {
-    const plant = this.plants.get(id);
-    
-    if (!plant) return undefined;
-    
-    // Convert string dates to Date objects if they exist in updates
-    if (typeof updates.lastWatered === 'string') {
-      updates.lastWatered = new Date(updates.lastWatered);
-    }
-    if (typeof updates.nextCheck === 'string') {
-      updates.nextCheck = new Date(updates.nextCheck);
-    }
-    if (typeof updates.lastFed === 'string') {
-      updates.lastFed = new Date(updates.lastFed);
-    }
-    
-    const updatedPlant: Plant = { ...plant, ...updates };
-    this.plants.set(id, updatedPlant);
-    
-    return updatedPlant;
+    const [updatedPlant] = await db
+      .update(plants)
+      .set(updates)
+      .where(eq(plants.id, id))
+      .returning();
+    return updatedPlant || undefined;
   }
 
   async deletePlant(id: number): Promise<boolean> {
-    return this.plants.delete(id);
+    const [deletedPlant] = await db
+      .delete(plants)
+      .where(eq(plants.id, id))
+      .returning({ id: plants.id });
+    
+    return !!deletedPlant;
   }
 }
 
-export const storage = new MemStorage();
+export const storage = new DatabaseStorage();

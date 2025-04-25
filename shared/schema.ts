@@ -34,6 +34,7 @@ export enum PlantLocation {
 // Plants table
 export const plants = pgTable("plants", {
   id: serial("id").primaryKey(),
+  plantNumber: integer("plant_number"),
   name: varchar("name", { length: 100 }).notNull(),
   imageUrl: text("image_url"),
   location: varchar("location", { length: 50 }).notNull(),
