@@ -43,7 +43,7 @@ const PlantCard = ({ plant }: PlantCardProps) => {
       <div className="relative">
         <img 
           src={plant.imageUrl || "https://via.placeholder.com/400x250?text=No+Image"} 
-          alt={plant.name} 
+          alt={plant.babyName} 
           className="w-full h-48 object-cover"
         />
         <div className="absolute top-3 right-3 bg-white rounded-full p-1 shadow">
@@ -57,10 +57,14 @@ const PlantCard = ({ plant }: PlantCardProps) => {
         )}
       </div>
       <div className="p-4">
-        <div className="flex justify-between items-start">
-          <Link href={`/plant/${plant.id}`}>
-            <a className="text-lg font-semibold">{plant.name}</a>
-          </Link>
+        <div className="flex justify-between mb-1">
+          <div>
+            <Link href={`/plant/${plant.id}`}>
+              <a className="text-lg font-semibold">{plant.babyName}</a>
+            </Link>
+            <div className="text-sm text-gray-600">{plant.commonName}</div>
+            {plant.latinName && <div className="text-xs italic text-gray-500">{plant.latinName}</div>}
+          </div>
           <div className="flex items-center">
             <span className={`plant-status-indicator ${statusInfo.class}`}></span>
             <span className="text-xs text-neutral-dark">{statusInfo.text}</span>

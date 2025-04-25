@@ -15,9 +15,13 @@ import { Hash } from "lucide-react";
 
 // Extend the schema with more validation
 const formSchema = insertPlantSchema.extend({
-  name: z.string().min(2, {
-    message: "Name must be at least 2 characters.",
-  })
+  babyName: z.string().min(2, {
+    message: "Baby name must be at least 2 characters.",
+  }),
+  commonName: z.string().min(2, {
+    message: "Common name must be at least 2 characters.",
+  }),
+  latinName: z.string().optional(),
 });
 
 type FormValues = z.infer<typeof formSchema>;
@@ -37,7 +41,9 @@ const PlantForm = ({ onSuccess, initialValues, plantId }: PlantFormProps) => {
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      name: initialValues?.name || "",
+      babyName: initialValues?.babyName || "",
+      latinName: initialValues?.latinName || "",
+      commonName: initialValues?.commonName || "",
       location: initialValues?.location || "",
       lastWatered: initialValues?.lastWatered || undefined,
       nextCheck: initialValues?.nextCheck || undefined,
@@ -121,10 +127,38 @@ const PlantForm = ({ onSuccess, initialValues, plantId }: PlantFormProps) => {
         
         <FormField
           control={form.control}
-          name="name"
+          name="babyName"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Plant Name</FormLabel>
+              <FormLabel>Baby Name</FormLabel>
+              <FormControl>
+                <Input placeholder="e.g., Monty" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        
+        <FormField
+          control={form.control}
+          name="commonName"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Common Name</FormLabel>
+              <FormControl>
+                <Input placeholder="e.g., Swiss Cheese Plant" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        
+        <FormField
+          control={form.control}
+          name="latinName"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Latin Name (Optional)</FormLabel>
               <FormControl>
                 <Input placeholder="e.g., Monstera Deliciosa" {...field} />
               </FormControl>
