@@ -11,6 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { PlantLocation, insertPlantSchema } from "@shared/schema";
 import ImageUpload from "./ImageUpload";
 import { apiRequest } from "@/lib/queryClient";
+import { Hash } from "lucide-react";
 
 // Extend the schema with more validation
 const formSchema = insertPlantSchema.extend({
@@ -59,7 +60,7 @@ const PlantForm = ({ onSuccess, initialValues, plantId }: PlantFormProps) => {
       // Add all form fields to the FormData
       Object.entries(data).forEach(([key, value]) => {
         if (value !== undefined && value !== null) {
-          formData.append(key, value);
+          formData.append(key, String(value));
         }
       });
       
@@ -208,7 +209,7 @@ const PlantForm = ({ onSuccess, initialValues, plantId }: PlantFormProps) => {
             <FormItem>
               <FormLabel>Notes</FormLabel>
               <FormControl>
-                <Textarea placeholder="Any special care instructions..." {...field} />
+                <Textarea placeholder="Any special care instructions..." {...field} value={field.value || ''} />
               </FormControl>
               <FormMessage />
             </FormItem>

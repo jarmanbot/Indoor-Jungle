@@ -3,11 +3,11 @@ import { Camera } from "lucide-react";
 
 interface ImageUploadProps {
   onImageSelected: (file: File) => void;
-  currentImage?: string;
+  currentImage?: string | null;
 }
 
 const ImageUpload = ({ onImageSelected, currentImage }: ImageUploadProps) => {
-  const [preview, setPreview] = useState<string | undefined>(currentImage);
+  const [preview, setPreview] = useState<string | undefined>(currentImage || undefined);
 
   const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];

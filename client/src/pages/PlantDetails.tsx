@@ -7,13 +7,13 @@ import { Button } from "@/components/ui/button";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { queryClient, apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
-import { ChevronLeft, Droplet, Clock, Package, MapPin, Edit, Trash } from "lucide-react";
+import { ChevronLeft, Droplet, Clock, Package, MapPin, Edit, Trash, Hash } from "lucide-react";
 
 const PlantDetails = () => {
   const { id } = useParams();
   const [_, setLocation] = useLocation();
   const { toast } = useToast();
-  const numericId = parseInt(id);
+  const numericId = id ? parseInt(id) : 0;
 
   const { data: plant, isLoading, error } = useQuery<Plant>({
     queryKey: [`/api/plants/${id}`],
@@ -132,6 +132,12 @@ const PlantDetails = () => {
               </AlertDialogContent>
             </AlertDialog>
           </div>
+          {plant.plantNumber && (
+            <div className="absolute top-4 left-4 bg-primary text-white rounded-full px-3 py-1.5 shadow text-sm font-bold flex items-center">
+              <Hash className="h-4 w-4 mr-1" />
+              {plant.plantNumber}
+            </div>
+          )}
         </div>
         
         <div className="p-4">
