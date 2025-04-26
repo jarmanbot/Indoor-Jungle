@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -9,9 +9,10 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { PlantLocation, insertPlantSchema } from "@shared/schema";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import ImageUpload from "./ImageUpload";
 import { apiRequest } from "@/lib/queryClient";
-import { Hash } from "lucide-react";
+import { PlusCircle } from "lucide-react";
 
 // Extend the schema with more validation
 const formSchema = insertPlantSchema.extend({
@@ -22,6 +23,9 @@ const formSchema = insertPlantSchema.extend({
     message: "Common name must be at least 2 characters.",
   }),
   latinName: z.string().optional(),
+  location: z.string({
+    required_error: "Please select a location",
+  }),
 });
 
 type FormValues = z.infer<typeof formSchema>;
@@ -36,6 +40,21 @@ const PlantForm = ({ onSuccess, initialValues, plantId }: PlantFormProps) => {
   const { toast } = useToast();
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showCustomLocationDialog, setShowCustomLocationDialog] = useState(false);
+  const [customLocation, setCustomLocation] = useState("");
+  const [userCustomLocations, setUserCustomLocations] = useState<string[]>([]);
+  
+  // Try to load custom locations from localStorage on component mount
+  useEffect(() => {
+    try {
+      const savedLocations = localStorage.getItem('customLocations');
+      if (savedLocations) {
+        setUserCustomLocations(JSON.parse(savedLocations));
+      }
+    } catch (error) {
+      console.error("Error loading custom locations:", error);
+    }
+  }, []);
 
   // Configure form with default values
   const form = useForm<FormValues>({
@@ -54,6 +73,28 @@ const PlantForm = ({ onSuccess, initialValues, plantId }: PlantFormProps) => {
 
   const handleImageSelected = (file: File) => {
     setSelectedImage(file);
+  };
+  
+  const handleAddCustomLocation = () => {
+    if (customLocation.trim()) {
+      // Add the new location
+      const newCustomLocations = [...userCustomLocations, customLocation.trim()];
+      setUserCustomLocations(newCustomLocations);
+      
+      // Save to localStorage
+      try {
+        localStorage.setItem('customLocations', JSON.stringify(newCustomLocations));
+      } catch (error) {
+        console.error("Error saving custom locations:", error);
+      }
+      
+      // Update form
+      form.setValue("location", customLocation.trim());
+      
+      // Reset and close dialog
+      setCustomLocation("");
+      setShowCustomLocationDialog(false);
+    }
   };
 
   const onSubmit = async (data: FormValues) => {
@@ -122,14 +163,24 @@ const PlantForm = ({ onSuccess, initialValues, plantId }: PlantFormProps) => {
     label: key.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' '),
     value
   }));
+  
+  // Add custom locations to the options
+  const allLocationOptions = [
+    ...locationOptions, 
+    ...userCustomLocations.map(loc => ({
+      label: loc,
+      value: loc
+    }))
+  ];
 
   return (
-    <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-        <ImageUpload 
-          onImageSelected={handleImageSelected} 
-          currentImage={initialValues?.imageUrl}
-        />
+    <>
+      <Form {...form}>
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+          <ImageUpload 
+            onImageSelected={handleImageSelected} 
+            currentImage={initialValues?.imageUrl}
+          />
         
         <FormField
           control={form.control}
@@ -186,11 +237,41 @@ const PlantForm = ({ onSuccess, initialValues, plantId }: PlantFormProps) => {
                   </SelectTrigger>
                 </FormControl>
                 <SelectContent>
+                  {/* Show predefined locations in alphabetical order */}
+                  <div className="p-1 text-xs font-semibold text-muted-foreground">Default Locations</div>
                   {locationOptions.map((option) => (
                     <SelectItem key={option.value} value={option.value}>
                       {option.label}
                     </SelectItem>
                   ))}
+                  
+                  {/* Show custom locations if any exist */}
+                  {userCustomLocations.length > 0 && (
+                    <>
+                      <div className="p-1 mt-2 text-xs font-semibold text-muted-foreground">My Custom Locations</div>
+                      {userCustomLocations.map((loc) => (
+                        <SelectItem key={loc} value={loc}>
+                          {loc}
+                        </SelectItem>
+                      ))}
+                    </>
+                  )}
+                  
+                  {/* Add custom location button */}
+                  <div className="p-1 border-t border-border mt-2">
+                    <Button
+                      variant="ghost"
+                      className="w-full justify-start py-1.5 px-2 h-8"
+                      type="button"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        setShowCustomLocationDialog(true);
+                      }}
+                    >
+                      <PlusCircle className="mr-2 h-4 w-4" />
+                      Add Custom Location
+                    </Button>
+                  </div>
                 </SelectContent>
               </Select>
               <FormMessage />

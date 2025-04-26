@@ -21,6 +21,7 @@ export enum PlantStatus {
 }
 
 // Location enum
+// Default initial locations, but users can add their own
 export enum PlantLocation {
   LIVING_ROOM = "living_room",
   BEDROOM = "bedroom",
@@ -28,6 +29,10 @@ export enum PlantLocation {
   BATHROOM = "bathroom",
   OFFICE = "office",
   BALCONY = "balcony",
+  OUTDOOR = "outdoor",
+  PATIO = "patio",
+  GARDEN = "garden",
+  GREENHOUSE = "greenhouse",
   OTHER = "other",
 }
 
@@ -40,7 +45,7 @@ export const plants = pgTable("plants", {
   latinName: varchar("latin_name", { length: 150 }),
   commonName: varchar("common_name", { length: 150 }).notNull(),
   imageUrl: text("image_url"),
-  location: varchar("location", { length: 50 }).notNull(),
+  location: varchar("location", { length: 100 }).notNull(),  // Can be a custom location
   lastWatered: timestamp("last_watered"),
   nextCheck: timestamp("next_check"),
   lastFed: timestamp("last_fed"),
