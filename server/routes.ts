@@ -97,10 +97,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
         const nextPlantNumber = await storage.getNextPlantNumber();
         plantData.plantNumber = nextPlantNumber;
 
-        // Validate plant data
-        const result = insertPlantSchema.safeParse(plantData);
+        // Convert date strings to Date objects
+        if (plantData.lastWatered && typeof plantData.lastWatered === 'string') {
+          plantData.lastWatered = new Date(plantData.lastWatered);
+        }
+        if (plantData.nextCheck && typeof plantData.nextCheck === 'string') {
+          plantData.nextCheck = new Date(plantData.nextCheck);
+        }
+        if (plantData.lastFed && typeof plantData.lastFed === 'string') {
+          plantData.lastFed = new Date(plantData.lastFed);
+        }
         
         console.log("Plant data to validate:", plantData);
+        
+        // Validate plant data
+        const result = insertPlantSchema.safeParse(plantData);
         
         if (!result.success) {
           console.error("Validation errors:", result.error.errors);
@@ -136,6 +147,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
         if (req.file) {
           plantData.imageUrl = `/uploads/${req.file.filename}`;
         }
+        
+        // Convert date strings to Date objects for update
+        if (plantData.lastWatered && typeof plantData.lastWatered === 'string') {
+          plantData.lastWatered = new Date(plantData.lastWatered);
+        }
+        if (plantData.nextCheck && typeof plantData.nextCheck === 'string') {
+          plantData.nextCheck = new Date(plantData.nextCheck);
+        }
+        if (plantData.lastFed && typeof plantData.lastFed === 'string') {
+          plantData.lastFed = new Date(plantData.lastFed);
+        }
+        
+        console.log("Update plant data:", plantData);
 
         const updatedPlant = await storage.updatePlant(id, plantData);
         if (!updatedPlant) {
