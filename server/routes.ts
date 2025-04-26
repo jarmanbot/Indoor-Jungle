@@ -1,4 +1,4 @@
-import type { Express, Request, Response } from "express";
+import express, { type Express, Request, Response } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { insertPlantSchema } from "@shared/schema";
@@ -75,6 +75,53 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Create a new plant - JSON method
+  app.post("/api/plants/json", express.json(), async (req: Request, res: Response) => {
+      try {
+        console.log("Received plant data (JSON):", req.body);
+        const plantData = req.body;
+        
+        // Get the next plant number for auto-numbering
+        const nextPlantNumber = await storage.getNextPlantNumber();
+        plantData.plantNumber = nextPlantNumber;
+        
+        // Set name field from babyName for backward compatibility
+        if (plantData.babyName && !plantData.name) {
+          plantData.name = plantData.babyName;
+        }
+
+        // Convert date strings to Date objects
+        if (plantData.lastWatered && typeof plantData.lastWatered === 'string') {
+          plantData.lastWatered = new Date(plantData.lastWatered);
+        }
+        if (plantData.nextCheck && typeof plantData.nextCheck === 'string') {
+          plantData.nextCheck = new Date(plantData.nextCheck);
+        }
+        if (plantData.lastFed && typeof plantData.lastFed === 'string') {
+          plantData.lastFed = new Date(plantData.lastFed);
+        }
+        
+        console.log("Plant data to validate:", plantData);
+        
+        // Validate plant data
+        const result = insertPlantSchema.safeParse(plantData);
+        
+        if (!result.success) {
+          console.error("Validation errors:", result.error.errors);
+          return res.status(400).json({ 
+            message: "Invalid plant data", 
+            errors: result.error.errors 
+          });
+        }
+
+        const newPlant = await storage.createPlant(result.data);
+        res.status(201).json(newPlant);
+      } catch (error) {
+        console.error("Error creating plant with JSON:", error);
+        res.status(500).json({ message: "Error creating plant" });
+      }
+  });
+  
   // Create a new plant with image upload
   app.post(
     "/api/plants", 

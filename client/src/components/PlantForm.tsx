@@ -59,36 +59,29 @@ const PlantForm = ({ onSuccess, initialValues, plantId }: PlantFormProps) => {
   const onSubmit = async (data: FormValues) => {
     try {
       setIsSubmitting(true);
+      console.log("Form data received:", data);
       
-      // Create a FormData object to handle the image upload
-      const formData = new FormData();
-      
-      // Process form data before submission
-      const processedData = { ...data };
-      console.log("Original form data:", data);
-      
-      // Add all form fields to the FormData
-      Object.entries(processedData).forEach(([key, value]) => {
-        if (value !== undefined && value !== null) {
-          formData.append(key, String(value));
-        }
-      });
-      
-      // Add the image if one was selected
-      if (selectedImage) {
-        formData.append("image", selectedImage);
-      }
-      
-      console.log("Submitting form data to server...");
+      // For pure JSON submission without image
+      const jsonData = {
+        ...data,
+        // Ensure name field is set from babyName
+        name: data.babyName
+      };
       
       // Determine if this is a create or update operation
-      const url = plantId ? `/api/plants/${plantId}` : '/api/plants';
+      // Use the JSON endpoint for new plants
+      const url = plantId ? `/api/plants/${plantId}` : '/api/plants/json';
       const method = plantId ? 'PATCH' : 'POST';
       
-      // Send the request
+      console.log("Submitting form data as JSON:", jsonData);
+      
+      // Send the request as JSON
       const response = await fetch(url, {
         method,
-        body: formData,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(jsonData),
         credentials: 'include',
       });
       
