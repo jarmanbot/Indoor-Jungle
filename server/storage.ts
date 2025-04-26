@@ -1,9 +1,21 @@
 import { 
-  users, type User, type InsertUser,
-  plants, type Plant, type InsertPlant 
+  users, 
+  plants, 
+  customLocations, 
+  type User, 
+  type InsertUser, 
+  type Plant, 
+  type InsertPlant,
+  type CustomLocation,
+  type InsertCustomLocation
 } from "@shared/schema";
-import { db } from "./db";
-import { eq, max, desc } from "drizzle-orm";
+import { db, runMigrations } from "./db";
+import { eq, max, desc, sql, and, like, asc } from "drizzle-orm";
+
+// Helper function for OR conditions in SQL queries
+function or(...conditions: any[]) {
+  return sql`(${sql.join(conditions, sql` OR `)})`;
+}
 
 export interface IStorage {
   // User methods
@@ -13,14 +25,37 @@ export interface IStorage {
   
   // Plant methods
   getPlants(): Promise<Plant[]>;
+  searchPlants(query: string): Promise<Plant[]>;
+  getPlantsByLocation(location: string): Promise<Plant[]>;
   getPlant(id: number): Promise<Plant | undefined>;
   createPlant(plant: InsertPlant): Promise<Plant>;
   updatePlant(id: number, plant: Partial<InsertPlant>): Promise<Plant | undefined>;
   deletePlant(id: number): Promise<boolean>;
   getNextPlantNumber(): Promise<number>;
+  
+  // Location methods
+  getCustomLocations(): Promise<CustomLocation[]>;
+  createCustomLocation(location: InsertCustomLocation): Promise<CustomLocation>;
+  deleteCustomLocation(id: number): Promise<boolean>;
+  
+  // Database initialization
+  initialize(): Promise<void>;
 }
 
 export class DatabaseStorage implements IStorage {
+  // Initialize database and run migrations
+  async initialize(): Promise<void> {
+    try {
+      await runMigrations();
+      console.log("Database initialized successfully");
+    } catch (error) {
+      console.error("Failed to initialize database:", error);
+      throw error;
+    }
+  }
+
+  // -------------------- User Methods --------------------
+  
   async getUser(id: number): Promise<User | undefined> {
     const [user] = await db.select().from(users).where(eq(users.id, id));
     return user || undefined;
@@ -39,8 +74,37 @@ export class DatabaseStorage implements IStorage {
     return user;
   }
 
+  // -------------------- Plant Methods --------------------
+  
   async getPlants(): Promise<Plant[]> {
     return db.select().from(plants).orderBy(desc(plants.createdAt));
+  }
+  
+  async searchPlants(query: string): Promise<Plant[]> {
+    if (!query || query.trim() === '') {
+      return this.getPlants();
+    }
+    
+    const searchTerm = `%${query.toLowerCase()}%`;
+    
+    return db.select()
+      .from(plants)
+      .where(
+        or(
+          like(sql`lower(${plants.babyName})`, searchTerm),
+          like(sql`lower(${plants.commonName})`, searchTerm),
+          like(sql`lower(${plants.latinName})`, searchTerm),
+          like(sql`lower(${plants.notes})`, searchTerm)
+        )
+      )
+      .orderBy(desc(plants.createdAt));
+  }
+  
+  async getPlantsByLocation(location: string): Promise<Plant[]> {
+    return db.select()
+      .from(plants)
+      .where(eq(plants.location, location))
+      .orderBy(asc(plants.plantNumber));
   }
 
   async getPlant(id: number): Promise<Plant | undefined> {
@@ -51,6 +115,45 @@ export class DatabaseStorage implements IStorage {
   async getNextPlantNumber(): Promise<number> {
     const [result] = await db.select({ maxNum: max(plants.plantNumber) }).from(plants);
     return (result?.maxNum || 0) + 1;
+  }
+  
+  // -------------------- Location Methods --------------------
+  
+  async getCustomLocations(): Promise<CustomLocation[]> {
+    return db.select()
+      .from(customLocations)
+      .orderBy(asc(customLocations.name));
+  }
+  
+  async createCustomLocation(location: InsertCustomLocation): Promise<CustomLocation> {
+    try {
+      // Check if this location already exists
+      const [existing] = await db.select()
+        .from(customLocations)
+        .where(eq(customLocations.name, location.name));
+        
+      if (existing) {
+        return existing;
+      }
+      
+      // Create new location
+      const [newLocation] = await db.insert(customLocations)
+        .values(location)
+        .returning();
+        
+      return newLocation;
+    } catch (error) {
+      console.error("Error creating custom location:", error);
+      throw error;
+    }
+  }
+  
+  async deleteCustomLocation(id: number): Promise<boolean> {
+    const result = await db.delete(customLocations)
+      .where(eq(customLocations.id, id))
+      .returning();
+      
+    return result.length > 0;
   }
 
   async createPlant(insertPlant: InsertPlant): Promise<Plant> {

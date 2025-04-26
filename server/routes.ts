@@ -1,7 +1,7 @@
 import express, { type Express, Request, Response } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { insertPlantSchema } from "@shared/schema";
+import { insertPlantSchema, insertCustomLocationSchema } from "@shared/schema";
 import multer from "multer";
 import path from "path";
 import fs from "fs";
@@ -248,6 +248,63 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error deleting plant:", error);
       res.status(500).json({ message: "Error deleting plant" });
+    }
+  });
+
+  // -------------------- Custom Location API Routes --------------------
+
+  // Get all custom locations
+  app.get("/api/locations", async (req: Request, res: Response) => {
+    try {
+      const locations = await storage.getCustomLocations();
+      res.json(locations);
+    } catch (error) {
+      console.error("Error fetching custom locations:", error);
+      res.status(500).json({ message: "Error fetching custom locations" });
+    }
+  });
+
+  // Create a new custom location
+  app.post("/api/locations", express.json(), async (req: Request, res: Response) => {
+    try {
+      const locationData = req.body;
+      
+      // Validate location data
+      const result = insertCustomLocationSchema.safeParse(locationData);
+      
+      if (!result.success) {
+        console.error("Validation errors:", result.error.errors);
+        return res.status(400).json({ 
+          message: "Invalid location data", 
+          errors: result.error.errors 
+        });
+      }
+
+      const newLocation = await storage.createCustomLocation(result.data);
+      res.status(201).json(newLocation);
+    } catch (error) {
+      console.error("Error creating custom location:", error);
+      res.status(500).json({ message: "Error creating custom location" });
+    }
+  });
+
+  // Delete a custom location
+  app.delete("/api/locations/:id", async (req: Request, res: Response) => {
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ message: "Invalid location ID" });
+      }
+
+      const deleted = await storage.deleteCustomLocation(id);
+      if (!deleted) {
+        return res.status(404).json({ message: "Location not found" });
+      }
+
+      res.status(204).send();
+    } catch (error) {
+      console.error("Error deleting custom location:", error);
+      res.status(500).json({ message: "Error deleting custom location" });
     }
   });
 
