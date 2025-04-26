@@ -96,6 +96,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
         // Get the next plant number for auto-numbering
         const nextPlantNumber = await storage.getNextPlantNumber();
         plantData.plantNumber = nextPlantNumber;
+        
+        // Set name field from babyName for backward compatibility
+        if (plantData.babyName && !plantData.name) {
+          plantData.name = plantData.babyName;
+        }
 
         // Convert date strings to Date objects
         if (plantData.lastWatered && typeof plantData.lastWatered === 'string') {
@@ -146,6 +151,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
         // Add image URL if an image was uploaded
         if (req.file) {
           plantData.imageUrl = `/uploads/${req.file.filename}`;
+        }
+        
+        // Set name field from babyName for backward compatibility
+        if (plantData.babyName && !plantData.name) {
+          plantData.name = plantData.babyName;
         }
         
         // Convert date strings to Date objects for update

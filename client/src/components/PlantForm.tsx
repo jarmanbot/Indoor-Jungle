@@ -63,10 +63,12 @@ const PlantForm = ({ onSuccess, initialValues, plantId }: PlantFormProps) => {
       // Create a FormData object to handle the image upload
       const formData = new FormData();
       
-      console.log("Submitting form data:", data);
+      // Process form data before submission
+      const processedData = { ...data };
+      console.log("Original form data:", data);
       
       // Add all form fields to the FormData
-      Object.entries(data).forEach(([key, value]) => {
+      Object.entries(processedData).forEach(([key, value]) => {
         if (value !== undefined && value !== null) {
           formData.append(key, String(value));
         }
@@ -76,6 +78,8 @@ const PlantForm = ({ onSuccess, initialValues, plantId }: PlantFormProps) => {
       if (selectedImage) {
         formData.append("image", selectedImage);
       }
+      
+      console.log("Submitting form data to server...");
       
       // Determine if this is a create or update operation
       const url = plantId ? `/api/plants/${plantId}` : '/api/plants';
@@ -94,7 +98,10 @@ const PlantForm = ({ onSuccess, initialValues, plantId }: PlantFormProps) => {
       if (!response.ok) {
         const errorData = await response.json();
         console.error("Server error response:", errorData);
-        throw new Error(errorData.message || "Failed to save plant");
+        throw new Error(
+          errorData.message || 
+          (errorData.errors ? JSON.stringify(errorData.errors) : "Failed to save plant")
+        );
       }
       
       toast({
