@@ -57,20 +57,31 @@ export class DatabaseStorage implements IStorage {
     // Get the next plant number
     const nextPlantNumber = await this.getNextPlantNumber();
     
+    // Ensure name field is set for backward compatibility
+    const plantData = {
+      ...insertPlant,
+      plantNumber: nextPlantNumber,
+      // If name is missing, use babyName as the value for the name field
+      name: insertPlant.name || insertPlant.babyName
+    };
+    
     const [plant] = await db
       .insert(plants)
-      .values({
-        ...insertPlant,
-        plantNumber: nextPlantNumber
-      })
+      .values(plantData)
       .returning();
     return plant;
   }
 
   async updatePlant(id: number, updates: Partial<InsertPlant>): Promise<Plant | undefined> {
+    // If babyName is updated, also update name for backward compatibility
+    const updatedValues = { ...updates };
+    if (updates.babyName) {
+      updatedValues.name = updates.babyName;
+    }
+    
     const [updatedPlant] = await db
       .update(plants)
-      .set(updates)
+      .set(updatedValues)
       .where(eq(plants.id, id))
       .returning();
     return updatedPlant || undefined;

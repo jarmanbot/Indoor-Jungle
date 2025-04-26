@@ -35,6 +35,7 @@ export enum PlantLocation {
 export const plants = pgTable("plants", {
   id: serial("id").primaryKey(),
   plantNumber: integer("plant_number"),
+  name: varchar("name", { length: 100 }).notNull(),  // Required for backwards compatibility
   babyName: varchar("baby_name", { length: 100 }).notNull(),
   latinName: varchar("latin_name", { length: 150 }),
   commonName: varchar("common_name", { length: 150 }).notNull(),
