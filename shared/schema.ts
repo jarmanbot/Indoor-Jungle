@@ -49,7 +49,12 @@ export const plants = pgTable("plants", {
   createdAt: timestamp("created_at").defaultNow(),
 });
 
-export const insertPlantSchema = createInsertSchema(plants).omit({
+// Create a schema with modified date handling
+export const insertPlantSchema = createInsertSchema(plants, {
+  lastWatered: z.union([z.string(), z.date(), z.null()]).optional(),
+  nextCheck: z.union([z.string(), z.date(), z.null()]).optional(),
+  lastFed: z.union([z.string(), z.date(), z.null()]).optional(),
+}).omit({
   id: true,
   createdAt: true,
 });
