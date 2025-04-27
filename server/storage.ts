@@ -38,6 +38,12 @@ export interface IStorage {
   createCustomLocation(location: InsertCustomLocation): Promise<CustomLocation>;
   deleteCustomLocation(id: number): Promise<boolean>;
   
+  // Plant care log methods
+  getWateringLogs(plantId: number): Promise<WateringLog[]>;
+  addWateringLog(log: InsertWateringLog): Promise<WateringLog>;
+  getFeedingLogs(plantId: number): Promise<FeedingLog[]>;
+  addFeedingLog(log: InsertFeedingLog): Promise<FeedingLog>;
+  
   // Database initialization
   initialize(): Promise<void>;
 }
@@ -228,6 +234,74 @@ export class DatabaseStorage implements IStorage {
       .returning({ id: plants.id });
     
     return !!deletedPlant;
+  }
+
+  // -------------------- Plant Care Log Methods --------------------
+
+  async getWateringLogs(plantId: number): Promise<WateringLog[]> {
+    return db.select()
+      .from(wateringLogs)
+      .where(eq(wateringLogs.plantId, plantId))
+      .orderBy(desc(wateringLogs.wateredAt));
+  }
+
+  async addWateringLog(log: InsertWateringLog): Promise<WateringLog> {
+    // Convert string dates to Date objects
+    const processedLog: any = { ...log };
+    
+    if (processedLog.wateredAt && typeof processedLog.wateredAt === 'string') {
+      processedLog.wateredAt = new Date(processedLog.wateredAt);
+    }
+
+    const [newLog] = await db
+      .insert(wateringLogs)
+      .values(processedLog)
+      .returning();
+    
+    // Update the plant's lastWatered timestamp
+    await db
+      .update(plants)
+      .set({
+        lastWatered: newLog.wateredAt,
+        // Calculate next check date (add 7 days by default, can be adjusted based on plant type)
+        nextCheck: new Date(newLog.wateredAt.getTime() + 7 * 24 * 60 * 60 * 1000),
+        // Update status to healthy when watered
+        status: PlantStatus.HEALTHY
+      })
+      .where(eq(plants.id, log.plantId));
+    
+    return newLog;
+  }
+
+  async getFeedingLogs(plantId: number): Promise<FeedingLog[]> {
+    return db.select()
+      .from(feedingLogs)
+      .where(eq(feedingLogs.plantId, plantId))
+      .orderBy(desc(feedingLogs.fedAt));
+  }
+
+  async addFeedingLog(log: InsertFeedingLog): Promise<FeedingLog> {
+    // Convert string dates to Date objects
+    const processedLog: any = { ...log };
+    
+    if (processedLog.fedAt && typeof processedLog.fedAt === 'string') {
+      processedLog.fedAt = new Date(processedLog.fedAt);
+    }
+
+    const [newLog] = await db
+      .insert(feedingLogs)
+      .values(processedLog)
+      .returning();
+    
+    // Update the plant's lastFed timestamp
+    await db
+      .update(plants)
+      .set({
+        lastFed: newLog.fedAt,
+      })
+      .where(eq(plants.id, log.plantId));
+    
+    return newLog;
   }
 }
 

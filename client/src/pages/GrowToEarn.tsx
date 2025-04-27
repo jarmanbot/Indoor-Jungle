@@ -2,7 +2,7 @@ import { Link } from "wouter";
 import { 
   Leaf, 
   Sprout, 
-  Plant, 
+  Flower2, 
   QrCode, 
   Coins, 
   Medal, 
@@ -149,7 +149,7 @@ export default function GrowToEarn() {
           
           <div className="bg-white p-3 rounded-lg shadow-sm">
             <div className="bg-green-100 rounded-full p-2 w-10 h-10 flex items-center justify-center mb-2">
-              <Seedling className="h-5 w-5 text-green-600" />
+              <Flower2 className="h-5 w-5 text-green-600" />
             </div>
             <h3 className="font-medium text-sm mb-1">Plant Health</h3>
             <p className="text-xs text-gray-600">Improved care for your real plants</p>

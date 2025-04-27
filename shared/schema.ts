@@ -126,3 +126,53 @@ export type InsertPlant = z.infer<typeof insertPlantSchema>;
 
 export type CustomLocation = typeof customLocations.$inferSelect;
 export type InsertCustomLocation = z.infer<typeof insertCustomLocationSchema>;
+
+// -------------------- Plant Care Logs --------------------
+
+// Water logs to track watering history
+export const wateringLogs = pgTable("watering_logs", {
+  id: serial("id").primaryKey(),
+  plantId: integer("plant_id").notNull().references(() => plants.id, { onDelete: 'cascade' }),
+  wateredAt: timestamp("watered_at").defaultNow().notNull(),
+  amount: varchar("amount", { length: 50 }), // e.g., "full", "light", "1 cup"
+  notes: text("notes"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+// Feeding logs to track fertilization history
+export const feedingLogs = pgTable("feeding_logs", {
+  id: serial("id").primaryKey(),
+  plantId: integer("plant_id").notNull().references(() => plants.id, { onDelete: 'cascade' }),
+  fedAt: timestamp("fed_at").defaultNow().notNull(),
+  fertilizer: varchar("fertilizer", { length: 100 }),
+  amount: varchar("amount", { length: 50 }),
+  notes: text("notes"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+// Insert schemas for logs
+export const insertWateringLogSchema = createInsertSchema(wateringLogs, {
+  wateredAt: z.union([z.string(), z.date()]).optional(),
+  amount: z.string().optional(),
+  notes: z.string().optional(),
+}).omit({
+  id: true,
+  createdAt: true,
+});
+
+export const insertFeedingLogSchema = createInsertSchema(feedingLogs, {
+  fedAt: z.union([z.string(), z.date()]).optional(),
+  fertilizer: z.string().optional(),
+  amount: z.string().optional(),
+  notes: z.string().optional(),
+}).omit({
+  id: true,
+  createdAt: true,
+});
+
+// Types for TypeScript
+export type WateringLog = typeof wateringLogs.$inferSelect;
+export type InsertWateringLog = z.infer<typeof insertWateringLogSchema>;
+
+export type FeedingLog = typeof feedingLogs.$inferSelect;
+export type InsertFeedingLog = z.infer<typeof insertFeedingLogSchema>;
