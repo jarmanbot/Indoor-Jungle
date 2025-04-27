@@ -125,7 +125,7 @@ const Tasks = () => {
                       <Button 
                         size="sm" 
                         className="ml-2"
-                        onClick={() => handleWaterNow(plant)}
+                        onClick={() => setWateringPlant(plant)}
                       >
                         Water
                       </Button>
@@ -174,7 +174,7 @@ const Tasks = () => {
                       <Button 
                         size="sm" 
                         className="ml-2"
-                        onClick={() => handleFeedNow(plant)}
+                        onClick={() => setFeedingPlant(plant)}
                       >
                         Feed
                       </Button>
@@ -240,6 +240,38 @@ const Tasks = () => {
           </Card>
         </div>
       )}
+      
+      {/* Watering Dialog */}
+      <Dialog open={!!wateringPlant} onOpenChange={(open) => !open && setWateringPlant(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Log Watering - {wateringPlant?.name}</DialogTitle>
+          </DialogHeader>
+          {wateringPlant && (
+            <WateringLogForm 
+              plantId={wateringPlant.id}
+              onSuccess={handleWateringSuccess}
+              onCancel={() => setWateringPlant(null)}
+            />
+          )}
+        </DialogContent>
+      </Dialog>
+      
+      {/* Feeding Dialog */}
+      <Dialog open={!!feedingPlant} onOpenChange={(open) => !open && setFeedingPlant(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Log Feeding - {feedingPlant?.name}</DialogTitle>
+          </DialogHeader>
+          {feedingPlant && (
+            <FeedingLogForm 
+              plantId={feedingPlant.id}
+              onSuccess={handleFeedingSuccess}
+              onCancel={() => setFeedingPlant(null)}
+            />
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
