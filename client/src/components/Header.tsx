@@ -1,18 +1,46 @@
 import { Link } from "wouter";
-import { Search, Plus } from "lucide-react";
+import { Search, Plus, Menu } from "lucide-react";
+import { useLocation } from "wouter";
 
-const Header = () => {
+interface HeaderProps {
+  title?: string;
+}
+
+const Header = ({ title }: HeaderProps) => {
+  const [location] = useLocation();
+  
+  // Determine the title based on current route or prop
+  const getTitle = () => {
+    if (title) return title;
+    
+    switch (location) {
+      case "/":
+        return "my plants";
+      case "/calendar":
+        return "calendar";
+      case "/tasks":
+        return "tasks";
+      case "/settings":
+        return "settings";
+      case "/add":
+        return "add plant";
+      case "/game":
+        return "LVS INDOOR JUNGLE";
+      default:
+        return "my plants";
+    }
+  };
+  
   return (
-    <header className="px-4 py-3 bg-primary flex items-center justify-between shadow-sm">
-      <Link href="/">
-        <a className="text-white font-semibold text-xl">Plant Care</a>
-      </Link>
-      <div className="flex space-x-2">
-        <button className="p-2 rounded-full bg-white bg-opacity-20 text-white">
-          <Search className="h-5 w-5" />
-        </button>
+    <header className="px-4 py-3 bg-green-600 flex items-center justify-between shadow-sm">
+      <div className="flex items-center">
+        <Menu className="h-6 w-6 text-white mr-3" />
+        <h1 className="text-white font-medium text-xl">{getTitle()}</h1>
+      </div>
+      <div className="flex space-x-3">
         <Link href="/add">
-          <a className="p-2 rounded-full bg-white bg-opacity-20 text-white">
+          <a className="text-white flex items-center">
+            <span className="mr-1">ADD PLANT</span>
             <Plus className="h-5 w-5" />
           </a>
         </Link>
