@@ -11,7 +11,8 @@ import gameRouter from "./gameRoutes";
 const upload = multer({
   storage: multer.diskStorage({
     destination: (req, file, cb) => {
-      const uploadDir = path.join(process.cwd(), "dist/public/uploads");
+      // Use public/uploads for static file serving
+      const uploadDir = path.join(process.cwd(), "public/uploads");
       
       // Create upload directory if it doesn't exist
       if (!fs.existsSync(uploadDir)) {
