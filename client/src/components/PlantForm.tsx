@@ -166,10 +166,12 @@ const PlantForm = ({ onSuccess, initialValues, plantId }: PlantFormProps) => {
 
   const onSubmit = async (data: FormValues) => {
     try {
+      console.log("Form submitted with data:", data);
       setIsSubmitting(true);
       
       // Determine if we're using multipart form or JSON
       if (selectedImage) {
+        console.log("Uploading with image...");
         // Using FormData for image upload
         const formData = new FormData();
         
@@ -188,16 +190,23 @@ const PlantForm = ({ onSuccess, initialValues, plantId }: PlantFormProps) => {
         
         // Make the API request
         const url = plantId ? `/api/plants/${plantId}` : '/api/plants';
+        console.log("Sending POST request to:", url);
         const response = await fetch(url, {
           method: plantId ? 'PATCH' : 'POST',
           body: formData,
         });
         
+        console.log("Response status:", response.status);
         if (!response.ok) {
           const errorData = await response.json();
+          console.error("Error response:", errorData);
           throw new Error(errorData.message || "Failed to save plant");
         }
+        
+        const result = await response.json();
+        console.log("Success response:", result);
       } else {
+        console.log("Uploading without image...");
         // Using JSON for submissions without image
         // Prepare data with backwards compatibility
         const jsonData = {
@@ -207,6 +216,9 @@ const PlantForm = ({ onSuccess, initialValues, plantId }: PlantFormProps) => {
         
         // Make the API request
         const url = plantId ? `/api/plants/${plantId}` : '/api/plants/json';
+        console.log("Sending POST request to:", url);
+        console.log("Request data:", jsonData);
+        
         const response = await fetch(url, {
           method: plantId ? 'PATCH' : 'POST',
           headers: {
@@ -215,10 +227,15 @@ const PlantForm = ({ onSuccess, initialValues, plantId }: PlantFormProps) => {
           body: JSON.stringify(jsonData),
         });
         
+        console.log("Response status:", response.status);
         if (!response.ok) {
           const errorData = await response.json();
+          console.error("Error response:", errorData);
           throw new Error(errorData.message || "Failed to save plant");
         }
+        
+        const result = await response.json();
+        console.log("Success response:", result);
       }
       
       // Show success message
@@ -252,6 +269,8 @@ const PlantForm = ({ onSuccess, initialValues, plantId }: PlantFormProps) => {
     }))
   ];
 
+  console.log("Form errors:", form.formState.errors);
+  
   return (
     <>
       <Form {...form}>
