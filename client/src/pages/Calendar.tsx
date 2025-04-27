@@ -112,17 +112,27 @@ const Calendar = () => {
                 <Card key={plant.id} className="overflow-hidden">
                   <div className="flex items-center p-3">
                     <div className="h-12 w-12 rounded-md overflow-hidden mr-3">
-                      <img 
-                        src={plant.imageUrl || "https://via.placeholder.com/48?text=Plant"} 
-                        alt={plant.name}
-                        className="h-full w-full object-cover"
-                      />
+                      <a href={`/plant/${plant.id}`}>
+                        <img 
+                          src={plant.imageUrl || "https://via.placeholder.com/48?text=Plant"} 
+                          alt={plant.name}
+                          className="h-full w-full object-cover"
+                        />
+                      </a>
                     </div>
                     <div className="flex-1">
-                      <h4 className="font-medium">{plant.name}</h4>
+                      <a href={`/plant/${plant.id}`} className="hover:underline">
+                        <h4 className="font-medium">{plant.name}</h4>
+                      </a>
                       <p className="text-sm text-neutral-dark">Check water levels</p>
                     </div>
-                    <div>
+                    <div className="flex space-x-2">
+                      <a 
+                        href={`/plant/${plant.id}`}
+                        className="text-sm bg-blue-500 text-white px-3 py-1 rounded-md"
+                      >
+                        Details
+                      </a>
                       <button 
                         className="text-sm bg-primary text-white px-3 py-1 rounded-md"
                         onClick={() => {
@@ -153,15 +163,27 @@ const Calendar = () => {
                 <Card key={plant.id} className="overflow-hidden">
                   <div className="flex items-center p-3">
                     <div className="h-12 w-12 rounded-md overflow-hidden mr-3">
-                      <img 
-                        src={plant.imageUrl || "https://via.placeholder.com/48?text=Plant"} 
-                        alt={plant.name}
-                        className="h-full w-full object-cover"
-                      />
+                      <a href={`/plant/${plant.id}`}>
+                        <img 
+                          src={plant.imageUrl || "https://via.placeholder.com/48?text=Plant"} 
+                          alt={plant.name}
+                          className="h-full w-full object-cover"
+                        />
+                      </a>
                     </div>
                     <div className="flex-1">
-                      <h4 className="font-medium">{plant.name}</h4>
+                      <a href={`/plant/${plant.id}`} className="hover:underline">
+                        <h4 className="font-medium">{plant.name}</h4>
+                      </a>
                       <p className="text-sm text-neutral-dark">Fertilizing day</p>
+                    </div>
+                    <div>
+                      <a 
+                        href={`/plant/${plant.id}`}
+                        className="text-sm bg-green-500 text-white px-3 py-1 rounded-md"
+                      >
+                        Details
+                      </a>
                     </div>
                   </div>
                 </Card>
