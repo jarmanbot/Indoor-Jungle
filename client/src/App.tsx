@@ -13,13 +13,17 @@ import Settings from "@/pages/Settings";
 import Navigation from "@/components/Navigation";
 import Header from "@/components/Header";
 // Import Game pages
+import Game from "@/pages/Game";
 import GameDashboard from "@/pages/Game/Dashboard";
 import GameMarketplace from "@/pages/Game/Marketplace";
+import GrowToEarn from "@/pages/GrowToEarn";
 
 function Router() {
   const [location] = useLocation();
   
   const isGameRoute = location.startsWith("/game");
+  const isGrowToEarnRoute = location.startsWith("/grow-to-earn");
+  const hideHeader = isGameRoute || isGrowToEarnRoute;
   
   // Get the current page title based on the route
   const getPageTitle = () => {
@@ -28,15 +32,15 @@ function Router() {
     if (location === "/calendar") return "calendar";
     if (location === "/tasks") return "tasks";
     if (location === "/settings") return "settings";
-    if (location === "/pic-list") return "pic list";
     if (location.startsWith("/plant/")) return "plant details";
     if (location.startsWith("/game")) return "LVS INDOOR JUNGLE";
+    if (location.startsWith("/grow-to-earn")) return "GROW TO EARN";
     return "";
   };
       
   return (
-    <div className={`${isGameRoute ? '' : 'max-w-md'} mx-auto bg-white min-h-screen shadow relative`}>
-      {!isGameRoute && <Header title={getPageTitle()} />}
+    <div className={`${isGameRoute || isGrowToEarnRoute ? '' : 'max-w-md'} mx-auto bg-white min-h-screen shadow relative`}>
+      {!hideHeader && <Header title={getPageTitle()} />}
       
       <Switch>
         <Route path="/" component={Home} />
@@ -46,13 +50,15 @@ function Router() {
         <Route path="/tasks" component={Tasks} />
         <Route path="/settings" component={Settings} />
         {/* Game routes */}
-        <Route path="/game" component={GameDashboard} />
+        <Route path="/game" component={Game} />
+        <Route path="/game/:level" component={Game} />
         <Route path="/game/marketplace" component={GameMarketplace} />
+        <Route path="/grow-to-earn" component={GrowToEarn} />
         <Route component={NotFound} />
       </Switch>
       
-      {/* Only show navigation on main app pages */}
-      {!location.includes("/add") && !isGameRoute && <Navigation />}
+      {/* Show navigation on all pages except add and edit */}
+      {!location.includes("/add") && <Navigation />}
     </div>
   );
 }
