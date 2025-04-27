@@ -16,6 +16,7 @@ import Header from "@/components/Header";
 import Game from "@/pages/Game";
 import GameDashboard from "@/pages/Game/Dashboard";
 import GameMarketplace from "@/pages/Game/Marketplace";
+import LevelDetail from "@/pages/Game/LevelDetail";
 import GrowToEarn from "@/pages/GrowToEarn";
 
 function Router() {
@@ -51,6 +52,7 @@ function Router() {
         <Route path="/settings" component={Settings} />
         {/* Game routes */}
         <Route path="/game" component={Game} />
+        <Route path="/game/level/:level" component={LevelDetail} />
         <Route path="/game/:level" component={Game} />
         <Route path="/game/marketplace" component={GameMarketplace} />
         <Route path="/grow-to-earn" component={GrowToEarn} />

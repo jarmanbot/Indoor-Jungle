@@ -232,27 +232,30 @@ export default function Game() {
                 <div>
                   <h3 className="text-sm font-medium mb-1">Property Features</h3>
                   <p className="text-sm text-gray-500">
-                    {level === 'apartment' && 'Small space with limited sunlight. Good for beginners.'}
-                    {level === 'condo' && 'Modern space with better lighting and room for more plants.'}
-                    {level === 'house' && 'Spacious environment with multiple rooms for different plants.'}
-                    {level === 'mars' && 'Advanced hydroponics and specialized grow lights for exotic species.'}
-                    {level === 'europa' && 'State-of-the-art environmental controls and unlimited space for plants.'}
+                    {gameLevels.find(l => l.id === level)?.details || 
+                     'A unique environment for growing plants with special properties.'}
                   </p>
                 </div>
                 
-                {level !== 'europa' && (
-                  <div>
-                    <h3 className="text-sm font-medium mb-1">Next Upgrade</h3>
-                    <p className="text-sm text-gray-500">
-                      Save up {gameLevels.find((l, i) => i > gameLevels.findIndex(gl => gl.id === level))?.requiredTokens} LVS tokens to unlock the next level.
-                    </p>
-                  </div>
-                )}
+                <div>
+                  <h3 className="text-sm font-medium mb-1">Plant Capacity</h3>
+                  <p className="text-sm text-gray-500">
+                    This property can support up to {gameLevels.find(l => l.id === level)?.maxPlants || 5} plants.
+                  </p>
+                </div>
+                
+                <div className="pt-2">
+                  <Link href={`/game/level/${level}`}>
+                    <Button className="w-full" variant="outline">
+                      View Level Details
+                    </Button>
+                  </Link>
+                </div>
               </div>
             </CardContent>
             <CardFooter>
-              <Button className="w-full" disabled={level === 'europa'}>
-                {level === 'europa' ? 'Maximum Level Reached' : 'Upgrade Property (Coming Soon)'}
+              <Button className="w-full" disabled>
+                Upgrade Property (Coming Soon)
               </Button>
             </CardFooter>
           </Card>
