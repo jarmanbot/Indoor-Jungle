@@ -6,29 +6,21 @@ const Navigation = () => {
 
   return (
     <nav className="flex justify-around border-t border-gray-200 fixed bottom-0 w-full max-w-md bg-white z-10">
-      <Link href="/">
-        <a className="nav-item flex flex-col items-center py-2 px-4 flex-1">
-          <Leaf className={`h-6 w-6 ${location === "/" ? "text-green-600" : "text-gray-500"}`} />
-          <span className="text-xs mt-1 text-gray-600">my plants</span>
-        </a>
+      <Link href="/" className="nav-item flex flex-col items-center py-2 px-4 flex-1">
+        <Leaf className={`h-6 w-6 ${location === "/" ? "text-green-600" : "text-gray-500"}`} />
+        <span className="text-xs mt-1 text-gray-600">my plants</span>
       </Link>
-      <Link href="/calendar">
-        <a className="nav-item flex flex-col items-center py-2 px-4 flex-1">
-          <CalendarRange className={`h-6 w-6 ${location === "/calendar" ? "text-green-600" : "text-gray-500"}`} />
-          <span className="text-xs mt-1 text-gray-600">calendar</span>
-        </a>
+      <Link href="/calendar" className="nav-item flex flex-col items-center py-2 px-4 flex-1">
+        <CalendarRange className={`h-6 w-6 ${location === "/calendar" ? "text-green-600" : "text-gray-500"}`} />
+        <span className="text-xs mt-1 text-gray-600">calendar</span>
       </Link>
-      <Link href="/game">
-        <a className="nav-item flex flex-col items-center py-2 px-4 flex-1">
-          <Gamepad2 className={`h-6 w-6 ${location === "/game" || location.startsWith("/game/") ? "text-green-600" : "text-gray-500"}`} />
-          <span className="text-xs mt-1 text-gray-600">game-fi</span>
-        </a>
+      <Link href="/game" className="nav-item flex flex-col items-center py-2 px-4 flex-1">
+        <Gamepad2 className={`h-6 w-6 ${location === "/game" || location.startsWith("/game/") ? "text-green-600" : "text-gray-500"}`} />
+        <span className="text-xs mt-1 text-gray-600">game-fi</span>
       </Link>
-      <Link href="/grow-to-earn">
-        <a className="nav-item flex flex-col items-center py-2 px-4 flex-1">
-          <Sprout className={`h-6 w-6 ${location === "/grow-to-earn" ? "text-green-600" : "text-gray-500"}`} />
-          <span className="text-xs mt-1 text-gray-600">grow to earn</span>
-        </a>
+      <Link href="/grow-to-earn" className="nav-item flex flex-col items-center py-2 px-4 flex-1">
+        <Sprout className={`h-6 w-6 ${location === "/grow-to-earn" ? "text-green-600" : "text-gray-500"}`} />
+        <span className="text-xs mt-1 text-gray-600">grow to earn</span>
       </Link>
     </nav>
   );

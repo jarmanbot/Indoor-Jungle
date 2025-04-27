@@ -14,66 +14,50 @@ const Home = () => {
     <div className="pb-20"> {/* Add padding for the fixed navigation */}
       {/* Tab navigation under header */}
       <div className="grid grid-cols-5 bg-green-600 py-2 border-t border-green-700">
-        <Link href="/">
-          <a className="flex flex-col items-center">
-            <Leaf className="h-5 w-5 text-white" />
-            <span className="text-xs text-white">my plants</span>
-          </a>
+        <Link href="/" className="flex flex-col items-center">
+          <Leaf className="h-5 w-5 text-white" />
+          <span className="text-xs text-white">my plants</span>
         </Link>
-        <Link href="/pic-list">
-          <a className="flex flex-col items-center">
-            <ImageIcon className="h-5 w-5 text-white" />
-            <span className="text-xs text-white">pic list</span>
-          </a>
+        <Link href="/pic-list" className="flex flex-col items-center">
+          <ImageIcon className="h-5 w-5 text-white" />
+          <span className="text-xs text-white">pic list</span>
         </Link>
-        <Link href="/missed">
-          <a className="flex flex-col items-center">
-            <span className="h-5 w-5 text-white flex items-center justify-center">
-              <span className="block w-2 h-2 bg-white rounded-full"></span>
-            </span>
-            <span className="text-xs text-white">missed</span>
-          </a>
+        <Link href="/missed" className="flex flex-col items-center">
+          <span className="h-5 w-5 text-white flex items-center justify-center">
+            <span className="block w-2 h-2 bg-white rounded-full"></span>
+          </span>
+          <span className="text-xs text-white">missed</span>
         </Link>
-        <Link href="/calendar">
-          <a className="flex flex-col items-center">
-            <CalendarRange className="h-5 w-5 text-white" />
-            <span className="text-xs text-white">calendar</span>
-          </a>
+        <Link href="/calendar" className="flex flex-col items-center">
+          <CalendarRange className="h-5 w-5 text-white" />
+          <span className="text-xs text-white">calendar</span>
         </Link>
-        <Link href="/website">
-          <a className="flex flex-col items-center">
-            <span className="h-5 w-5 text-white flex items-center justify-center text-xs font-bold">
-              www
-            </span>
-            <span className="text-xs text-white">website</span>
-          </a>
+        <Link href="/website" className="flex flex-col items-center">
+          <span className="h-5 w-5 text-white flex items-center justify-center text-xs font-bold">
+            www
+          </span>
+          <span className="text-xs text-white">website</span>
         </Link>
       </div>
       
       {/* Action buttons */}
       <div className="flex justify-end p-2 bg-white border-b border-gray-200">
-        <Link href="/add">
-          <a className="text-green-600 text-sm px-2 py-1 mr-2 flex items-center">
-            <span>ADD PLANT</span>
-            <Plus className="h-4 w-4 ml-1" />
-          </a>
+        <Link href="/add" className="text-green-600 text-sm px-2 py-1 mr-2 flex items-center">
+          <span>ADD PLANT</span>
+          <Plus className="h-4 w-4 ml-1" />
         </Link>
-        <Link href="/plant-details">
-          <a className="text-green-600 text-sm px-2 py-1 flex items-center">
-            <span>EDIT DETAIL</span>
-          </a>
+        <Link href="/plant-details" className="text-green-600 text-sm px-2 py-1 flex items-center">
+          <span>EDIT DETAIL</span>
         </Link>
-        <a className="text-green-600 text-sm px-2 py-1 flex items-center">
+        <button className="text-green-600 text-sm px-2 py-1 flex items-center">
           <span>PLANT CARE CLICK PIC</span>
-        </a>
+        </button>
       </div>
       
       <div className="flex justify-between items-center bg-white p-2 border-b border-gray-200">
         <h2 className="font-bold text-gray-800 text-lg">my plants</h2>
-        <Link href="/add">
-          <a className="bg-green-600 rounded-full w-7 h-7 flex items-center justify-center">
-            <Plus className="h-5 w-5 text-white" />
-          </a>
+        <Link href="/add" className="bg-green-600 rounded-full w-7 h-7 flex items-center justify-center">
+          <Plus className="h-5 w-5 text-white" />
         </Link>
       </div>
       
@@ -108,10 +92,8 @@ const Home = () => {
             </div>
             <h3 className="text-lg font-medium text-gray-800 mb-2">No plants yet</h3>
             <p className="text-gray-600 mb-4">Start adding plants to your collection</p>
-            <Link href="/add">
-              <a className="bg-green-600 text-white px-4 py-2 rounded-md font-medium">
-                Add Your First Plant
-              </a>
+            <Link href="/add" className="bg-green-600 text-white px-4 py-2 rounded-md font-medium inline-block">
+              Add Your First Plant
             </Link>
           </div>
         )}

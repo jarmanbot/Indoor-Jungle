@@ -24,38 +24,36 @@ const PlantCard = ({ plant }: PlantCardProps) => {
   
   return (
     <div className="relative bg-white border-b border-gray-200 py-2 pl-3 pr-2 flex items-center">
-      <Link href={`/plant/${plant.id}`}>
-        <a className="flex flex-1">
-          {/* Plant Image */}
-          <div className="w-16 h-16 mr-3 rounded-md overflow-hidden flex-shrink-0">
-            <img 
-              src={plant.imageUrl || "https://via.placeholder.com/100x100?text=No+Image"} 
-              alt={plant.babyName} 
-              className="w-full h-full object-cover"
-            />
+      <Link href={`/plant/${plant.id}`} className="flex flex-1">
+        {/* Plant Image */}
+        <div className="w-16 h-16 mr-3 rounded-md overflow-hidden flex-shrink-0">
+          <img 
+            src={plant.imageUrl || "https://via.placeholder.com/100x100?text=No+Image"} 
+            alt={plant.babyName} 
+            className="w-full h-full object-cover"
+          />
+        </div>
+        
+        {/* Plant Information */}
+        <div className="flex-1">
+          <div className="flex items-center">
+            <span className="bg-green-600 text-white text-xs font-medium rounded-full px-2 py-0.5 mr-2">
+              {plant.plantNumber || "?"}
+            </span>
+            <h3 className="font-bold text-gray-900">{plant.babyName}</h3>
           </div>
-          
-          {/* Plant Information */}
-          <div className="flex-1">
-            <div className="flex items-center">
-              <span className="bg-green-600 text-white text-xs font-medium rounded-full px-2 py-0.5 mr-2">
-                {plant.plantNumber || "?"}
-              </span>
-              <h3 className="font-bold text-gray-900">{plant.babyName}</h3>
-            </div>
-            <div className="text-sm text-gray-600">
-              {plant.commonName || plant.latinName || "Unknown species"}
-            </div>
-            {plant.latinName && (
-              <div className="text-xs italic text-gray-500">{plant.latinName}</div>
-            )}
-            {plant.location && (
-              <div className="text-xs text-gray-500 mt-1">
-                {formatLocation(plant.location)}
-              </div>
-            )}
+          <div className="text-sm text-gray-600">
+            {plant.commonName || plant.latinName || "Unknown species"}
           </div>
-        </a>
+          {plant.latinName && (
+            <div className="text-xs italic text-gray-500">{plant.latinName}</div>
+          )}
+          {plant.location && (
+            <div className="text-xs text-gray-500 mt-1">
+              {formatLocation(plant.location)}
+            </div>
+          )}
+        </div>
       </Link>
       
       {/* More button */}
