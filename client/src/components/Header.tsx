@@ -38,11 +38,9 @@ const Header = ({ title }: HeaderProps) => {
         <h1 className="text-white font-medium text-xl">{getTitle()}</h1>
       </div>
       <div className="flex space-x-3">
-        <Link href="/add">
-          <a className="text-white flex items-center">
-            <span className="mr-1">ADD PLANT</span>
-            <Plus className="h-5 w-5" />
-          </a>
+        <Link href="/add" className="text-white flex items-center">
+          <span className="mr-1">ADD PLANT</span>
+          <Plus className="h-5 w-5" />
         </Link>
       </div>
     </header>

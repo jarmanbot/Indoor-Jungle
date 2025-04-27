@@ -245,7 +245,11 @@ export default function Game() {
                 </div>
                 
                 <div className="pt-2">
-                  <Link href={`/game/level/${level}`}>
+                  <Link href={`/game/level/${level === 'apartment' ? '1' : 
+                               level === 'condo' ? '2' : 
+                               level === 'house' ? '3' : 
+                               level === 'mars' ? '9' : 
+                               level === 'europa' ? '10' : '1'}`}>
                     <Button className="w-full" variant="outline">
                       View Level Details
                     </Button>

@@ -148,10 +148,14 @@ const gameLevels = [
 
 export default function LevelDetail() {
   const { level } = useParams();
-  const currentLevel = gameLevels.find(l => l.id === level) || gameLevels[0];
+  // Construct the level ID format (level1, level2, etc.)
+  const levelId = `level${level}`;
+  
+  // Find the current level
+  const currentLevel = gameLevels.find(l => l.id === levelId) || gameLevels[0];
   
   // Find next level
-  const currentIndex = gameLevels.findIndex(l => l.id === level);
+  const currentIndex = gameLevels.findIndex(l => l.id === levelId);
   const nextLevel = currentIndex < gameLevels.length - 1 ? gameLevels[currentIndex + 1] : null;
   
   return (
