@@ -18,9 +18,6 @@ const Home = () => {
           <span>ADD PLANT</span>
           <Plus className="h-4 w-4 ml-1" />
         </Link>
-        <Link href="/plant-details" className="text-green-600 text-sm px-2 py-1 flex items-center">
-          <span>EDIT DETAIL</span>
-        </Link>
         <button className="text-green-600 text-sm px-2 py-1 flex items-center">
           <span>PLANT CARE CLICK PIC</span>
         </button>

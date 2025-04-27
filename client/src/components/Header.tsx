@@ -33,10 +33,7 @@ const Header = ({ title }: HeaderProps) => {
   
   return (
     <header className="px-4 py-3 bg-green-600 flex items-center justify-between shadow-sm">
-      <div className="flex items-center">
-        <Menu className="h-6 w-6 text-white mr-3" />
-        <h1 className="text-white font-medium text-xl">{getTitle()}</h1>
-      </div>
+      <h1 className="text-white font-medium text-xl">INDOOR JUNGLE</h1>
       <div className="flex space-x-3">
         <Link href="/add" className="text-white flex items-center">
           <span className="mr-1">ADD PLANT</span>
