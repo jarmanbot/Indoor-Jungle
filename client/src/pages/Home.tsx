@@ -1,11 +1,9 @@
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "wouter";
 import PlantCard from "@/components/PlantCard";
-import FilterBar from "@/components/FilterBar";
 import { Plant } from "@shared/schema";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Plus, Gamepad2 } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Plus, Leaf, CalendarRange, ImageIcon } from "lucide-react";
 
 const Home = () => {
   const { data: plants, isLoading, error } = useQuery<Plant[]>({
@@ -13,25 +11,82 @@ const Home = () => {
   });
 
   return (
-    <div className="pb-16"> {/* Add padding for the fixed navigation */}
-      <FilterBar title="My Plants" />
+    <div className="pb-20"> {/* Add padding for the fixed navigation */}
+      {/* Tab navigation under header */}
+      <div className="grid grid-cols-5 bg-green-600 py-2 border-t border-green-700">
+        <Link href="/">
+          <a className="flex flex-col items-center">
+            <Leaf className="h-5 w-5 text-white" />
+            <span className="text-xs text-white">my plants</span>
+          </a>
+        </Link>
+        <Link href="/pic-list">
+          <a className="flex flex-col items-center">
+            <ImageIcon className="h-5 w-5 text-white" />
+            <span className="text-xs text-white">pic list</span>
+          </a>
+        </Link>
+        <Link href="/missed">
+          <a className="flex flex-col items-center">
+            <span className="h-5 w-5 text-white flex items-center justify-center">
+              <span className="block w-2 h-2 bg-white rounded-full"></span>
+            </span>
+            <span className="text-xs text-white">missed</span>
+          </a>
+        </Link>
+        <Link href="/calendar">
+          <a className="flex flex-col items-center">
+            <CalendarRange className="h-5 w-5 text-white" />
+            <span className="text-xs text-white">calendar</span>
+          </a>
+        </Link>
+        <Link href="/website">
+          <a className="flex flex-col items-center">
+            <span className="h-5 w-5 text-white flex items-center justify-center text-xs font-bold">
+              www
+            </span>
+            <span className="text-xs text-white">website</span>
+          </a>
+        </Link>
+      </div>
       
-      <div className="plant-list p-4">
+      {/* Action buttons */}
+      <div className="flex justify-end p-2 bg-white border-b border-gray-200">
+        <Link href="/add">
+          <a className="text-green-600 text-sm px-2 py-1 mr-2 flex items-center">
+            <span>ADD PLANT</span>
+            <Plus className="h-4 w-4 ml-1" />
+          </a>
+        </Link>
+        <Link href="/plant-details">
+          <a className="text-green-600 text-sm px-2 py-1 flex items-center">
+            <span>EDIT DETAIL</span>
+          </a>
+        </Link>
+        <a className="text-green-600 text-sm px-2 py-1 flex items-center">
+          <span>PLANT CARE CLICK PIC</span>
+        </a>
+      </div>
+      
+      <div className="flex justify-between items-center bg-white p-2 border-b border-gray-200">
+        <h2 className="font-bold text-gray-800 text-lg">my plants</h2>
+        <Link href="/add">
+          <a className="bg-green-600 rounded-full w-7 h-7 flex items-center justify-center">
+            <Plus className="h-5 w-5 text-white" />
+          </a>
+        </Link>
+      </div>
+      
+      <div className="plant-list">
         {isLoading ? (
           // Loading state
           Array(3).fill(0).map((_, i) => (
-            <div key={i} className="bg-white rounded-lg shadow-sm mb-4 overflow-hidden">
-              <Skeleton className="w-full h-48" />
-              <div className="p-4">
-                <div className="flex justify-between items-start">
-                  <Skeleton className="h-6 w-2/3" />
-                  <Skeleton className="h-4 w-1/4" />
-                </div>
-                <div className="mt-4 grid grid-cols-2 gap-3">
-                  {Array(4).fill(0).map((_, j) => (
-                    <Skeleton key={j} className="h-20 w-full" />
-                  ))}
-                </div>
+            <div key={i} className="relative bg-white border-b border-gray-200 py-2 pl-3 pr-2 flex items-center">
+              <Skeleton className="w-16 h-16 mr-3 rounded-md" />
+              <div className="flex-1">
+                <Skeleton className="h-4 w-24 mb-2" />
+                <Skeleton className="h-3 w-32 mb-1" />
+                <Skeleton className="h-3 w-20" />
               </div>
             </div>
           ))
@@ -48,34 +103,18 @@ const Home = () => {
         ) : (
           // Empty state
           <div className="text-center py-8">
-            <div className="bg-neutral-light w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
-              <svg className="h-8 w-8 text-neutral-dark" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-              </svg>
+            <div className="bg-gray-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+              <Plus className="h-8 w-8 text-gray-500" />
             </div>
-            <h3 className="text-lg font-medium text-neutral-darkest mb-2">No plants yet</h3>
-            <p className="text-neutral-dark mb-4">Start adding plants to your collection</p>
+            <h3 className="text-lg font-medium text-gray-800 mb-2">No plants yet</h3>
+            <p className="text-gray-600 mb-4">Start adding plants to your collection</p>
             <Link href="/add">
-              <Button>Add Your First Plant</Button>
+              <a className="bg-green-600 text-white px-4 py-2 rounded-md font-medium">
+                Add Your First Plant
+              </a>
             </Link>
           </div>
         )}
-      </div>
-      
-      {/* Floating Action Buttons */}
-      <div className="fixed bottom-20 z-10 flex gap-4" style={{ left: '50%', transform: 'translateX(-50%)', maxWidth: '448px' }}>
-        <Link href="/game">
-          <button className="bg-amber-500 hover:bg-amber-600 text-white rounded-full p-4 shadow-lg flex items-center justify-center transition-colors duration-300">
-            <Gamepad2 className="h-6 w-6" />
-            <span className="ml-2 font-medium">Indoor Jungle</span>
-          </button>
-        </Link>
-        <Link href="/add">
-          <button className="bg-primary hover:bg-primary-dark text-white rounded-full p-4 shadow-lg flex items-center justify-center transition-colors duration-300">
-            <Plus className="h-6 w-6" />
-            <span className="ml-2 font-medium">Add Plant</span>
-          </button>
-        </Link>
       </div>
     </div>
   );

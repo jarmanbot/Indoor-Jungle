@@ -20,10 +20,23 @@ function Router() {
   const [location] = useLocation();
   
   const isGameRoute = location.startsWith("/game");
+  
+  // Get the current page title based on the route
+  const getPageTitle = () => {
+    if (location === "/") return "my plants";
+    if (location === "/add") return "add plant";
+    if (location === "/calendar") return "calendar";
+    if (location === "/tasks") return "tasks";
+    if (location === "/settings") return "settings";
+    if (location === "/pic-list") return "pic list";
+    if (location.startsWith("/plant/")) return "plant details";
+    if (location.startsWith("/game")) return "LVS INDOOR JUNGLE";
+    return "";
+  };
       
   return (
-    <div className={`${isGameRoute ? '' : 'max-w-md'} mx-auto bg-neutral-lightest min-h-screen shadow-sm`}>
-      {!isGameRoute && <Header />}
+    <div className={`${isGameRoute ? '' : 'max-w-md'} mx-auto bg-white min-h-screen shadow relative`}>
+      {!isGameRoute && <Header title={getPageTitle()} />}
       
       <Switch>
         <Route path="/" component={Home} />

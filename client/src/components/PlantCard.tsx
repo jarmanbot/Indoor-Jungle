@@ -1,6 +1,6 @@
 import { Link } from "wouter";
 import { format } from "date-fns";
-import { MoreVertical, Droplet, Clock, Package, MapPin, Hash } from "lucide-react";
+import { MoreVertical } from "lucide-react";
 import { Plant, PlantStatus } from "@shared/schema";
 
 interface PlantCardProps {
@@ -8,22 +8,6 @@ interface PlantCardProps {
 }
 
 const PlantCard = ({ plant }: PlantCardProps) => {
-  // Determine plant status indicator
-  const getStatusInfo = () => {
-    switch (plant.status) {
-      case PlantStatus.HEALTHY:
-        return { class: "status-good", text: "Healthy" };
-      case PlantStatus.CHECK_SOON:
-        return { class: "status-warning", text: "Check soon" };
-      case PlantStatus.NEEDS_WATER:
-        return { class: "status-alert", text: "Needs water" };
-      default:
-        return { class: "status-good", text: "Healthy" };
-    }
-  };
-
-  const statusInfo = getStatusInfo();
-  
   // Format dates for display
   const formatDate = (date: Date | null | undefined) => {
     if (!date) return "Not set";
@@ -39,69 +23,45 @@ const PlantCard = ({ plant }: PlantCardProps) => {
   };
   
   return (
-    <div className="bg-white rounded-lg shadow-sm mb-4 overflow-hidden">
-      <div className="relative">
-        <img 
-          src={plant.imageUrl || "https://via.placeholder.com/400x250?text=No+Image"} 
-          alt={plant.babyName} 
-          className="w-full h-48 object-cover"
-        />
-        <div className="absolute top-3 right-3 bg-white rounded-full p-1 shadow">
-          <MoreVertical className="h-5 w-5 text-neutral-dark" />
-        </div>
-        {plant.plantNumber && (
-          <div className="absolute top-3 left-3 bg-primary text-white rounded-full px-2 py-1 shadow text-sm font-bold flex items-center">
-            <Hash className="h-3 w-3 mr-0.5" />
-            {plant.plantNumber}
+    <div className="relative bg-white border-b border-gray-200 py-2 pl-3 pr-2 flex items-center">
+      <Link href={`/plant/${plant.id}`}>
+        <a className="flex flex-1">
+          {/* Plant Image */}
+          <div className="w-16 h-16 mr-3 rounded-md overflow-hidden flex-shrink-0">
+            <img 
+              src={plant.imageUrl || "https://via.placeholder.com/100x100?text=No+Image"} 
+              alt={plant.babyName} 
+              className="w-full h-full object-cover"
+            />
           </div>
-        )}
-      </div>
-      <div className="p-4">
-        <div className="flex justify-between mb-1">
-          <div>
-            <Link href={`/plant/${plant.id}`}>
-              <a className="text-lg font-semibold">{plant.babyName}</a>
-            </Link>
-            <div className="text-sm text-gray-600">{plant.commonName}</div>
-            {plant.latinName && <div className="text-xs italic text-gray-500">{plant.latinName}</div>}
-          </div>
-          <div className="flex items-center">
-            <span className={`plant-status-indicator ${statusInfo.class}`}></span>
-            <span className="text-xs text-neutral-dark">{statusInfo.text}</span>
-          </div>
-        </div>
-        
-        <div className="mt-4 grid grid-cols-2 gap-3">
-          <div className="bg-neutral-light rounded-md p-2">
-            <div className="text-xs text-neutral-dark mb-1">Last Watered</div>
+          
+          {/* Plant Information */}
+          <div className="flex-1">
             <div className="flex items-center">
-              <Droplet className="h-4 w-4 text-secondary mr-1" />
-              <span className="font-medium text-sm">{formatDate(plant.lastWatered)}</span>
+              <span className="bg-green-600 text-white text-xs font-medium rounded-full px-2 py-0.5 mr-2">
+                {plant.plantNumber || "?"}
+              </span>
+              <h3 className="font-bold text-gray-900">{plant.babyName}</h3>
             </div>
-          </div>
-          <div className="bg-neutral-light rounded-md p-2">
-            <div className="text-xs text-neutral-dark mb-1">Next Check</div>
-            <div className="flex items-center">
-              <Clock className="h-4 w-4 text-warning mr-1" />
-              <span className="font-medium text-sm">{formatDate(plant.nextCheck)}</span>
+            <div className="text-sm text-gray-600">
+              {plant.commonName || plant.latinName || "Unknown species"}
             </div>
+            {plant.latinName && (
+              <div className="text-xs italic text-gray-500">{plant.latinName}</div>
+            )}
+            {plant.location && (
+              <div className="text-xs text-gray-500 mt-1">
+                {formatLocation(plant.location)}
+              </div>
+            )}
           </div>
-          <div className="bg-neutral-light rounded-md p-2">
-            <div className="text-xs text-neutral-dark mb-1">Last Fed</div>
-            <div className="flex items-center">
-              <Package className="h-4 w-4 text-success mr-1" />
-              <span className="font-medium text-sm">{formatDate(plant.lastFed)}</span>
-            </div>
-          </div>
-          <div className="bg-neutral-light rounded-md p-2">
-            <div className="text-xs text-neutral-dark mb-1">Location</div>
-            <div className="flex items-center">
-              <MapPin className="h-4 w-4 text-primary mr-1" />
-              <span className="font-medium text-sm">{formatLocation(plant.location)}</span>
-            </div>
-          </div>
-        </div>
-      </div>
+        </a>
+      </Link>
+      
+      {/* More button */}
+      <button className="p-2 text-gray-500">
+        <MoreVertical className="h-5 w-5" />
+      </button>
     </div>
   );
 };
