@@ -2,12 +2,19 @@ import {
   users, 
   plants, 
   customLocations, 
+  wateringLogs,
+  feedingLogs,
+  PlantStatus,
   type User, 
   type InsertUser, 
   type Plant, 
   type InsertPlant,
   type CustomLocation,
-  type InsertCustomLocation
+  type InsertCustomLocation,
+  type WateringLog,
+  type InsertWateringLog,
+  type FeedingLog,
+  type InsertFeedingLog
 } from "@shared/schema";
 import { db, runMigrations } from "./db";
 import { eq, max, desc, sql, and, like, asc } from "drizzle-orm";

@@ -1,7 +1,12 @@
 import express, { type Express, Request, Response } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { insertPlantSchema, insertCustomLocationSchema } from "@shared/schema";
+import { 
+  insertPlantSchema, 
+  insertCustomLocationSchema,
+  insertWateringLogSchema,
+  insertFeedingLogSchema 
+} from "@shared/schema";
 import multer from "multer";
 import path from "path";
 import fs from "fs";
@@ -306,6 +311,104 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error deleting custom location:", error);
       res.status(500).json({ message: "Error deleting custom location" });
+    }
+  });
+
+  // -------------------- Plant Care Logs API Routes --------------------
+
+  // Get watering logs for a plant
+  app.get("/api/plants/:id/watering-logs", async (req: Request, res: Response) => {
+    try {
+      const plantId = parseInt(req.params.id);
+      if (isNaN(plantId)) {
+        return res.status(400).json({ message: "Invalid plant ID" });
+      }
+
+      const logs = await storage.getWateringLogs(plantId);
+      res.json(logs);
+    } catch (error) {
+      console.error("Error fetching watering logs:", error);
+      res.status(500).json({ message: "Error fetching watering logs" });
+    }
+  });
+
+  // Add a watering log
+  app.post("/api/plants/:id/watering-logs", express.json(), async (req: Request, res: Response) => {
+    try {
+      const plantId = parseInt(req.params.id);
+      if (isNaN(plantId)) {
+        return res.status(400).json({ message: "Invalid plant ID" });
+      }
+
+      // Combine request data with plant ID
+      const logData = {
+        ...req.body,
+        plantId
+      };
+
+      // Validate log data
+      const result = insertWateringLogSchema.safeParse(logData);
+      if (!result.success) {
+        console.error("Validation errors:", result.error.errors);
+        return res.status(400).json({ 
+          message: "Invalid watering log data", 
+          errors: result.error.errors 
+        });
+      }
+
+      const newLog = await storage.addWateringLog(result.data);
+      res.status(201).json(newLog);
+    } catch (error) {
+      console.error("Error adding watering log:", error);
+      res.status(500).json({ message: "Error adding watering log" });
+    }
+  });
+
+  // Get feeding logs for a plant
+  app.get("/api/plants/:id/feeding-logs", async (req: Request, res: Response) => {
+    try {
+      const plantId = parseInt(req.params.id);
+      if (isNaN(plantId)) {
+        return res.status(400).json({ message: "Invalid plant ID" });
+      }
+
+      const logs = await storage.getFeedingLogs(plantId);
+      res.json(logs);
+    } catch (error) {
+      console.error("Error fetching feeding logs:", error);
+      res.status(500).json({ message: "Error fetching feeding logs" });
+    }
+  });
+
+  // Add a feeding log
+  app.post("/api/plants/:id/feeding-logs", express.json(), async (req: Request, res: Response) => {
+    try {
+      const plantId = parseInt(req.params.id);
+      if (isNaN(plantId)) {
+        return res.status(400).json({ message: "Invalid plant ID" });
+      }
+
+      // Combine request data with plant ID
+      const logData = {
+        ...req.body,
+        plantId
+      };
+
+      // Validate log data
+      const result = insertFeedingLogSchema.safeParse(logData);
+      if (!result.success) {
+        console.error("Validation errors:", result.error.errors);
+        return res.status(400).json({ 
+          message: "Invalid feeding log data", 
+          errors: result.error.errors 
+        });
+      }
+
+      const newLog = await storage.addFeedingLog(result.data);
+      res.status(201).json(newLog);
+    } catch (error) {
+      console.error("Error adding feeding log:", error);
+      res.status(500).json({ message: "Error adding feeding log" });
     }
   });
 
