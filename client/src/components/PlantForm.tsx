@@ -37,10 +37,17 @@ import ImageUpload from "./ImageUpload";
 import { PlusCircle } from "lucide-react";
 
 // Create a more robust form schema with validation
+// First, extend the schema with required fields
 const formSchema = insertPlantSchema.extend({
   babyName: z.string().min(1, "Baby name is required"),
   commonName: z.string().min(1, "Common name is required"),
   location: z.string().min(1, "Location is required"),
+})
+// Then explicitly make plantNumber and name optional since they're auto-generated
+.omit({ plantNumber: true, name: true })
+.extend({
+  plantNumber: z.number().optional(),
+  name: z.string().optional()
 });
 
 type FormValues = z.infer<typeof formSchema>;
