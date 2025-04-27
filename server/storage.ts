@@ -126,26 +126,26 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getNextPlantNumber(): Promise<number> {
-    // First check if there are any gaps in the number sequence
-    const allPlants = await db.select({ num: plants.plantNumber }).from(plants).orderBy(plants.plantNumber);
+    // Get all plants ordered by their current number
+    const allPlants = await db.select().from(plants).orderBy(plants.plantNumber);
     
     // If there are no plants yet, start with 1
     if (allPlants.length === 0) {
       return 1;
     }
-    
-    // Find the first gap in the sequence
-    let previousNum = 0;
-    for (const plant of allPlants) {
-      if (plant.num > previousNum + 1) {
-        // Found a gap, return the first missing number
-        return previousNum + 1;
+
+    // Reassign all numbers sequentially
+    for (let i = 0; i < allPlants.length; i++) {
+      const expectedNumber = i + 1;
+      if (allPlants[i].plantNumber !== expectedNumber) {
+        await db.update(plants)
+          .set({ plantNumber: expectedNumber })
+          .where(eq(plants.id, allPlants[i].id));
       }
-      previousNum = plant.num;
     }
     
-    // No gaps found, return next number in sequence
-    return previousNum + 1;
+    // Return next number in sequence
+    return allPlants.length + 1;
   }
   
   // -------------------- Location Methods --------------------
