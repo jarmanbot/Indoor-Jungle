@@ -14,10 +14,6 @@ const Home = () => {
     <div className="pb-20"> {/* Add padding for the fixed navigation */}
       {/* Action buttons */}
       <div className="flex justify-end p-2 bg-white border-b border-gray-200">
-        <Link href="/add" className="text-green-600 text-sm px-2 py-1 mr-2 flex items-center">
-          <span>ADD PLANT</span>
-          <Plus className="h-4 w-4 ml-1" />
-        </Link>
         <button className="text-green-600 text-sm px-2 py-1 flex items-center">
           <span>PLANT CARE CLICK PIC</span>
         </button>
