@@ -90,7 +90,7 @@ export class DatabaseStorage implements IStorage {
   // -------------------- Plant Methods --------------------
   
   async getPlants(): Promise<Plant[]> {
-    return db.select().from(plants).orderBy(desc(plants.createdAt));
+    return db.select().from(plants).orderBy(asc(plants.plantNumber));
   }
   
   async searchPlants(query: string): Promise<Plant[]> {
