@@ -12,17 +12,25 @@ const Home = () => {
 
   return (
     <div className="pb-20"> {/* Add padding for the fixed navigation */}
-      <div className="flex justify-between items-center bg-white p-4 border-b border-gray-200">
-        <h2 className="font-bold text-gray-800 text-xl">my indoor jungle</h2>
-        <div className="flex items-center gap-4">
-          <Link href="/add" className="text-green-600 text-sm px-2 py-1 flex items-center">
-            <span>ADD PLANT</span>
-            <Plus className="h-4 w-4 ml-1" />
-          </Link>
-          <button className="text-green-600 text-sm px-2 py-1 flex items-center">
-            <span>PLANT CARE CLICK PIC</span>
-          </button>
-        </div>
+      {/* Action buttons */}
+      <div className="flex justify-end p-2 bg-white border-b border-gray-200">
+        <Link href="/add" className="text-green-600 text-sm px-2 py-1 mr-2 flex items-center">
+          <span>ADD PLANT</span>
+          <Plus className="h-4 w-4 ml-1" />
+        </Link>
+        <Link href="/plant-details" className="text-green-600 text-sm px-2 py-1 flex items-center">
+          <span>EDIT DETAIL</span>
+        </Link>
+        <button className="text-green-600 text-sm px-2 py-1 flex items-center">
+          <span>PLANT CARE CLICK PIC</span>
+        </button>
+      </div>
+      
+      <div className="flex justify-between items-center bg-white p-2 border-b border-gray-200">
+        <h2 className="font-bold text-gray-800 text-lg">my plants</h2>
+        <Link href="/add" className="bg-green-600 rounded-full w-7 h-7 flex items-center justify-center">
+          <Plus className="h-5 w-5 text-white" />
+        </Link>
       </div>
       
       <div className="plant-list">
