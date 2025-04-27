@@ -8,6 +8,7 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { queryClient, apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { ChevronLeft, Droplet, Clock, Package, MapPin, Edit, Trash, Hash } from "lucide-react";
+import PlantCareHistory from "@/components/PlantCareHistory";
 
 const PlantDetails = () => {
   const { id } = useParams();
@@ -254,6 +255,9 @@ const PlantDetails = () => {
           </div>
         </div>
       </div>
+      
+      {/* Plant Care History */}
+      <PlantCareHistory plant={plant} />
     </div>
   );
 };

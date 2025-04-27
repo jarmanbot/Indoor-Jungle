@@ -8,6 +8,15 @@ import { format, isAfter, isPast, isToday, addDays } from "date-fns";
 import { Droplet, Package, Clock } from "lucide-react";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
+import { 
+  Dialog, 
+  DialogContent, 
+  DialogHeader, 
+  DialogTitle 
+} from "@/components/ui/dialog";
+import { useState } from "react";
+import WateringLogForm from "@/components/WateringLogForm";
+import FeedingLogForm from "@/components/FeedingLogForm";
 
 const Tasks = () => {
   const { data: plants, isLoading } = useQuery<Plant[]>({
@@ -15,6 +24,8 @@ const Tasks = () => {
   });
   
   const { toast } = useToast();
+  const [wateringPlant, setWateringPlant] = useState<Plant | null>(null);
+  const [feedingPlant, setFeedingPlant] = useState<Plant | null>(null);
 
   // Filter plants that need watering (nextCheck is today or past)
   const needsWateringPlants = plants?.filter(plant => 
@@ -35,55 +46,27 @@ const Tasks = () => {
            !isPast(addDays(new Date(), 3)) && isAfter(addDays(new Date(), 3), checkDate);
   }) || [];
 
-  // Handle water now action
-  const handleWaterNow = async (plant: Plant) => {
-    try {
-      await apiRequest('PATCH', `/api/plants/${plant.id}`, {
-        lastWatered: new Date().toISOString(),
-        // Set next check to 7 days from now
-        nextCheck: addDays(new Date(), 7).toISOString(),
-        // Update status to healthy
-        status: PlantStatus.HEALTHY
-      });
-      
-      // Invalidate queries to refresh data
-      queryClient.invalidateQueries({ queryKey: ['/api/plants'] });
-      queryClient.invalidateQueries({ queryKey: [`/api/plants/${plant.id}`] });
-      
-      toast({
-        title: "Plant watered",
-        description: `${plant.name} has been marked as watered`,
-      });
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to update plant watering status",
-        variant: "destructive",
-      });
+  // Handle successful watering log submission
+  const handleWateringSuccess = () => {
+    setWateringPlant(null);
+    // Invalidate queries to refresh data
+    queryClient.invalidateQueries({ queryKey: ['/api/plants'] });
+    
+    if (wateringPlant) {
+      queryClient.invalidateQueries({ queryKey: [`/api/plants/${wateringPlant.id}`] });
+      queryClient.invalidateQueries({ queryKey: [`/api/plants/${wateringPlant.id}/watering-logs`] });
     }
   };
 
-  // Handle feed now action
-  const handleFeedNow = async (plant: Plant) => {
-    try {
-      await apiRequest('PATCH', `/api/plants/${plant.id}`, {
-        lastFed: new Date().toISOString(),
-      });
-      
-      // Invalidate queries to refresh data
-      queryClient.invalidateQueries({ queryKey: ['/api/plants'] });
-      queryClient.invalidateQueries({ queryKey: [`/api/plants/${plant.id}`] });
-      
-      toast({
-        title: "Plant fed",
-        description: `${plant.name} has been marked as fed`,
-      });
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to update plant feeding status",
-        variant: "destructive",
-      });
+  // Handle successful feeding log submission
+  const handleFeedingSuccess = () => {
+    setFeedingPlant(null);
+    // Invalidate queries to refresh data
+    queryClient.invalidateQueries({ queryKey: ['/api/plants'] });
+    
+    if (feedingPlant) {
+      queryClient.invalidateQueries({ queryKey: [`/api/plants/${feedingPlant.id}`] });
+      queryClient.invalidateQueries({ queryKey: [`/api/plants/${feedingPlant.id}/feeding-logs`] });
     }
   };
 
