@@ -12,34 +12,6 @@ const Home = () => {
 
   return (
     <div className="pb-20"> {/* Add padding for the fixed navigation */}
-      {/* Tab navigation under header */}
-      <div className="grid grid-cols-5 bg-green-600 py-2 border-t border-green-700">
-        <Link href="/" className="flex flex-col items-center">
-          <Leaf className="h-5 w-5 text-white" />
-          <span className="text-xs text-white">my plants</span>
-        </Link>
-        <Link href="/pic-list" className="flex flex-col items-center">
-          <ImageIcon className="h-5 w-5 text-white" />
-          <span className="text-xs text-white">pic list</span>
-        </Link>
-        <Link href="/missed" className="flex flex-col items-center">
-          <span className="h-5 w-5 text-white flex items-center justify-center">
-            <span className="block w-2 h-2 bg-white rounded-full"></span>
-          </span>
-          <span className="text-xs text-white">missed</span>
-        </Link>
-        <Link href="/calendar" className="flex flex-col items-center">
-          <CalendarRange className="h-5 w-5 text-white" />
-          <span className="text-xs text-white">calendar</span>
-        </Link>
-        <Link href="/website" className="flex flex-col items-center">
-          <span className="h-5 w-5 text-white flex items-center justify-center text-xs font-bold">
-            www
-          </span>
-          <span className="text-xs text-white">website</span>
-        </Link>
-      </div>
-      
       {/* Action buttons */}
       <div className="flex justify-end p-2 bg-white border-b border-gray-200">
         <Link href="/add" className="text-green-600 text-sm px-2 py-1 mr-2 flex items-center">
