@@ -137,9 +137,26 @@ export default function PlantCareHistory({ plant }: PlantCareHistoryProps) {
                 </CardDescription>
               )}
             </div>
-            <Badge variant="outline" className="text-xs">
-              {format(new Date(log.wateredAt), "p")}
-            </Badge>
+            <div className="flex items-center gap-2">
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                className="h-7 px-2 text-destructive"
+                onClick={() => {
+                  // Delete the watering log - we'd need to add this endpoint
+                  toast({
+                    title: "Undo not implemented yet",
+                    description: "We'll need a deletion endpoint for this feature",
+                    variant: "destructive"
+                  });
+                }}
+              >
+                Undo
+              </Button>
+              <Badge variant="outline" className="text-xs">
+                {format(new Date(log.wateredAt), "p")}
+              </Badge>
+            </div>
           </div>
         </CardHeader>
         {log.notes && (

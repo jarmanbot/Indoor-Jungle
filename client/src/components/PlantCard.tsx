@@ -1,16 +1,23 @@
 import { Link } from "wouter";
-import { format } from "date-fns";
-import { MoreVertical } from "lucide-react";
+import { format, isToday } from "date-fns";
+import { MoreVertical, Droplets, Package, Clock } from "lucide-react";
 import { Plant, PlantStatus } from "@shared/schema";
+import { Button } from "@/components/ui/button";
+import { useToast } from "@/hooks/use-toast";
+import { apiRequest } from "@/lib/queryClient";
+import { queryClient } from "@/lib/queryClient";
 
 interface PlantCardProps {
   plant: Plant;
 }
 
 const PlantCard = ({ plant }: PlantCardProps) => {
+  const { toast } = useToast();
+
   // Format dates for display
   const formatDate = (date: Date | null | undefined) => {
     if (!date) return "Not set";
+    if (isToday(new Date(date))) return "Today";
     return format(new Date(date), "MMM d, yyyy");
   };
 
@@ -22,44 +29,132 @@ const PlantCard = ({ plant }: PlantCardProps) => {
       .join(" ");
   };
   
-  return (
-    <div className="relative bg-white border-b border-gray-200 py-2 pl-3 pr-2 flex items-center">
-      <Link href={`/plant/${plant.id}`} className="flex flex-1">
-        {/* Plant Image */}
-        <div className="w-16 h-16 mr-3 rounded-md overflow-hidden flex-shrink-0">
-          <img 
-            src={plant.imageUrl || "https://via.placeholder.com/100x100?text=No+Image"} 
-            alt={plant.babyName} 
-            className="w-full h-full object-cover"
-          />
-        </div>
-        
-        {/* Plant Information */}
-        <div className="flex-1">
-          <div className="flex items-center">
-            <span className="bg-green-600 text-white text-xs font-medium rounded-full px-2 py-0.5 mr-2">
-              {plant.plantNumber || "?"}
-            </span>
-            <h3 className="font-bold text-gray-900">{plant.babyName}</h3>
-          </div>
-          <div className="text-sm text-gray-600">
-            {plant.commonName || plant.latinName || "Unknown species"}
-          </div>
-          {plant.latinName && (
-            <div className="text-xs italic text-gray-500">{plant.latinName}</div>
-          )}
-          {plant.location && (
-            <div className="text-xs text-gray-500 mt-1">
-              {formatLocation(plant.location)}
-            </div>
-          )}
-        </div>
-      </Link>
+  // Handle watering a plant
+  const handleWaterNow = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+    e.preventDefault();
+    
+    try {
+      await apiRequest('POST', `/api/plants/${plant.id}/watering-logs`, { 
+        wateredAt: new Date().toISOString(),
+        amount: "normal",
+        notes: "Quick watering from home screen"
+      });
       
-      {/* More button */}
-      <button className="p-2 text-gray-500">
-        <MoreVertical className="h-5 w-5" />
-      </button>
+      queryClient.invalidateQueries({ queryKey: ['/api/plants'] });
+      queryClient.invalidateQueries({ queryKey: [`/api/plants/${plant.id}`] });
+      queryClient.invalidateQueries({ queryKey: [`/api/plants/${plant.id}/watering-logs`] });
+      
+      toast({
+        title: "Plant watered",
+        description: `${plant.babyName} has been watered successfully`,
+      });
+    } catch (error) {
+      console.error('Error watering plant:', error);
+      toast({
+        title: "Error",
+        description: "Failed to record watering",
+        variant: "destructive"
+      });
+    }
+  };
+  
+  // Handle feeding a plant
+  const handleFeedNow = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+    e.preventDefault();
+    
+    try {
+      await apiRequest('POST', `/api/plants/${plant.id}/feeding-logs`, { 
+        fedAt: new Date().toISOString(),
+        fertilizerType: "general",
+        amount: "normal",
+        notes: "Quick feeding from home screen"
+      });
+      
+      queryClient.invalidateQueries({ queryKey: ['/api/plants'] });
+      queryClient.invalidateQueries({ queryKey: [`/api/plants/${plant.id}`] });
+      queryClient.invalidateQueries({ queryKey: [`/api/plants/${plant.id}/feeding-logs`] });
+      
+      toast({
+        title: "Plant fed",
+        description: `${plant.babyName} has been fed successfully`,
+      });
+    } catch (error) {
+      console.error('Error feeding plant:', error);
+      toast({
+        title: "Error",
+        description: "Failed to record feeding",
+        variant: "destructive"
+      });
+    }
+  };
+  
+  return (
+    <div className="relative bg-white border-b border-gray-200 py-2 pl-3 pr-2">
+      <div className="flex items-center">
+        <Link href={`/plant/${plant.id}`} className="flex flex-1">
+          {/* Plant Image */}
+          <div className="w-16 h-16 mr-3 rounded-md overflow-hidden flex-shrink-0">
+            <img 
+              src={plant.imageUrl || "https://via.placeholder.com/100x100?text=No+Image"} 
+              alt={plant.babyName} 
+              className="w-full h-full object-cover"
+            />
+          </div>
+          
+          {/* Plant Information */}
+          <div className="flex-1">
+            <div className="flex items-center">
+              <span className="bg-green-600 text-white text-xs font-medium rounded-full px-2 py-0.5 mr-2">
+                {plant.plantNumber || "?"}
+              </span>
+              <h3 className="font-bold text-gray-900">{plant.babyName}</h3>
+            </div>
+            <div className="text-sm text-gray-600">
+              {plant.commonName || plant.latinName || "Unknown species"}
+            </div>
+            {plant.latinName && (
+              <div className="text-xs italic text-gray-500">{plant.latinName}</div>
+            )}
+            <div className="flex items-center mt-0.5">
+              {plant.nextCheck && (
+                <div className="flex items-center text-xs text-gray-500 mr-3">
+                  <Clock className="h-3 w-3 mr-1 text-amber-500" />
+                  <span>Check: {formatDate(plant.nextCheck)}</span>
+                </div>
+              )}
+              {plant.location && (
+                <div className="text-xs text-gray-500">
+                  {formatLocation(plant.location)}
+                </div>
+              )}
+            </div>
+          </div>
+        </Link>
+      </div>
+      
+      {/* Quick action buttons */}
+      <div className="flex mt-2 gap-2">
+        <Button 
+          size="sm" 
+          variant="outline" 
+          className="flex-1 h-7 text-xs text-blue-600 border-blue-200"
+          onClick={handleWaterNow}
+        >
+          <Droplets className="h-3 w-3 mr-1" />
+          Water Now
+        </Button>
+        <Button 
+          size="sm" 
+          variant="outline" 
+          className="flex-1 h-7 text-xs text-green-600 border-green-200"
+          onClick={handleFeedNow}
+        >
+          <Package className="h-3 w-3 mr-1" />
+          Feed Now
+        </Button>
+      </div>
     </div>
   );
 };
