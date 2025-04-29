@@ -134,18 +134,18 @@ export class DatabaseStorage implements IStorage {
       return 1;
     }
 
-    // Reassign all numbers sequentially
-    for (let i = 0; i < allPlants.length; i++) {
-      const expectedNumber = i + 1;
-      if (allPlants[i].plantNumber !== expectedNumber) {
-        await db.update(plants)
-          .set({ plantNumber: expectedNumber })
-          .where(eq(plants.id, allPlants[i].id));
-      }
+    // Find the first available number
+    // Start with 1 and check if it's in use
+    let numberToUse = 1;
+    const usedNumbers = allPlants.map(plant => plant.plantNumber);
+    
+    // Find the smallest positive integer that's not in usedNumbers
+    while (usedNumbers.includes(numberToUse)) {
+      numberToUse++;
     }
     
-    // Return next number in sequence
-    return allPlants.length + 1;
+    // Return the first available number
+    return numberToUse;
   }
   
   // -------------------- Location Methods --------------------
@@ -253,39 +253,13 @@ export class DatabaseStorage implements IStorage {
   }
 
   async deletePlant(id: number): Promise<boolean> {
-    // Get the plant that will be deleted to know its number
-    const [plantToDelete] = await db
-      .select()
-      .from(plants)
-      .where(eq(plants.id, id));
-      
-    if (!plantToDelete) {
-      return false;
-    }
-    
-    // Delete the plant
+    // Delete the plant without renumbering others
     const [deletedPlant] = await db
       .delete(plants)
       .where(eq(plants.id, id))
       .returning({ id: plants.id });
     
-    if (deletedPlant) {
-      // After deletion, get all remaining plants ordered by number
-      const remainingPlants = await db
-        .select()
-        .from(plants)
-        .orderBy(asc(plants.plantNumber));
-      
-      // Reorder all plant numbers to ensure they remain in sequence
-      for (let i = 0; i < remainingPlants.length; i++) {
-        const expectedNumber = i + 1;
-        if (remainingPlants[i].plantNumber !== expectedNumber) {
-          await db.update(plants)
-            .set({ plantNumber: expectedNumber })
-            .where(eq(plants.id, remainingPlants[i].id));
-        }
-      }
-    }
+    // Plant numbers stay as they were - no renumbering
     
     return !!deletedPlant;
   }
