@@ -15,7 +15,7 @@ const Home = () => {
       {/* Action buttons */}
       <div className="flex justify-end p-2 bg-white border-b border-gray-200">
         <button className="text-green-600 text-sm px-2 py-1 flex items-center">
-          <span>PLANT CARE CLICK PIC</span>
+          <span>click pic for details</span>
         </button>
       </div>
       
