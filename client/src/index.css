@@ -3,48 +3,48 @@
 @tailwind utilities;
 
 :root {
-  --background: 0 0% 100%;
+  --background: 120 10% 95%;
   --foreground: 20 14.3% 4.1%;
-  --muted: 60 4.8% 95.9%;
+  --muted: 120 10% 90%;
   --muted-foreground: 25 5.3% 44.7%;
-  --popover: 0 0% 100%;
+  --popover: 120 10% 95%;
   --popover-foreground: 20 14.3% 4.1%;
   --card: 0 0% 100%;
   --card-foreground: 20 14.3% 4.1%;
-  --border: 20 5.9% 90%;
-  --input: 20 5.9% 90%;
-  --primary: 122 39% 49%;
+  --border: 120 10% 85%;
+  --input: 120 10% 90%;
+  --primary: 122 39% 39%;
   --primary-foreground: 211 100% 99%;
-  --secondary: 60 4.8% 95.9%;
+  --secondary: 120 10% 90%;
   --secondary-foreground: 24 9.8% 10%;
-  --accent: 60 4.8% 95.9%;
+  --accent: 120 10% 90%;
   --accent-foreground: 24 9.8% 10%;
   --destructive: 0 84.2% 60.2%;
   --destructive-foreground: 60 9.1% 97.8%;
-  --ring: 122 39% 49%;
+  --ring: 122 39% 39%;
   --radius: 0.5rem;
 }
 
 .dark {
-  --background: 240 10% 3.9%;
+  --background: 125 20% 12%;
   --foreground: 0 0% 98%;
-  --muted: 240 3.7% 15.9%;
-  --muted-foreground: 240 5% 64.9%;
-  --popover: 240 10% 3.9%;
+  --muted: 125 15% 18%;
+  --muted-foreground: 125 5% 64.9%;
+  --popover: 125 20% 12%;
   --popover-foreground: 0 0% 98%;
-  --card: 240 10% 3.9%;
+  --card: 125 20% 15%;
   --card-foreground: 0 0% 98%;
-  --border: 240 3.7% 15.9%;
-  --input: 240 3.7% 15.9%;
-  --primary: 122 39% 49%;
+  --border: 125 15% 25%;
+  --input: 125 15% 25%;
+  --primary: 122 39% 39%;
   --primary-foreground: 211 100% 99%;
-  --secondary: 240 3.7% 15.9%;
+  --secondary: 125 15% 25%;
   --secondary-foreground: 0 0% 98%;
-  --accent: 240 3.7% 15.9%;
+  --accent: 125 15% 25%;
   --accent-foreground: 0 0% 98%;
   --destructive: 0 62.8% 30.6%;
   --destructive-foreground: 0 0% 98%;
-  --ring: 122 39% 49%;
+  --ring: 122 39% 39%;
   --radius: 0.5rem;
 }
 
@@ -55,7 +55,7 @@
 
   body {
     font-family: 'Inter', sans-serif;
-    @apply antialiased bg-[#F5F5F5] text-foreground;
+    @apply antialiased bg-background text-foreground;
   }
 }
 

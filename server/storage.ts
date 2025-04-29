@@ -253,10 +253,39 @@ export class DatabaseStorage implements IStorage {
   }
 
   async deletePlant(id: number): Promise<boolean> {
+    // Get the plant that will be deleted to know its number
+    const [plantToDelete] = await db
+      .select()
+      .from(plants)
+      .where(eq(plants.id, id));
+      
+    if (!plantToDelete) {
+      return false;
+    }
+    
+    // Delete the plant
     const [deletedPlant] = await db
       .delete(plants)
       .where(eq(plants.id, id))
       .returning({ id: plants.id });
+    
+    if (deletedPlant) {
+      // After deletion, get all remaining plants ordered by number
+      const remainingPlants = await db
+        .select()
+        .from(plants)
+        .orderBy(asc(plants.plantNumber));
+      
+      // Reorder all plant numbers to ensure they remain in sequence
+      for (let i = 0; i < remainingPlants.length; i++) {
+        const expectedNumber = i + 1;
+        if (remainingPlants[i].plantNumber !== expectedNumber) {
+          await db.update(plants)
+            .set({ plantNumber: expectedNumber })
+            .where(eq(plants.id, remainingPlants[i].id));
+        }
+      }
+    }
     
     return !!deletedPlant;
   }

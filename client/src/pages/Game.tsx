@@ -169,7 +169,11 @@ export default function Game() {
       </div>
 
       <div className="p-4">
-        <Card className="mb-6">
+        {/* Main Game Dashboard */}
+        <GameDashboard />
+        
+        {/* Property Levels - Moved lower on the page as requested */}
+        <Card className="my-6">
           <CardHeader className="pb-2">
             <CardTitle className="text-lg">Your Property Levels</CardTitle>
             <CardDescription>Unlock new properties to grow more plants</CardDescription>
@@ -197,9 +201,6 @@ export default function Game() {
             </div>
           </CardContent>
         </Card>
-
-        {/* Main Game Dashboard */}
-        <GameDashboard />
 
         {/* Level Detail Section */}
         {level && (
