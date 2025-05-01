@@ -1,7 +1,7 @@
 # Indoor Jungle: Web3 Plant Game Concept
 
 ## Overview
-"Indoor Jungle" is a virtual plant collecting and nurturing game where players start in a small apartment and work their way up to luxury homes while buying, selling, and caring for plants. The game connects to the real plant care app to create a seamless experience between virtual and real-world plant care, using the LVS token ("leaves") as its in-game currency.
+"Indoor Jungle" is a virtual plant collecting and nurturing game where players start in a small apartment and work their way up to luxury homes while buying, selling, and caring for plants. The game connects to the real plant care app to create a seamless experience between virtual and real-world plant care, using the LVS token ("leaves") as its in-game currency.note some of the rarer vitual NFTs like plant plots are attached to a real pot you can buy with LVS and grow your plants babies in the real world.  
 
 ## Core Gameplay Loop
 
@@ -19,7 +19,7 @@
 ### Economy
 - **Plant NFTs**: Each virtual plant, pot, and tool is a unique NFT with specific traits
 - **LVS Token (Leaves)**: In-game ERC-20 token currency for purchasing plants, tools, accessories, and property upgrades
-- **Real-world connection**: Virtual plants can mirror your real plants from the care app
+- **Real-world connection**: Virtual plants can mirror your real plants from the care app with NFT attached to a ceramic pot to gro
 
 ## Integration with Plant Care App
 
