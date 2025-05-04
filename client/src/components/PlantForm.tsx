@@ -406,73 +406,7 @@ const PlantForm = ({ onSuccess, initialValues, plantId }: PlantFormProps) => {
             )}
           />
           
-          <div className="grid gap-6 md:grid-cols-3">
-            <FormField
-              control={form.control}
-              name="lastWatered"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Last Watered</FormLabel>
-                  <FormControl>
-                    <Input 
-                      type="date" 
-                      value={field.value ? new Date(field.value).toISOString().split('T')[0] : ''} 
-                      onChange={(e) => field.onChange(e.target.value || null)}
-                      onBlur={field.onBlur}
-                      name={field.name}
-                      ref={field.ref}
-                      className="bg-background"
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            
-            <FormField
-              control={form.control}
-              name="nextCheck"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Next Check</FormLabel>
-                  <FormControl>
-                    <Input 
-                      type="date" 
-                      value={field.value ? new Date(field.value).toISOString().split('T')[0] : ''} 
-                      onChange={(e) => field.onChange(e.target.value || null)}
-                      onBlur={field.onBlur}
-                      name={field.name}
-                      ref={field.ref}
-                      className="bg-background"
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            
-            <FormField
-              control={form.control}
-              name="lastFed"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Last Fed</FormLabel>
-                  <FormControl>
-                    <Input 
-                      type="date" 
-                      value={field.value ? new Date(field.value).toISOString().split('T')[0] : ''} 
-                      onChange={(e) => field.onChange(e.target.value || null)}
-                      onBlur={field.onBlur}
-                      name={field.name}
-                      ref={field.ref}
-                      className="bg-background"
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </div>
+          
           
           <FormField
             control={form.control}

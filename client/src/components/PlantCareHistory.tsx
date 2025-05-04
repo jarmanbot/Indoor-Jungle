@@ -249,7 +249,7 @@ export default function PlantCareHistory({ plant }: PlantCareHistoryProps) {
           {activeTab === "watering" ? (
             <Dialog open={showWateringForm} onOpenChange={setShowWateringForm}>
               <DialogTrigger asChild>
-                <Button size="sm" className="bg-blue-600 hover:bg-blue-700">
+                <Button size="sm" className="bg-blue-600 hover:bg-blue-700 text-black">
                   <PlusCircle className="h-4 w-4 mr-1" />
                   Water Now
                 </Button>
