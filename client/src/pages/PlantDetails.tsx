@@ -164,7 +164,7 @@ const PlantDetails = () => {
               <Button 
                 variant="outline" 
                 size="sm" 
-                className="mt-2 w-full text-secondary"
+                className="mt-2 w-full text-black"
                 onClick={() => {
                   // Update last watered date to today
                   apiRequest('PATCH', `/api/plants/${plant.id}`, { 
