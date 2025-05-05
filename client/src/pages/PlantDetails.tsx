@@ -99,14 +99,54 @@ const PlantDetails = () => {
             className="w-full h-64 object-cover"
           />
           <div className="absolute top-4 right-4 flex space-x-2">
-            <Button 
-              variant="outline" 
-              size="sm" 
-              className="bg-white"
-              onClick={() => setLocation(`/edit/${plant.id}`)}
-            >
-              <Edit className="h-4 w-4" />
-            </Button>
+            <div className="flex space-x-2">
+              <label>
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  className="bg-white"
+                >
+                  <Edit className="h-4 w-4" />
+                </Button>
+                <input 
+                  type="file" 
+                  className="hidden" 
+                  accept="image/*"
+                  onChange={async (e) => {
+                    const file = e.target.files?.[0];
+                    if (!file) return;
+
+                    const formData = new FormData();
+                    formData.append('image', file);
+
+                    try {
+                      await apiRequest('PATCH', `/api/plants/${plant.id}`, formData, {
+                        rawBody: true
+                      });
+                      queryClient.invalidateQueries({ queryKey: [`/api/plants/${plant.id}`] });
+                      toast({
+                        title: "Image updated",
+                        description: "Plant image has been updated successfully"
+                      });
+                    } catch (error) {
+                      toast({
+                        title: "Error",
+                        description: "Failed to update image",
+                        variant: "destructive"
+                      });
+                    }
+                  }}
+                />
+              </label>
+              <Button 
+                variant="outline" 
+                size="sm" 
+                className="bg-white"
+                onClick={() => setLocation(`/edit/${plant.id}`)}
+              >
+                <Edit className="h-4 w-4" />
+              </Button>
+            </div>
             
             <AlertDialog>
               <AlertDialogTrigger asChild>
