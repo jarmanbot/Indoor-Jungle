@@ -4,9 +4,6 @@ import { format } from "date-fns";
 import { Plant } from "@shared/schema";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import WateringLogForm from "@/components/WateringLogForm";
-import FeedingLogForm from "@/components/FeedingLogForm";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { queryClient, apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
@@ -17,8 +14,6 @@ const PlantDetails = () => {
   const { id } = useParams();
   const [_, setLocation] = useLocation();
   const { toast } = useToast();
-  const [showWateringForm, setShowWateringForm] = useState(false);
-  const [showFeedingForm, setShowFeedingForm] = useState(false);
   const numericId = id ? parseInt(id) : 0;
 
   const { data: plant, isLoading, error } = useQuery<Plant>({
@@ -170,7 +165,10 @@ const PlantDetails = () => {
                 variant="outline" 
                 size="sm" 
                 className="mt-2 w-full text-blue-600 border-blue-200"
-                onClick={() => setShowWateringForm(true)}
+                onClick={() => {
+                  queryClient.setQueryData([`/api/plants/${plant.id}`], plant);
+                  setShowWateringForm(true);
+                }}
               >
                 Water Now
               </Button>
@@ -220,7 +218,10 @@ const PlantDetails = () => {
                 variant="outline" 
                 size="sm" 
                 className="mt-2 w-full text-green-600 border-green-200"
-                onClick={() => setShowFeedingForm(true)}
+                onClick={() => {
+                  queryClient.setQueryData([`/api/plants/${plant.id}`], plant);
+                  setShowFeedingForm(true);
+                }}
               >
                 Feed Now
               </Button>
@@ -241,38 +242,6 @@ const PlantDetails = () => {
       
       {/* Plant Care History */}
       <PlantCareHistory plant={plant} />
-
-      <Dialog open={showWateringForm} onOpenChange={setShowWateringForm}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Log Watering</DialogTitle>
-          </DialogHeader>
-          <WateringLogForm 
-            plantId={plant.id}
-            onSuccess={() => {
-              setShowWateringForm(false);
-              queryClient.invalidateQueries({ queryKey: [`/api/plants/${plant.id}`] });
-            }}
-            onCancel={() => setShowWateringForm(false)}
-          />
-        </DialogContent>
-      </Dialog>
-
-      <Dialog open={showFeedingForm} onOpenChange={setShowFeedingForm}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Log Feeding</DialogTitle>
-          </DialogHeader>
-          <FeedingLogForm 
-            plantId={plant.id}
-            onSuccess={() => {
-              setShowFeedingForm(false);
-              queryClient.invalidateQueries({ queryKey: [`/api/plants/${plant.id}`] });
-            }}
-            onCancel={() => setShowFeedingForm(false)}
-          />
-        </DialogContent>
-      </Dialog>
     </div>
   );
 };
