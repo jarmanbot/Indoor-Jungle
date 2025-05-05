@@ -164,18 +164,10 @@ const PlantDetails = () => {
               <Button 
                 variant="outline" 
                 size="sm" 
-                className="mt-2 w-full text-black"
+                className="mt-2 w-full text-blue-600 border-blue-200"
                 onClick={() => {
-                  // Update last watered date to today
-                  apiRequest('PATCH', `/api/plants/${plant.id}`, { 
-                    lastWatered: new Date().toISOString()
-                  }).then(() => {
-                    queryClient.invalidateQueries({ queryKey: [`/api/plants/${plant.id}`] });
-                    toast({
-                      title: "Watering recorded",
-                      description: "Your plant's watering has been updated",
-                    });
-                  });
+                  queryClient.setQueryData([`/api/plants/${plant.id}`], plant);
+                  setShowWateringForm(true);
                 }}
               >
                 Water Now
@@ -225,18 +217,10 @@ const PlantDetails = () => {
               <Button 
                 variant="outline" 
                 size="sm" 
-                className="mt-2 w-full text-success"
+                className="mt-2 w-full text-green-600 border-green-200"
                 onClick={() => {
-                  // Update last fed date to today
-                  apiRequest('PATCH', `/api/plants/${plant.id}`, { 
-                    lastFed: new Date().toISOString()
-                  }).then(() => {
-                    queryClient.invalidateQueries({ queryKey: [`/api/plants/${plant.id}`] });
-                    toast({
-                      title: "Feeding recorded",
-                      description: "Your plant's feeding has been updated",
-                    });
-                  });
+                  queryClient.setQueryData([`/api/plants/${plant.id}`], plant);
+                  setShowFeedingForm(true);
                 }}
               >
                 Feed Now
