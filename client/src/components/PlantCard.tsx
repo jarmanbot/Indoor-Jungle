@@ -134,8 +134,11 @@ const PlantCard = ({ plant }: PlantCardProps) => {
         </Link>
       </div>
       
+      {/* Quick action instructions */}
+      <p className="text-xs text-gray-500 mt-2 mb-1 text-center">Click card for detailed care logging</p>
+      
       {/* Quick action buttons */}
-      <div className="flex mt-2 gap-2">
+      <div className="flex mt-1 gap-2">
         <Button 
           size="sm" 
           variant="outline" 
@@ -143,7 +146,7 @@ const PlantCard = ({ plant }: PlantCardProps) => {
           onClick={handleWaterNow}
         >
           <Droplets className="h-3 w-3 mr-1" />
-          Water Now
+          Water Now (Quick Log)
         </Button>
         <Button 
           size="sm" 
@@ -152,7 +155,7 @@ const PlantCard = ({ plant }: PlantCardProps) => {
           onClick={handleFeedNow}
         >
           <Package className="h-3 w-3 mr-1" />
-          Feed Now
+          Feed Now (Quick Log)
         </Button>
       </div>
     </div>
