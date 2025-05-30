@@ -295,10 +295,10 @@ const PlantForm = ({ onSuccess, initialValues, plantId }: PlantFormProps) => {
               name="babyName"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Baby Name</FormLabel>
+                  <FormLabel> Plant Baby Name</FormLabel>
                   <FormControl>
                     <Input 
-                      placeholder="e.g., Monty" 
+                      placeholder="e.g., Alex Yolobo" 
                       {...field} 
                       className="bg-background"
                     />

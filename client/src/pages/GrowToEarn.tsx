@@ -1,4 +1,6 @@
-import { Link } from "wouter";
+
+  </div>
+</div>import { Link } from "wouter";
 import { 
   Leaf, 
   Sprout, 
@@ -15,7 +17,7 @@ import {
   CardContent, 
   CardDescription, 
   CardFooter, 
-  CardHeader, 
+  CardHeader,
   CardTitle 
 } from "@/components/ui/card";
 
@@ -29,7 +31,8 @@ export default function GrowToEarn() {
           <h1 className="text-2xl font-bold">Grow to Earn</h1>
         </div>
         <p className="mb-4">
-          Connect your real plants to the virtual world and earn rewards for successful plant care.
+           Grow to Earn connects your real world plant babies to the virtual world. Connect your crypto wallet to the INDOOR JUNGLE app, register your plant pot via the QR code and your first plant NFT will be ready for you in game. Complete tasks in the game to upgrade your virtual plants and earn LVS tokens, the in game currency. The more you upgrade your NFT's you can earn more LVS and bonuses. Buy and sell your virtual plants, pots and other plant care accesory NFTs to earn LVS. Use LVS in game to buy even more plant NFTs or buy collecable plant pots for your plant babies to earn even more in game bonuses. You can even withdraw your LVS and swap them for other crytocurrencies like Bitcoin, Etherum or Ripple turning your in game progress into assetts you can trade in Crypto exchanges or store in your crypto wallets as investments for your future. *we recommend and support MetaMask.   
+          
         </p>
         <div className="flex justify-between items-center mt-6">
           <div className="text-center">
@@ -64,7 +67,7 @@ export default function GrowToEarn() {
             <CardHeader className="pb-2">
               <CardTitle className="text-lg flex items-center">
                 <span className="bg-green-100 text-green-600 rounded-full w-6 h-6 flex items-center justify-center text-sm mr-2">1</span>
-                Register Your Plants
+                Register Your Plant Pot
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -163,8 +166,7 @@ export default function GrowToEarn() {
           <CardHeader>
             <CardTitle>Ready to Start?</CardTitle>
             <CardDescription>
-              Connect your wallet to start earning with your plants
-            </CardDescription>
+              Connect your crypto wallet to the INDOOR JUNGLE app, register your plant pot via the QR code and your first NFT will be ready for you in game *we recommend and support MetaMask           </CardDescription>
           </CardHeader>
           <CardContent>
             <div className="flex justify-center space-x-4">
