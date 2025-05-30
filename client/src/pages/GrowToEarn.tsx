@@ -1,6 +1,5 @@
 
-  </div>
-</div>import { Link } from "wouter";
+  import { Link } from "wouter";
 import { 
   Leaf, 
   Sprout, 
