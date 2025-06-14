@@ -103,7 +103,7 @@ export default function PlantCareHistory({
 
   // Delete mutations
   const deleteWateringLogMutation = useMutation({
-    mutationFn: (logId: number) => apiRequest(`/api/watering-logs/${logId}`, { method: 'DELETE' }),
+    mutationFn: (logId: number) => apiRequest('DELETE', `/api/watering-logs/${logId}`),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/plants', plant.id, 'watering-logs'] });
       toast({ title: "Watering log deleted", description: "The log entry has been removed" });
@@ -111,7 +111,7 @@ export default function PlantCareHistory({
   });
 
   const deleteFeedingLogMutation = useMutation({
-    mutationFn: (logId: number) => apiRequest(`/api/feeding-logs/${logId}`, { method: 'DELETE' }),
+    mutationFn: (logId: number) => apiRequest('DELETE', `/api/feeding-logs/${logId}`),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/plants', plant.id, 'feeding-logs'] });
       toast({ title: "Feeding log deleted", description: "The log entry has been removed" });
@@ -119,7 +119,7 @@ export default function PlantCareHistory({
   });
 
   const deleteRepottingLogMutation = useMutation({
-    mutationFn: (logId: number) => apiRequest(`/api/repotting-logs/${logId}`, { method: 'DELETE' }),
+    mutationFn: (logId: number) => apiRequest('DELETE', `/api/repotting-logs/${logId}`),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/plants', plant.id, 'repotting-logs'] });
       toast({ title: "Repotting log deleted", description: "The log entry has been removed" });
@@ -127,7 +127,7 @@ export default function PlantCareHistory({
   });
 
   const deleteSoilTopUpLogMutation = useMutation({
-    mutationFn: (logId: number) => apiRequest(`/api/soil-top-up-logs/${logId}`, { method: 'DELETE' }),
+    mutationFn: (logId: number) => apiRequest('DELETE', `/api/soil-top-up-logs/${logId}`),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/plants', plant.id, 'soil-top-up-logs'] });
       toast({ title: "Soil top up log deleted", description: "The log entry has been removed" });
@@ -135,7 +135,7 @@ export default function PlantCareHistory({
   });
 
   const deletePruningLogMutation = useMutation({
-    mutationFn: (logId: number) => apiRequest(`/api/pruning-logs/${logId}`, { method: 'DELETE' }),
+    mutationFn: (logId: number) => apiRequest('DELETE', `/api/pruning-logs/${logId}`),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/plants', plant.id, 'pruning-logs'] });
       toast({ title: "Pruning log deleted", description: "The log entry has been removed" });
@@ -518,83 +518,7 @@ export default function PlantCareHistory({
   };
 
   return (
-    <div className="p-4">
-      {/* Plant Care Forms */}
-      {showWateringForm && (
-        <Dialog open={showWateringForm} onOpenChange={setShowWateringForm}>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Add Watering Log</DialogTitle>
-            </DialogHeader>
-            <WateringLogForm 
-              plantId={plant.id} 
-              onSuccess={handleWateringSuccess}
-              onCancel={() => setShowWateringForm(false)}
-            />
-          </DialogContent>
-        </Dialog>
-      )}
-
-      {showFeedingForm && (
-        <Dialog open={showFeedingForm} onOpenChange={setShowFeedingForm}>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Add Feeding Log</DialogTitle>
-            </DialogHeader>
-            <FeedingLogForm 
-              plantId={plant.id} 
-              onSuccess={handleFeedingSuccess}
-              onCancel={() => setShowFeedingForm(false)}
-            />
-          </DialogContent>
-        </Dialog>
-      )}
-
-      {showRepottingForm && (
-        <Dialog open={showRepottingForm} onOpenChange={setShowRepottingForm}>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Add Repotting Log</DialogTitle>
-            </DialogHeader>
-            <RepottingLogForm 
-              plantId={plant.id} 
-              onSuccess={handleRepottingSuccess}
-              onCancel={() => setShowRepottingForm(false)}
-            />
-          </DialogContent>
-        </Dialog>
-      )}
-
-      {showSoilTopUpForm && (
-        <Dialog open={showSoilTopUpForm} onOpenChange={setShowSoilTopUpForm}>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Add Soil Top Up Log</DialogTitle>
-            </DialogHeader>
-            <SoilTopUpLogForm 
-              plantId={plant.id} 
-              onSuccess={handleSoilTopUpSuccess}
-              onCancel={() => setShowSoilTopUpForm(false)}
-            />
-          </DialogContent>
-        </Dialog>
-      )}
-
-      {showPruningForm && (
-        <Dialog open={showPruningForm} onOpenChange={setShowPruningForm}>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Add Pruning Log</DialogTitle>
-            </DialogHeader>
-            <PruningLogForm 
-              plantId={plant.id} 
-              onSuccess={handlePruningSuccess}
-              onCancel={() => setShowPruningForm(false)}
-            />
-          </DialogContent>
-        </Dialog>
-      )}
-
+    <div>
       {/* Care History Tabs */}
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
         <TabsList className="grid w-full grid-cols-5">

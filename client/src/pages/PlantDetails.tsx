@@ -11,7 +11,10 @@ import { useToast } from "@/hooks/use-toast";
 import { useState } from "react";
 import WateringLogForm from "@/components/WateringLogForm";
 import FeedingLogForm from "@/components/FeedingLogForm";
-import { ChevronLeft, Droplet, Clock, Package, MapPin, Edit, Trash, Hash } from "lucide-react";
+import RepottingLogForm from "@/components/RepottingLogForm";
+import SoilTopUpLogForm from "@/components/SoilTopUpLogForm";
+import PruningLogForm from "@/components/PruningLogForm";
+import { ChevronLeft, Droplet, Clock, Package, MapPin, Edit, Trash, Hash, Flower, Shovel, Mountain, Scissors } from "lucide-react";
 import PlantCareHistory from "@/components/PlantCareHistory";
 
 const PlantDetails = () => {
@@ -20,6 +23,9 @@ const PlantDetails = () => {
   const { toast } = useToast();
   const [showWateringForm, setShowWateringForm] = useState(false);
   const [showFeedingForm, setShowFeedingForm] = useState(false);
+  const [showRepottingForm, setShowRepottingForm] = useState(false);
+  const [showSoilTopUpForm, setShowSoilTopUpForm] = useState(false);
+  const [showPruningForm, setShowPruningForm] = useState(false);
   const numericId = id ? parseInt(id) : 0;
 
   const { data: plant, isLoading, error } = useQuery<Plant>({
@@ -229,6 +235,37 @@ const PlantDetails = () => {
               </div>
             </div>
           </div>
+          
+          {/* Additional Care Actions */}
+          <div className="mt-4 grid grid-cols-3 gap-3">
+            <Button 
+              variant="outline" 
+              size="sm" 
+              className="text-orange-600 border-orange-200"
+              onClick={() => setShowRepottingForm(true)}
+            >
+              <Shovel className="h-4 w-4 mr-2" />
+              Repot
+            </Button>
+            <Button 
+              variant="outline" 
+              size="sm" 
+              className="text-amber-600 border-amber-200"
+              onClick={() => setShowSoilTopUpForm(true)}
+            >
+              <Mountain className="h-4 w-4 mr-2" />
+              Add Soil
+            </Button>
+            <Button 
+              variant="outline" 
+              size="sm" 
+              className="text-purple-600 border-purple-200"
+              onClick={() => setShowPruningForm(true)}
+            >
+              <Scissors className="h-4 w-4 mr-2" />
+              Prune
+            </Button>
+          </div>
         </div>
       </div>
       
@@ -240,14 +277,23 @@ const PlantDetails = () => {
         </div>
       )}
       
-      {/* Plant Care History */}
-      <PlantCareHistory 
-        plant={plant} 
-        showWateringForm={showWateringForm}
-        setShowWateringForm={setShowWateringForm}
-        showFeedingForm={showFeedingForm}
-        setShowFeedingForm={setShowFeedingForm}
-      />
+      {/* Care History */}
+      <div className="bg-white rounded-lg shadow-sm p-4">
+        <h2 className="text-xl font-bold mb-4">Care History</h2>
+        <PlantCareHistory 
+          plant={plant} 
+          showWateringForm={showWateringForm}
+          setShowWateringForm={setShowWateringForm}
+          showFeedingForm={showFeedingForm}
+          setShowFeedingForm={setShowFeedingForm}
+          showRepottingForm={showRepottingForm}
+          setShowRepottingForm={setShowRepottingForm}
+          showSoilTopUpForm={showSoilTopUpForm}
+          setShowSoilTopUpForm={setShowSoilTopUpForm}
+          showPruningForm={showPruningForm}
+          setShowPruningForm={setShowPruningForm}
+        />
+      </div>
 
       <Dialog open={showWateringForm} onOpenChange={setShowWateringForm}>
         <DialogContent>
@@ -277,6 +323,54 @@ const PlantDetails = () => {
               queryClient.invalidateQueries({ queryKey: [`/api/plants/${plant.id}`] });
             }}
             onCancel={() => setShowFeedingForm(false)}
+          />
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={showRepottingForm} onOpenChange={setShowRepottingForm}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Log Repotting</DialogTitle>
+          </DialogHeader>
+          <RepottingLogForm 
+            plantId={plant.id}
+            onSuccess={() => {
+              setShowRepottingForm(false);
+              queryClient.invalidateQueries({ queryKey: [`/api/plants/${plant.id}`] });
+            }}
+            onCancel={() => setShowRepottingForm(false)}
+          />
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={showSoilTopUpForm} onOpenChange={setShowSoilTopUpForm}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Log Soil Top Up</DialogTitle>
+          </DialogHeader>
+          <SoilTopUpLogForm 
+            plantId={plant.id}
+            onSuccess={() => {
+              setShowSoilTopUpForm(false);
+              queryClient.invalidateQueries({ queryKey: [`/api/plants/${plant.id}`] });
+            }}
+            onCancel={() => setShowSoilTopUpForm(false)}
+          />
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={showPruningForm} onOpenChange={setShowPruningForm}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Log Pruning</DialogTitle>
+          </DialogHeader>
+          <PruningLogForm 
+            plantId={plant.id}
+            onSuccess={() => {
+              setShowPruningForm(false);
+              queryClient.invalidateQueries({ queryKey: [`/api/plants/${plant.id}`] });
+            }}
+            onCancel={() => setShowPruningForm(false)}
           />
         </DialogContent>
       </Dialog>
