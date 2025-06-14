@@ -1,5 +1,5 @@
 import { useLocation, Link } from "wouter";
-import { Leaf, CalendarRange, Gamepad2, Sprout, Sun } from "lucide-react";
+import { Leaf, CalendarRange, Gamepad2, Sprout } from "lucide-react";
 
 const Navigation = () => {
   const [location] = useLocation();
@@ -9,10 +9,6 @@ const Navigation = () => {
       <Link href="/" className="nav-item flex flex-col items-center py-2 px-4 flex-1">
         <Leaf className={`h-6 w-6 ${location === "/" ? "text-green-600" : "text-gray-500"}`} />
         <span className="text-xs mt-1 text-gray-600">my plants</span>
-      </Link>
-      <Link href="/recommendations" className="nav-item flex flex-col items-center py-2 px-4 flex-1">
-        <Sun className={`h-6 w-6 ${location === "/recommendations" ? "text-green-600" : "text-gray-500"}`} />
-        <span className="text-xs mt-1 text-gray-600">seasonal</span>
       </Link>
       <Link href="/calendar" className="nav-item flex flex-col items-center py-2 px-4 flex-1">
         <CalendarRange className={`h-6 w-6 ${location === "/calendar" ? "text-green-600" : "text-gray-500"}`} />

@@ -10,7 +10,6 @@ import PlantDetails from "@/pages/PlantDetails";
 import Calendar from "@/pages/Calendar";
 import Tasks from "@/pages/Tasks";
 import Settings from "@/pages/Settings";
-import SeasonalRecommendations from "@/pages/SeasonalRecommendations";
 import Navigation from "@/components/Navigation";
 import Header from "@/components/Header";
 // Import Game pages
@@ -33,7 +32,6 @@ function Router() {
     if (location === "/add") return "add plant";
     if (location === "/calendar") return "calendar";
     if (location === "/tasks") return "tasks";
-    if (location === "/recommendations") return "seasonal care";
     if (location === "/settings") return "settings";
     if (location.startsWith("/plant/")) return "plant details";
     if (location.startsWith("/game")) return "LVS INDOOR JUNGLE";
@@ -51,7 +49,6 @@ function Router() {
         <Route path="/plant/:id" component={PlantDetails} />
         <Route path="/calendar" component={Calendar} />
         <Route path="/tasks" component={Tasks} />
-        <Route path="/recommendations" component={SeasonalRecommendations} />
         <Route path="/settings" component={Settings} />
         {/* Game routes */}
         <Route path="/game" component={Game} />

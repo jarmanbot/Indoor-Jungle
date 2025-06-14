@@ -5,9 +5,7 @@ import {
   insertPlantSchema, 
   insertCustomLocationSchema,
   insertWateringLogSchema,
-  insertFeedingLogSchema,
-  insertSeasonalRecommendationSchema,
-  insertPlantRecommendationSchema
+  insertFeedingLogSchema 
 } from "@shared/schema";
 import multer from "multer";
 import path from "path";
@@ -411,90 +409,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error adding feeding log:", error);
       res.status(500).json({ message: "Error adding feeding log" });
-    }
-  });
-
-  // -------------------- Seasonal Recommendations API Routes --------------------
-
-  // Get seasonal recommendations for current season
-  app.get("/api/recommendations/seasonal", async (req: Request, res: Response) => {
-    try {
-      const season = req.query.season as string;
-      const category = req.query.category as string;
-      
-      if (!season) {
-        return res.status(400).json({ message: "Season parameter is required" });
-      }
-
-      const recommendations = await storage.getSeasonalRecommendations(season, category);
-      res.json(recommendations);
-    } catch (error) {
-      console.error("Error fetching seasonal recommendations:", error);
-      res.status(500).json({ message: "Error fetching seasonal recommendations" });
-    }
-  });
-
-  // Get user's plant recommendations
-  app.get("/api/recommendations/plants", async (req: Request, res: Response) => {
-    try {
-      const includeCompleted = req.query.includeCompleted === 'true';
-      const recommendations = await storage.getUserPlantRecommendations(includeCompleted);
-      res.json(recommendations);
-    } catch (error) {
-      console.error("Error fetching plant recommendations:", error);
-      res.status(500).json({ message: "Error fetching plant recommendations" });
-    }
-  });
-
-  // Generate new seasonal recommendations for user
-  app.post("/api/recommendations/generate", async (req: Request, res: Response) => {
-    try {
-      const newRecommendations = await storage.generateSeasonalRecommendationsForUser();
-      res.status(201).json(newRecommendations);
-    } catch (error) {
-      console.error("Error generating recommendations:", error);
-      res.status(500).json({ message: "Error generating recommendations" });
-    }
-  });
-
-  // Mark recommendation as completed
-  app.post("/api/recommendations/:id/complete", express.json(), async (req: Request, res: Response) => {
-    try {
-      const recommendationId = parseInt(req.params.id);
-      if (isNaN(recommendationId)) {
-        return res.status(400).json({ message: "Invalid recommendation ID" });
-      }
-
-      const { notes } = req.body;
-      const success = await storage.markRecommendationCompleted(recommendationId, notes);
-      
-      if (!success) {
-        return res.status(404).json({ message: "Recommendation not found" });
-      }
-
-      res.status(200).json({ message: "Recommendation marked as completed" });
-    } catch (error) {
-      console.error("Error completing recommendation:", error);
-      res.status(500).json({ message: "Error completing recommendation" });
-    }
-  });
-
-  // Create a new seasonal recommendation (admin endpoint)
-  app.post("/api/recommendations/seasonal", express.json(), async (req: Request, res: Response) => {
-    try {
-      const result = insertSeasonalRecommendationSchema.safeParse(req.body);
-      if (!result.success) {
-        return res.status(400).json({ 
-          message: "Invalid seasonal recommendation data", 
-          errors: result.error.errors 
-        });
-      }
-
-      const newRecommendation = await storage.createSeasonalRecommendation(result.data);
-      res.status(201).json(newRecommendation);
-    } catch (error) {
-      console.error("Error creating seasonal recommendation:", error);
-      res.status(500).json({ message: "Error creating seasonal recommendation" });
     }
   });
 
