@@ -51,6 +51,12 @@ interface PlantCareHistoryProps {
   setShowWateringForm?: (show: boolean) => void;
   showFeedingForm?: boolean;
   setShowFeedingForm?: (show: boolean) => void;
+  showRepottingForm?: boolean;
+  setShowRepottingForm?: (show: boolean) => void;
+  showSoilTopUpForm?: boolean;
+  setShowSoilTopUpForm?: (show: boolean) => void;
+  showPruningForm?: boolean;
+  setShowPruningForm?: (show: boolean) => void;
 }
 
 export default function PlantCareHistory({ 
@@ -58,7 +64,13 @@ export default function PlantCareHistory({
   showWateringForm = false, 
   setShowWateringForm = () => {}, 
   showFeedingForm = false, 
-  setShowFeedingForm = () => {} 
+  setShowFeedingForm = () => {},
+  showRepottingForm = false,
+  setShowRepottingForm = () => {},
+  showSoilTopUpForm = false,
+  setShowSoilTopUpForm = () => {},
+  showPruningForm = false,
+  setShowPruningForm = () => {}
 }: PlantCareHistoryProps) {
   const [activeTab, setActiveTab] = useState("watering");
   const { toast } = useToast();
@@ -84,6 +96,36 @@ export default function PlantCareHistory({
     enabled: activeTab === "feeding",
   }) as { data: FeedingLog[], isLoading: boolean, error: any };
 
+  // Fetch repotting logs
+  const {
+    data: repottingLogs,
+    isLoading: repottingLogsLoading,
+    error: repottingLogsError
+  } = useQuery({
+    queryKey: [`/api/plants/${plant.id}/repotting-logs`],
+    enabled: activeTab === "repotting",
+  }) as { data: RepottingLog[], isLoading: boolean, error: any };
+
+  // Fetch soil top up logs
+  const {
+    data: soilTopUpLogs,
+    isLoading: soilTopUpLogsLoading,
+    error: soilTopUpLogsError
+  } = useQuery({
+    queryKey: [`/api/plants/${plant.id}/soil-top-up-logs`],
+    enabled: activeTab === "soil",
+  }) as { data: SoilTopUpLog[], isLoading: boolean, error: any };
+
+  // Fetch pruning logs
+  const {
+    data: pruningLogs,
+    isLoading: pruningLogsLoading,
+    error: pruningLogsError
+  } = useQuery({
+    queryKey: [`/api/plants/${plant.id}/pruning-logs`],
+    enabled: activeTab === "pruning",
+  }) as { data: PruningLog[], isLoading: boolean, error: any };
+
   const handleWateringSuccess = () => {
     setShowWateringForm(false);
     // Invalidate queries to refresh data
@@ -99,6 +141,141 @@ export default function PlantCareHistory({
     queryClient.invalidateQueries({ queryKey: ['/api/plants'] });
     queryClient.invalidateQueries({ queryKey: [`/api/plants/${plant.id}`] });
   };
+
+  const handleRepottingSuccess = () => {
+    setShowRepottingForm(false);
+    queryClient.invalidateQueries({ queryKey: [`/api/plants/${plant.id}/repotting-logs`] });
+    queryClient.invalidateQueries({ queryKey: ['/api/plants'] });
+    queryClient.invalidateQueries({ queryKey: [`/api/plants/${plant.id}`] });
+  };
+
+  const handleSoilTopUpSuccess = () => {
+    setShowSoilTopUpForm(false);
+    queryClient.invalidateQueries({ queryKey: [`/api/plants/${plant.id}/soil-top-up-logs`] });
+    queryClient.invalidateQueries({ queryKey: ['/api/plants'] });
+    queryClient.invalidateQueries({ queryKey: [`/api/plants/${plant.id}`] });
+  };
+
+  const handlePruningSuccess = () => {
+    setShowPruningForm(false);
+    queryClient.invalidateQueries({ queryKey: [`/api/plants/${plant.id}/pruning-logs`] });
+    queryClient.invalidateQueries({ queryKey: ['/api/plants'] });
+    queryClient.invalidateQueries({ queryKey: [`/api/plants/${plant.id}`] });
+  };
+
+  // Delete mutations for undo functionality
+  const deleteWateringLogMutation = useMutation({
+    mutationFn: async (logId: number) => {
+      return apiRequest("DELETE", `/api/watering-logs/${logId}`);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [`/api/plants/${plant.id}/watering-logs`] });
+      queryClient.invalidateQueries({ queryKey: ['/api/plants'] });
+      queryClient.invalidateQueries({ queryKey: [`/api/plants/${plant.id}`] });
+      toast({
+        title: "Success",
+        description: "Watering log removed successfully",
+      });
+    },
+    onError: (error) => {
+      console.error("Error deleting watering log:", error);
+      toast({
+        title: "Error",
+        description: "Failed to remove watering log",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const deleteFeedingLogMutation = useMutation({
+    mutationFn: async (logId: number) => {
+      return apiRequest("DELETE", `/api/feeding-logs/${logId}`);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [`/api/plants/${plant.id}/feeding-logs`] });
+      queryClient.invalidateQueries({ queryKey: ['/api/plants'] });
+      queryClient.invalidateQueries({ queryKey: [`/api/plants/${plant.id}`] });
+      toast({
+        title: "Success",
+        description: "Feeding log removed successfully",
+      });
+    },
+    onError: (error) => {
+      console.error("Error deleting feeding log:", error);
+      toast({
+        title: "Error",
+        description: "Failed to remove feeding log",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const deleteRepottingLogMutation = useMutation({
+    mutationFn: async (logId: number) => {
+      return apiRequest("DELETE", `/api/repotting-logs/${logId}`);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [`/api/plants/${plant.id}/repotting-logs`] });
+      toast({
+        title: "Success",
+        description: "Repotting log removed successfully",
+      });
+    },
+    onError: (error) => {
+      console.error("Error deleting repotting log:", error);
+      toast({
+        title: "Error",
+        description: "Failed to remove repotting log",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const deleteSoilTopUpLogMutation = useMutation({
+    mutationFn: async (logId: number) => {
+      return apiRequest(`/api/soil-top-up-logs/${logId}`, {
+        method: "DELETE",
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [`/api/plants/${plant.id}/soil-top-up-logs`] });
+      toast({
+        title: "Success",
+        description: "Soil top up log removed successfully",
+      });
+    },
+    onError: (error) => {
+      console.error("Error deleting soil top up log:", error);
+      toast({
+        title: "Error",
+        description: "Failed to remove soil top up log",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const deletePruningLogMutation = useMutation({
+    mutationFn: async (logId: number) => {
+      return apiRequest(`/api/pruning-logs/${logId}`, {
+        method: "DELETE",
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [`/api/plants/${plant.id}/pruning-logs`] });
+      toast({
+        title: "Success",
+        description: "Pruning log removed successfully",
+      });
+    },
+    onError: (error) => {
+      console.error("Error deleting pruning log:", error);
+      toast({
+        title: "Error",
+        description: "Failed to remove pruning log",
+        variant: "destructive",
+      });
+    },
+  });
 
   const calculateNextCheckDate = () => {
     if (plant.lastWatered) {
@@ -158,16 +335,11 @@ export default function PlantCareHistory({
                 variant="ghost" 
                 size="sm" 
                 className="h-7 px-2 text-destructive"
-                onClick={() => {
-                  // Delete the watering log - we'd need to add this endpoint
-                  toast({
-                    title: "Undo not implemented yet",
-                    description: "We'll need a deletion endpoint for this feature",
-                    variant: "destructive"
-                  });
-                }}
+                onClick={() => deleteWateringLogMutation.mutate(log.id)}
+                disabled={deleteWateringLogMutation.isPending}
               >
-                Undo
+                <Trash2 className="h-3 w-3 mr-1" />
+                {deleteWateringLogMutation.isPending ? "..." : "Undo"}
               </Button>
               <Badge variant="outline" className="text-xs">
                 {format(new Date(log.wateredAt), "p")}
