@@ -58,6 +58,11 @@ function Router() {
         <Route path="/tasks" component={Tasks} />
         <Route path="/settings" component={Settings} />
         <Route path="/indoor-jungle-monitor" component={IndoorJungleMonitor} />
+        <Route path="/analytics" component={Analytics} />
+        <Route path="/achievements" component={Achievements} />
+        <Route path="/identify" component={PlantIdentification} />
+        <Route path="/bulk-care" component={BulkCare} />
+        <Route path="/recommendations" component={SmartRecommendations} />
         {/* Game routes */}
         <Route path="/game" component={Game} />
         <Route path="/game/level/:level" component={LevelDetail} />
