@@ -4,6 +4,9 @@ import {
   customLocations, 
   wateringLogs,
   feedingLogs,
+  repottingLogs,
+  soilTopUpLogs,
+  pruningLogs,
   PlantStatus,
   type User, 
   type InsertUser, 
@@ -14,7 +17,13 @@ import {
   type WateringLog,
   type InsertWateringLog,
   type FeedingLog,
-  type InsertFeedingLog
+  type InsertFeedingLog,
+  type RepottingLog,
+  type InsertRepottingLog,
+  type SoilTopUpLog,
+  type InsertSoilTopUpLog,
+  type PruningLog,
+  type InsertPruningLog
 } from "@shared/schema";
 import { db, runMigrations } from "./db";
 import { eq, max, desc, sql, and, like, asc } from "drizzle-orm";
@@ -48,8 +57,19 @@ export interface IStorage {
   // Plant care log methods
   getWateringLogs(plantId: number): Promise<WateringLog[]>;
   addWateringLog(log: InsertWateringLog): Promise<WateringLog>;
+  deleteWateringLog(id: number): Promise<boolean>;
   getFeedingLogs(plantId: number): Promise<FeedingLog[]>;
   addFeedingLog(log: InsertFeedingLog): Promise<FeedingLog>;
+  deleteFeedingLog(id: number): Promise<boolean>;
+  getRepottingLogs(plantId: number): Promise<RepottingLog[]>;
+  addRepottingLog(log: InsertRepottingLog): Promise<RepottingLog>;
+  deleteRepottingLog(id: number): Promise<boolean>;
+  getSoilTopUpLogs(plantId: number): Promise<SoilTopUpLog[]>;
+  addSoilTopUpLog(log: InsertSoilTopUpLog): Promise<SoilTopUpLog>;
+  deleteSoilTopUpLog(id: number): Promise<boolean>;
+  getPruningLogs(plantId: number): Promise<PruningLog[]>;
+  addPruningLog(log: InsertPruningLog): Promise<PruningLog>;
+  deletePruningLog(id: number): Promise<boolean>;
   
   // Database initialization
   initialize(): Promise<void>;
@@ -330,6 +350,118 @@ export class DatabaseStorage implements IStorage {
       .where(eq(plants.id, log.plantId));
     
     return newLog;
+  }
+
+  async deleteWateringLog(id: number): Promise<boolean> {
+    const [deletedLog] = await db
+      .delete(wateringLogs)
+      .where(eq(wateringLogs.id, id))
+      .returning();
+    return !!deletedLog;
+  }
+
+  async deleteFeedingLog(id: number): Promise<boolean> {
+    const [deletedLog] = await db
+      .delete(feedingLogs)
+      .where(eq(feedingLogs.id, id))
+      .returning();
+    return !!deletedLog;
+  }
+
+  // -------------------- Repotting Log Methods --------------------
+
+  async getRepottingLogs(plantId: number): Promise<RepottingLog[]> {
+    return db.select()
+      .from(repottingLogs)
+      .where(eq(repottingLogs.plantId, plantId))
+      .orderBy(desc(repottingLogs.repottedAt));
+  }
+
+  async addRepottingLog(log: InsertRepottingLog): Promise<RepottingLog> {
+    const processedLog: any = { ...log };
+    
+    if (processedLog.repottedAt && typeof processedLog.repottedAt === 'string') {
+      processedLog.repottedAt = new Date(processedLog.repottedAt);
+    }
+
+    const [newLog] = await db
+      .insert(repottingLogs)
+      .values(processedLog)
+      .returning();
+    
+    return newLog;
+  }
+
+  async deleteRepottingLog(id: number): Promise<boolean> {
+    const [deletedLog] = await db
+      .delete(repottingLogs)
+      .where(eq(repottingLogs.id, id))
+      .returning();
+    return !!deletedLog;
+  }
+
+  // -------------------- Soil Top Up Log Methods --------------------
+
+  async getSoilTopUpLogs(plantId: number): Promise<SoilTopUpLog[]> {
+    return db.select()
+      .from(soilTopUpLogs)
+      .where(eq(soilTopUpLogs.plantId, plantId))
+      .orderBy(desc(soilTopUpLogs.toppedUpAt));
+  }
+
+  async addSoilTopUpLog(log: InsertSoilTopUpLog): Promise<SoilTopUpLog> {
+    const processedLog: any = { ...log };
+    
+    if (processedLog.toppedUpAt && typeof processedLog.toppedUpAt === 'string') {
+      processedLog.toppedUpAt = new Date(processedLog.toppedUpAt);
+    }
+
+    const [newLog] = await db
+      .insert(soilTopUpLogs)
+      .values(processedLog)
+      .returning();
+    
+    return newLog;
+  }
+
+  async deleteSoilTopUpLog(id: number): Promise<boolean> {
+    const [deletedLog] = await db
+      .delete(soilTopUpLogs)
+      .where(eq(soilTopUpLogs.id, id))
+      .returning();
+    return !!deletedLog;
+  }
+
+  // -------------------- Pruning Log Methods --------------------
+
+  async getPruningLogs(plantId: number): Promise<PruningLog[]> {
+    return db.select()
+      .from(pruningLogs)
+      .where(eq(pruningLogs.plantId, plantId))
+      .orderBy(desc(pruningLogs.prunedAt));
+  }
+
+  async addPruningLog(log: InsertPruningLog): Promise<PruningLog> {
+    const processedLog: any = { ...log };
+    
+    if (processedLog.prunedAt && typeof processedLog.prunedAt === 'string') {
+      processedLog.prunedAt = new Date(processedLog.prunedAt);
+    }
+
+    const [newLog] = await db
+      .insert(pruningLogs)
+      .values(processedLog)
+      .returning();
+    
+    return newLog;
+  }
+
+  async deletePruningLog(id: number): Promise<boolean> {
+    const [deletedLog] = await db
+      .delete(pruningLogs)
+      .where(eq(pruningLogs.id, id))
+      .returning();
+    return !!deletedLog;
   }
 }
 

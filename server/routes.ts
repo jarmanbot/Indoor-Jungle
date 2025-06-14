@@ -412,6 +412,238 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Delete a watering log (undo functionality)
+  app.delete("/api/watering-logs/:id", async (req: Request, res: Response) => {
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ message: "Invalid log ID" });
+      }
+
+      const deleted = await storage.deleteWateringLog(id);
+      if (!deleted) {
+        return res.status(404).json({ message: "Watering log not found" });
+      }
+
+      res.status(204).send();
+    } catch (error) {
+      console.error("Error deleting watering log:", error);
+      res.status(500).json({ message: "Error deleting watering log" });
+    }
+  });
+
+  // Delete a feeding log (undo functionality)
+  app.delete("/api/feeding-logs/:id", async (req: Request, res: Response) => {
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ message: "Invalid log ID" });
+      }
+
+      const deleted = await storage.deleteFeedingLog(id);
+      if (!deleted) {
+        return res.status(404).json({ message: "Feeding log not found" });
+      }
+
+      res.status(204).send();
+    } catch (error) {
+      console.error("Error deleting feeding log:", error);
+      res.status(500).json({ message: "Error deleting feeding log" });
+    }
+  });
+
+  // -------------------- Repotting Logs --------------------
+
+  // Get repotting logs for a plant
+  app.get("/api/plants/:id/repotting-logs", async (req: Request, res: Response) => {
+    try {
+      const plantId = parseInt(req.params.id);
+      if (isNaN(plantId)) {
+        return res.status(400).json({ message: "Invalid plant ID" });
+      }
+
+      const logs = await storage.getRepottingLogs(plantId);
+      res.json(logs);
+    } catch (error) {
+      console.error("Error fetching repotting logs:", error);
+      res.status(500).json({ message: "Error fetching repotting logs" });
+    }
+  });
+
+  // Add a repotting log
+  app.post("/api/plants/:id/repotting-logs", express.json(), async (req: Request, res: Response) => {
+    try {
+      const plantId = parseInt(req.params.id);
+      if (isNaN(plantId)) {
+        return res.status(400).json({ message: "Invalid plant ID" });
+      }
+
+      const logData = { ...req.body, plantId };
+      const result = insertRepottingLogSchema.safeParse(logData);
+      
+      if (!result.success) {
+        return res.status(400).json({ 
+          message: "Invalid repotting log data", 
+          errors: result.error.errors 
+        });
+      }
+
+      const newLog = await storage.addRepottingLog(result.data);
+      res.status(201).json(newLog);
+    } catch (error) {
+      console.error("Error adding repotting log:", error);
+      res.status(500).json({ message: "Error adding repotting log" });
+    }
+  });
+
+  // Delete a repotting log
+  app.delete("/api/repotting-logs/:id", async (req: Request, res: Response) => {
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ message: "Invalid log ID" });
+      }
+
+      const deleted = await storage.deleteRepottingLog(id);
+      if (!deleted) {
+        return res.status(404).json({ message: "Repotting log not found" });
+      }
+
+      res.status(204).send();
+    } catch (error) {
+      console.error("Error deleting repotting log:", error);
+      res.status(500).json({ message: "Error deleting repotting log" });
+    }
+  });
+
+  // -------------------- Soil Top Up Logs --------------------
+
+  // Get soil top up logs for a plant
+  app.get("/api/plants/:id/soil-top-up-logs", async (req: Request, res: Response) => {
+    try {
+      const plantId = parseInt(req.params.id);
+      if (isNaN(plantId)) {
+        return res.status(400).json({ message: "Invalid plant ID" });
+      }
+
+      const logs = await storage.getSoilTopUpLogs(plantId);
+      res.json(logs);
+    } catch (error) {
+      console.error("Error fetching soil top up logs:", error);
+      res.status(500).json({ message: "Error fetching soil top up logs" });
+    }
+  });
+
+  // Add a soil top up log
+  app.post("/api/plants/:id/soil-top-up-logs", express.json(), async (req: Request, res: Response) => {
+    try {
+      const plantId = parseInt(req.params.id);
+      if (isNaN(plantId)) {
+        return res.status(400).json({ message: "Invalid plant ID" });
+      }
+
+      const logData = { ...req.body, plantId };
+      const result = insertSoilTopUpLogSchema.safeParse(logData);
+      
+      if (!result.success) {
+        return res.status(400).json({ 
+          message: "Invalid soil top up log data", 
+          errors: result.error.errors 
+        });
+      }
+
+      const newLog = await storage.addSoilTopUpLog(result.data);
+      res.status(201).json(newLog);
+    } catch (error) {
+      console.error("Error adding soil top up log:", error);
+      res.status(500).json({ message: "Error adding soil top up log" });
+    }
+  });
+
+  // Delete a soil top up log
+  app.delete("/api/soil-top-up-logs/:id", async (req: Request, res: Response) => {
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ message: "Invalid log ID" });
+      }
+
+      const deleted = await storage.deleteSoilTopUpLog(id);
+      if (!deleted) {
+        return res.status(404).json({ message: "Soil top up log not found" });
+      }
+
+      res.status(204).send();
+    } catch (error) {
+      console.error("Error deleting soil top up log:", error);
+      res.status(500).json({ message: "Error deleting soil top up log" });
+    }
+  });
+
+  // -------------------- Pruning Logs --------------------
+
+  // Get pruning logs for a plant
+  app.get("/api/plants/:id/pruning-logs", async (req: Request, res: Response) => {
+    try {
+      const plantId = parseInt(req.params.id);
+      if (isNaN(plantId)) {
+        return res.status(400).json({ message: "Invalid plant ID" });
+      }
+
+      const logs = await storage.getPruningLogs(plantId);
+      res.json(logs);
+    } catch (error) {
+      console.error("Error fetching pruning logs:", error);
+      res.status(500).json({ message: "Error fetching pruning logs" });
+    }
+  });
+
+  // Add a pruning log
+  app.post("/api/plants/:id/pruning-logs", express.json(), async (req: Request, res: Response) => {
+    try {
+      const plantId = parseInt(req.params.id);
+      if (isNaN(plantId)) {
+        return res.status(400).json({ message: "Invalid plant ID" });
+      }
+
+      const logData = { ...req.body, plantId };
+      const result = insertPruningLogSchema.safeParse(logData);
+      
+      if (!result.success) {
+        return res.status(400).json({ 
+          message: "Invalid pruning log data", 
+          errors: result.error.errors 
+        });
+      }
+
+      const newLog = await storage.addPruningLog(result.data);
+      res.status(201).json(newLog);
+    } catch (error) {
+      console.error("Error adding pruning log:", error);
+      res.status(500).json({ message: "Error adding pruning log" });
+    }
+  });
+
+  // Delete a pruning log
+  app.delete("/api/pruning-logs/:id", async (req: Request, res: Response) => {
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ message: "Invalid log ID" });
+      }
+
+      const deleted = await storage.deletePruningLog(id);
+      if (!deleted) {
+        return res.status(404).json({ message: "Pruning log not found" });
+      }
+
+      res.status(204).send();
+    } catch (error) {
+      console.error("Error deleting pruning log:", error);
+      res.status(500).json({ message: "Error deleting pruning log" });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }
