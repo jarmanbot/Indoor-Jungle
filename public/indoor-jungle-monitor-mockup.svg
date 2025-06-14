@@ -1,0 +1,106 @@
+
+<svg width="800" height="600" viewBox="0 0 800 600" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background wall -->
+  <rect width="800" height="600" fill="#f5f5f0"/>
+  
+  <!-- Wall texture lines -->
+  <line x1="0" y1="150" x2="800" y2="150" stroke="#e8e8e3" stroke-width="1"/>
+  <line x1="0" y1="300" x2="800" y2="300" stroke="#e8e8e3" stroke-width="1"/>
+  <line x1="0" y1="450" x2="800" y2="450" stroke="#e8e8e3" stroke-width="1"/>
+  
+  <!-- Device mounting bracket shadow -->
+  <ellipse cx="400" cy="320" rx="85" ry="12" fill="#d0d0cc" opacity="0.3"/>
+  
+  <!-- Device body -->
+  <rect x="320" y="240" width="160" height="120" rx="12" fill="#2a2a2a" stroke="#1a1a1a" stroke-width="2"/>
+  
+  <!-- Screen bezel -->
+  <rect x="330" y="250" width="140" height="100" rx="8" fill="#1a1a1a"/>
+  
+  <!-- Screen -->
+  <rect x="335" y="255" width="130" height="90" rx="6" fill="#000" stroke="#333" stroke-width="1"/>
+  
+  <!-- Screen content background -->
+  <rect x="337" y="257" width="126" height="86" rx="4" fill="linear-gradient(135deg, #1e3a5f 0%, #2d5a87 100%)"/>
+  
+  <!-- Header section -->
+  <rect x="337" y="257" width="126" height="18" rx="4" fill="#1a4c73"/>
+  <text x="400" y="269" text-anchor="middle" fill="#ffffff" font-family="Arial, sans-serif" font-size="8" font-weight="bold">INDOOR JUNGLE MONITOR</text>
+  
+  <!-- Status indicator -->
+  <circle cx="450" cy="265" r="2" fill="#00ff88"/>
+  
+  <!-- Main data grid -->
+  <!-- Temperature -->
+  <rect x="342" y="280" width="56" height="28" rx="3" fill="#2d4a6b" stroke="#4a6b8a" stroke-width="0.5"/>
+  <text x="347" y="289" fill="#ffffff" font-family="Arial, sans-serif" font-size="6">TEMP</text>
+  <text x="347" y="301" fill="#ff6b6b" font-family="Arial, sans-serif" font-size="10" font-weight="bold">22.4°C</text>
+  
+  <!-- Humidity -->
+  <rect x="404" y="280" width="56" height="28" rx="3" fill="#2d4a6b" stroke="#4a6b8a" stroke-width="0.5"/>
+  <text x="409" y="289" fill="#ffffff" font-family="Arial, sans-serif" font-size="6">HUMIDITY</text>
+  <text x="409" y="301" fill="#4ecdc4" font-family="Arial, sans-serif" font-size="10" font-weight="bold">68%</text>
+  
+  <!-- Light Level -->
+  <rect x="342" y="312" width="56" height="28" rx="3" fill="#2d4a6b" stroke="#4a6b8a" stroke-width="0.5"/>
+  <text x="347" y="321" fill="#ffffff" font-family="Arial, sans-serif" font-size="6">LIGHT</text>
+  <text x="347" y="333" fill="#ffd93d" font-family="Arial, sans-serif" font-size="10" font-weight="bold">450 lux</text>
+  
+  <!-- Air Quality -->
+  <rect x="404" y="312" width="56" height="28" rx="3" fill="#2d4a6b" stroke="#4a6b8a" stroke-width="0.5"/>
+  <text x="409" y="321" fill="#ffffff" font-family="Arial, sans-serif" font-size="6">AIR QUAL</text>
+  <text x="409" y="333" fill="#6bcf7f" font-family="Arial, sans-serif" font-size="10" font-weight="bold">GOOD</text>
+  
+  <!-- Touch indicators -->
+  <circle cx="350" cy="295" r="1" fill="#ffffff" opacity="0.3"/>
+  <circle cx="430" cy="295" r="1" fill="#ffffff" opacity="0.3"/>
+  <circle cx="350" cy="327" r="1" fill="#ffffff" opacity="0.3"/>
+  <circle cx="430" cy="327" r="1" fill="#ffffff" opacity="0.3"/>
+  
+  <!-- Device logo/brand -->
+  <rect x="365" y="330" width="30" height="8" rx="2" fill="#1a4c73"/>
+  <text x="380" y="337" text-anchor="middle" fill="#ffffff" font-family="Arial, sans-serif" font-size="5">IJ</text>
+  
+  <!-- Mounting points -->
+  <circle cx="335" cy="260" r="2" fill="#666"/>
+  <circle cx="465" cy="260" r="2" fill="#666"/>
+  <circle cx="335" cy="340" r="2" fill="#666"/>
+  <circle cx="465" cy="340" r="2" fill="#666"/>
+  
+  <!-- Power indicator LED -->
+  <circle cx="470" cy="270" r="1.5" fill="#00ff88" opacity="0.8"/>
+  <circle cx="470" cy="270" r="3" fill="#00ff88" opacity="0.2"/>
+  
+  <!-- Ambient lighting effect -->
+  <defs>
+    <radialGradient id="ambientGlow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" style="stop-color:#4ecdc4;stop-opacity:0.1"/>
+      <stop offset="100%" style="stop-color:#4ecdc4;stop-opacity:0"/>
+    </radialGradient>
+  </defs>
+  <circle cx="400" cy="300" r="120" fill="url(#ambientGlow)"/>
+  
+  <!-- Wall outlet nearby for context -->
+  <rect x="520" y="320" width="25" height="40" rx="3" fill="#f8f8f8" stroke="#ddd" stroke-width="1"/>
+  <rect x="525" y="330" width="6" height="8" rx="1" fill="#333"/>
+  <rect x="534" y="330" width="6" height="8" rx="1" fill="#333"/>
+  <rect x="529" y="342" width="8" height="6" rx="1" fill="#333"/>
+  
+  <!-- Plant silhouette for context -->
+  <g transform="translate(150, 380)">
+    <!-- Pot -->
+    <path d="M20 40 L80 40 L85 60 L15 60 Z" fill="#8b4513"/>
+    <!-- Plant stems -->
+    <path d="M35 40 Q30 30 25 20 Q20 15 15 10" stroke="#2d5016" stroke-width="3" fill="none"/>
+    <path d="M45 40 Q50 25 55 15 Q60 10 65 5" stroke="#2d5016" stroke-width="3" fill="none"/>
+    <path d="M55 40 Q60 30 70 20 Q75 15 80 10" stroke="#2d5016" stroke-width="3" fill="none"/>
+    <!-- Leaves -->
+    <ellipse cx="15" cy="10" rx="8" ry="12" fill="#4a7c59" transform="rotate(-30 15 10)"/>
+    <ellipse cx="65" cy="5" rx="10" ry="15" fill="#4a7c59" transform="rotate(20 65 5)"/>
+    <ellipse cx="80" cy="10" rx="9" ry="13" fill="#4a7c59" transform="rotate(45 80 10)"/>
+    <ellipse cx="40" cy="25" rx="7" ry="10" fill="#4a7c59" transform="rotate(-10 40 25)"/>
+  </g>
+  
+  <!-- Text label -->
+  <text x="400" y="400" text-anchor="middle" fill="#666" font-family="Arial, sans-serif" font-size="14" font-weight="normal">Indoor Jungle Monitor - Smart Plant Care</text>
+</svg>

@@ -63,21 +63,16 @@ const IndoorJungleMonitor = () => {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="bg-gray-100 rounded-lg p-6 mb-4">
-            {/* Mock device visual */}
+          <div className="bg-gray-50 rounded-lg p-4 mb-4">
+            {/* Device mockup image */}
             <div className="flex justify-center">
-              <div className="relative">
-                <div className="w-32 h-40 bg-white rounded-xl shadow-lg border-2 border-gray-200 flex flex-col items-center justify-center">
-                  <div className="w-16 h-16 bg-gradient-to-br from-green-400 to-blue-500 rounded-full flex items-center justify-center mb-2">
-                    <Thermometer className="h-8 w-8 text-white" />
-                  </div>
-                  <div className="text-xs font-medium text-gray-600">Indoor Jungle</div>
-                  <div className="text-xs text-gray-500">Monitor</div>
-                  <div className="absolute top-2 right-2 w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
-                </div>
-              </div>
+              <img 
+                src="/indoor-jungle-monitor-mockup.svg" 
+                alt="Indoor Jungle Monitor mounted on wall showing temperature, humidity, light level, and air quality data"
+                className="w-full max-w-md rounded-lg shadow-sm"
+              />
             </div>
-          </div>
+          </div></CardContent>
           
           <div className="grid grid-cols-2 gap-4">
             <div className="text-center p-3 bg-blue-50 rounded-lg">
