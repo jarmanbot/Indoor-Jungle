@@ -97,12 +97,42 @@ const PlantDetails = () => {
       .join(" ");
   };
 
+  const handleWateringSuccess = () => {
+    setShowWateringForm(false);
+    queryClient.invalidateQueries({ queryKey: ['/api/plants', plant.id] });
+    queryClient.invalidateQueries({ queryKey: ['/api/plants', plant.id, 'watering-logs'] });
+  };
+
+  const handleFeedingSuccess = () => {
+    setShowFeedingForm(false);
+    queryClient.invalidateQueries({ queryKey: ['/api/plants', plant.id] });
+    queryClient.invalidateQueries({ queryKey: ['/api/plants', plant.id, 'feeding-logs'] });
+  };
+
+  const handleRepottingSuccess = () => {
+    setShowRepottingForm(false);
+    queryClient.invalidateQueries({ queryKey: ['/api/plants', plant.id] });
+    queryClient.invalidateQueries({ queryKey: ['/api/plants', plant.id, 'repotting-logs'] });
+  };
+
+  const handleSoilTopUpSuccess = () => {
+    setShowSoilTopUpForm(false);
+    queryClient.invalidateQueries({ queryKey: ['/api/plants', plant.id] });
+    queryClient.invalidateQueries({ queryKey: ['/api/plants', plant.id, 'soil-top-up-logs'] });
+  };
+
+  const handlePruningSuccess = () => {
+    setShowPruningForm(false);
+    queryClient.invalidateQueries({ queryKey: ['/api/plants', plant.id] });
+    queryClient.invalidateQueries({ queryKey: ['/api/plants', plant.id, 'pruning-logs'] });
+  };
+
   return (
     <div className="p-4 pb-16">
       <Button onClick={() => setLocation('/')} variant="ghost" className="mb-4">
         <ChevronLeft className="mr-2 h-4 w-4" /> Back to Plants
       </Button>
-      
+
       <div className="bg-white rounded-lg shadow-sm overflow-hidden mb-6">
         <div className="relative">
           <img 
@@ -119,7 +149,7 @@ const PlantDetails = () => {
             >
               <Edit className="h-4 w-4" />
             </Button>
-            
+
             <AlertDialog>
               <AlertDialogTrigger asChild>
                 <Button variant="outline" size="sm" className="bg-white">
@@ -152,10 +182,10 @@ const PlantDetails = () => {
             </div>
           )}
         </div>
-        
+
         <div className="p-4">
           <h1 className="text-2xl font-bold mb-2">{plant.name}</h1>
-          
+
           <div className="grid grid-cols-2 gap-4">
             <div className="bg-neutral-light rounded-md p-3">
               <div className="flex items-start">
@@ -174,7 +204,7 @@ const PlantDetails = () => {
                 Log Watering
               </Button>
             </div>
-            
+
             <div className="bg-neutral-light rounded-md p-3">
               <div className="flex items-start">
                 <Clock className="h-5 w-5 text-warning mr-2 mt-0.5" />
@@ -191,7 +221,7 @@ const PlantDetails = () => {
                   // Set next check date to 7 days from now
                   const nextCheck = new Date();
                   nextCheck.setDate(nextCheck.getDate() + 7);
-                  
+
                   apiRequest('PATCH', `/api/plants/${plant.id}`, { 
                     nextCheck: nextCheck.toISOString()
                   }).then(() => {
@@ -206,7 +236,7 @@ const PlantDetails = () => {
                 Set Reminder
               </Button>
             </div>
-            
+
             <div className="bg-neutral-light rounded-md p-3">
               <div className="flex items-start">
                 <Package className="h-5 w-5 text-success mr-2 mt-0.5" />
@@ -224,7 +254,7 @@ const PlantDetails = () => {
                 Log Feeding
               </Button>
             </div>
-            
+
             <div className="bg-neutral-light rounded-md p-3">
               <div className="flex items-start">
                 <MapPin className="h-5 w-5 text-primary mr-2 mt-0.5" />
@@ -235,7 +265,7 @@ const PlantDetails = () => {
               </div>
             </div>
           </div>
-          
+
           {/* Additional Care Actions */}
           <div className="mt-4 grid grid-cols-3 gap-3">
             <Button 
@@ -268,7 +298,7 @@ const PlantDetails = () => {
           </div>
         </div>
       </div>
-      
+
       {/* Notes Section */}
       {plant.notes && (
         <div className="mb-6 bg-white rounded-lg shadow-sm p-4">
@@ -276,7 +306,7 @@ const PlantDetails = () => {
           <p className="text-sm text-neutral-dark">{plant.notes}</p>
         </div>
       )}
-      
+
       {/* Care History */}
       <div className="bg-white rounded-lg shadow-sm p-4">
         <h2 className="text-xl font-bold mb-4">Care History</h2>
@@ -302,10 +332,7 @@ const PlantDetails = () => {
           </DialogHeader>
           <WateringLogForm 
             plantId={plant.id}
-            onSuccess={() => {
-              setShowWateringForm(false);
-              queryClient.invalidateQueries({ queryKey: [`/api/plants/${plant.id}`] });
-            }}
+            onSuccess={handleWateringSuccess}
             onCancel={() => setShowWateringForm(false)}
           />
         </DialogContent>
@@ -318,10 +345,7 @@ const PlantDetails = () => {
           </DialogHeader>
           <FeedingLogForm 
             plantId={plant.id}
-            onSuccess={() => {
-              setShowFeedingForm(false);
-              queryClient.invalidateQueries({ queryKey: [`/api/plants/${plant.id}`] });
-            }}
+            onSuccess={handleFeedingSuccess}
             onCancel={() => setShowFeedingForm(false)}
           />
         </DialogContent>
@@ -334,10 +358,7 @@ const PlantDetails = () => {
           </DialogHeader>
           <RepottingLogForm 
             plantId={plant.id}
-            onSuccess={() => {
-              setShowRepottingForm(false);
-              queryClient.invalidateQueries({ queryKey: [`/api/plants/${plant.id}`] });
-            }}
+            onSuccess={handleRepottingSuccess}
             onCancel={() => setShowRepottingForm(false)}
           />
         </DialogContent>
@@ -350,10 +371,7 @@ const PlantDetails = () => {
           </DialogHeader>
           <SoilTopUpLogForm 
             plantId={plant.id}
-            onSuccess={() => {
-              setShowSoilTopUpForm(false);
-              queryClient.invalidateQueries({ queryKey: [`/api/plants/${plant.id}`] });
-            }}
+            onSuccess={handleSoilTopUpSuccess}
             onCancel={() => setShowSoilTopUpForm(false)}
           />
         </DialogContent>
@@ -366,10 +384,7 @@ const PlantDetails = () => {
           </DialogHeader>
           <PruningLogForm 
             plantId={plant.id}
-            onSuccess={() => {
-              setShowPruningForm(false);
-              queryClient.invalidateQueries({ queryKey: [`/api/plants/${plant.id}`] });
-            }}
+            onSuccess={handlePruningSuccess}
             onCancel={() => setShowPruningForm(false)}
           />
         </DialogContent>
