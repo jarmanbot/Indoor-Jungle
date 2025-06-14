@@ -39,12 +39,20 @@ import type { Plant, WateringLog, FeedingLog } from "@shared/schema";
 
 interface PlantCareHistoryProps {
   plant: Plant;
+  showWateringForm?: boolean;
+  setShowWateringForm?: (show: boolean) => void;
+  showFeedingForm?: boolean;
+  setShowFeedingForm?: (show: boolean) => void;
 }
 
-export default function PlantCareHistory({ plant }: PlantCareHistoryProps) {
+export default function PlantCareHistory({ 
+  plant, 
+  showWateringForm = false, 
+  setShowWateringForm = () => {}, 
+  showFeedingForm = false, 
+  setShowFeedingForm = () => {} 
+}: PlantCareHistoryProps) {
   const [activeTab, setActiveTab] = useState("watering");
-  const [showWateringForm, setShowWateringForm] = useState(false);
-  const [showFeedingForm, setShowFeedingForm] = useState(false);
   const { toast } = useToast();
   const queryClient = useQueryClient();
 

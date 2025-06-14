@@ -171,10 +171,7 @@ const PlantDetails = () => {
                 variant="outline" 
                 size="sm" 
                 className="mt-2 w-full text-blue-600 border-blue-200"
-                onClick={() => {
-                  queryClient.setQueryData([`/api/plants/${plant.id}`], plant);
-                  setShowWateringForm(true);
-                }}
+                onClick={() => setShowWateringForm(true)}
               >
                 Water Now
               </Button>
@@ -224,10 +221,7 @@ const PlantDetails = () => {
                 variant="outline" 
                 size="sm" 
                 className="mt-2 w-full text-green-600 border-green-200"
-                onClick={() => {
-                  queryClient.setQueryData([`/api/plants/${plant.id}`], plant);
-                  setShowFeedingForm(true);
-                }}
+                onClick={() => setShowFeedingForm(true)}
               >
                 Feed Now
               </Button>
@@ -247,7 +241,13 @@ const PlantDetails = () => {
       </div>
       
       {/* Plant Care History */}
-      <PlantCareHistory plant={plant} />
+      <PlantCareHistory 
+        plant={plant} 
+        showWateringForm={showWateringForm}
+        setShowWateringForm={setShowWateringForm}
+        showFeedingForm={showFeedingForm}
+        setShowFeedingForm={setShowFeedingForm}
+      />
 
       <Dialog open={showWateringForm} onOpenChange={setShowWateringForm}>
         <DialogContent>
