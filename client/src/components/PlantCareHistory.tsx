@@ -11,7 +11,6 @@ import {
   Card, 
   CardContent, 
   CardDescription, 
-  CardFooter, 
   CardHeader, 
   CardTitle 
 } from "@/components/ui/card";
@@ -21,16 +20,12 @@ import {
   Dialog, 
   DialogContent, 
   DialogHeader, 
-  DialogTitle,
-  DialogTrigger 
+  DialogTitle
 } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
 import { 
   Droplets, 
   Flower, 
-  CalendarIcon, 
-  PlusCircle, 
-  Info,
   Shovel,
   Scissors,
   Mountain,
@@ -60,10 +55,10 @@ interface PlantCareHistoryProps {
 }
 
 export default function PlantCareHistory({ 
-  plant, 
-  showWateringForm = false, 
-  setShowWateringForm = () => {}, 
-  showFeedingForm = false, 
+  plant,
+  showWateringForm = false,
+  setShowWateringForm = () => {},
+  showFeedingForm = false,
   setShowFeedingForm = () => {},
   showRepottingForm = false,
   setShowRepottingForm = () => {},
@@ -77,213 +72,103 @@ export default function PlantCareHistory({
   const queryClient = useQueryClient();
 
   // Fetch watering logs
-  const {
-    data: wateringLogs,
-    isLoading: wateringLogsLoading,
-    error: wateringLogsError
-  } = useQuery({
-    queryKey: [`/api/plants/${plant.id}/watering-logs`],
-    enabled: activeTab === "watering",
-  }) as { data: WateringLog[], isLoading: boolean, error: any };
+  const { data: wateringLogs, isLoading: wateringLogsLoading, error: wateringLogsError } = useQuery({
+    queryKey: ['/api/plants', plant.id, 'watering-logs'],
+    queryFn: () => fetch(`/api/plants/${plant.id}/watering-logs`).then(res => res.json()) as Promise<WateringLog[]>
+  });
 
   // Fetch feeding logs
-  const {
-    data: feedingLogs,
-    isLoading: feedingLogsLoading,
-    error: feedingLogsError
-  } = useQuery({
-    queryKey: [`/api/plants/${plant.id}/feeding-logs`],
-    enabled: activeTab === "feeding",
-  }) as { data: FeedingLog[], isLoading: boolean, error: any };
+  const { data: feedingLogs, isLoading: feedingLogsLoading, error: feedingLogsError } = useQuery({
+    queryKey: ['/api/plants', plant.id, 'feeding-logs'],
+    queryFn: () => fetch(`/api/plants/${plant.id}/feeding-logs`).then(res => res.json()) as Promise<FeedingLog[]>
+  });
 
   // Fetch repotting logs
-  const {
-    data: repottingLogs,
-    isLoading: repottingLogsLoading,
-    error: repottingLogsError
-  } = useQuery({
-    queryKey: [`/api/plants/${plant.id}/repotting-logs`],
-    enabled: activeTab === "repotting",
-  }) as { data: RepottingLog[], isLoading: boolean, error: any };
+  const { data: repottingLogs, isLoading: repottingLogsLoading, error: repottingLogsError } = useQuery({
+    queryKey: ['/api/plants', plant.id, 'repotting-logs'],
+    queryFn: () => fetch(`/api/plants/${plant.id}/repotting-logs`).then(res => res.json()) as Promise<RepottingLog[]>
+  });
 
   // Fetch soil top up logs
-  const {
-    data: soilTopUpLogs,
-    isLoading: soilTopUpLogsLoading,
-    error: soilTopUpLogsError
-  } = useQuery({
-    queryKey: [`/api/plants/${plant.id}/soil-top-up-logs`],
-    enabled: activeTab === "soil",
-  }) as { data: SoilTopUpLog[], isLoading: boolean, error: any };
+  const { data: soilTopUpLogs, isLoading: soilTopUpLogsLoading, error: soilTopUpLogsError } = useQuery({
+    queryKey: ['/api/plants', plant.id, 'soil-top-up-logs'],
+    queryFn: () => fetch(`/api/plants/${plant.id}/soil-top-up-logs`).then(res => res.json()) as Promise<SoilTopUpLog[]>
+  });
 
   // Fetch pruning logs
-  const {
-    data: pruningLogs,
-    isLoading: pruningLogsLoading,
-    error: pruningLogsError
-  } = useQuery({
-    queryKey: [`/api/plants/${plant.id}/pruning-logs`],
-    enabled: activeTab === "pruning",
-  }) as { data: PruningLog[], isLoading: boolean, error: any };
+  const { data: pruningLogs, isLoading: pruningLogsLoading, error: pruningLogsError } = useQuery({
+    queryKey: ['/api/plants', plant.id, 'pruning-logs'],
+    queryFn: () => fetch(`/api/plants/${plant.id}/pruning-logs`).then(res => res.json()) as Promise<PruningLog[]>
+  });
 
+  // Delete mutations
+  const deleteWateringLogMutation = useMutation({
+    mutationFn: (logId: number) => apiRequest(`/api/watering-logs/${logId}`, { method: 'DELETE' }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/plants', plant.id, 'watering-logs'] });
+      toast({ title: "Watering log deleted", description: "The log entry has been removed" });
+    }
+  });
+
+  const deleteFeedingLogMutation = useMutation({
+    mutationFn: (logId: number) => apiRequest(`/api/feeding-logs/${logId}`, { method: 'DELETE' }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/plants', plant.id, 'feeding-logs'] });
+      toast({ title: "Feeding log deleted", description: "The log entry has been removed" });
+    }
+  });
+
+  const deleteRepottingLogMutation = useMutation({
+    mutationFn: (logId: number) => apiRequest(`/api/repotting-logs/${logId}`, { method: 'DELETE' }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/plants', plant.id, 'repotting-logs'] });
+      toast({ title: "Repotting log deleted", description: "The log entry has been removed" });
+    }
+  });
+
+  const deleteSoilTopUpLogMutation = useMutation({
+    mutationFn: (logId: number) => apiRequest(`/api/soil-top-up-logs/${logId}`, { method: 'DELETE' }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/plants', plant.id, 'soil-top-up-logs'] });
+      toast({ title: "Soil top up log deleted", description: "The log entry has been removed" });
+    }
+  });
+
+  const deletePruningLogMutation = useMutation({
+    mutationFn: (logId: number) => apiRequest(`/api/pruning-logs/${logId}`, { method: 'DELETE' }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/plants', plant.id, 'pruning-logs'] });
+      toast({ title: "Pruning log deleted", description: "The log entry has been removed" });
+    }
+  });
+
+  // Success handlers
   const handleWateringSuccess = () => {
     setShowWateringForm(false);
-    // Invalidate queries to refresh data
-    queryClient.invalidateQueries({ queryKey: [`/api/plants/${plant.id}/watering-logs`] });
-    queryClient.invalidateQueries({ queryKey: ['/api/plants'] });
-    queryClient.invalidateQueries({ queryKey: [`/api/plants/${plant.id}`] });
+    queryClient.invalidateQueries({ queryKey: ['/api/plants', plant.id, 'watering-logs'] });
   };
 
   const handleFeedingSuccess = () => {
     setShowFeedingForm(false);
-    // Invalidate queries to refresh data
-    queryClient.invalidateQueries({ queryKey: [`/api/plants/${plant.id}/feeding-logs`] });
-    queryClient.invalidateQueries({ queryKey: ['/api/plants'] });
-    queryClient.invalidateQueries({ queryKey: [`/api/plants/${plant.id}`] });
+    queryClient.invalidateQueries({ queryKey: ['/api/plants', plant.id, 'feeding-logs'] });
   };
 
   const handleRepottingSuccess = () => {
     setShowRepottingForm(false);
-    queryClient.invalidateQueries({ queryKey: [`/api/plants/${plant.id}/repotting-logs`] });
-    queryClient.invalidateQueries({ queryKey: ['/api/plants'] });
-    queryClient.invalidateQueries({ queryKey: [`/api/plants/${plant.id}`] });
+    queryClient.invalidateQueries({ queryKey: ['/api/plants', plant.id, 'repotting-logs'] });
   };
 
   const handleSoilTopUpSuccess = () => {
     setShowSoilTopUpForm(false);
-    queryClient.invalidateQueries({ queryKey: [`/api/plants/${plant.id}/soil-top-up-logs`] });
-    queryClient.invalidateQueries({ queryKey: ['/api/plants'] });
-    queryClient.invalidateQueries({ queryKey: [`/api/plants/${plant.id}`] });
+    queryClient.invalidateQueries({ queryKey: ['/api/plants', plant.id, 'soil-top-up-logs'] });
   };
 
   const handlePruningSuccess = () => {
     setShowPruningForm(false);
-    queryClient.invalidateQueries({ queryKey: [`/api/plants/${plant.id}/pruning-logs`] });
-    queryClient.invalidateQueries({ queryKey: ['/api/plants'] });
-    queryClient.invalidateQueries({ queryKey: [`/api/plants/${plant.id}`] });
+    queryClient.invalidateQueries({ queryKey: ['/api/plants', plant.id, 'pruning-logs'] });
   };
 
-  // Delete mutations for undo functionality
-  const deleteWateringLogMutation = useMutation({
-    mutationFn: async (logId: number) => {
-      return apiRequest("DELETE", `/api/watering-logs/${logId}`);
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: [`/api/plants/${plant.id}/watering-logs`] });
-      queryClient.invalidateQueries({ queryKey: ['/api/plants'] });
-      queryClient.invalidateQueries({ queryKey: [`/api/plants/${plant.id}`] });
-      toast({
-        title: "Success",
-        description: "Watering log removed successfully",
-      });
-    },
-    onError: (error) => {
-      console.error("Error deleting watering log:", error);
-      toast({
-        title: "Error",
-        description: "Failed to remove watering log",
-        variant: "destructive",
-      });
-    },
-  });
-
-  const deleteFeedingLogMutation = useMutation({
-    mutationFn: async (logId: number) => {
-      return apiRequest("DELETE", `/api/feeding-logs/${logId}`);
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: [`/api/plants/${plant.id}/feeding-logs`] });
-      queryClient.invalidateQueries({ queryKey: ['/api/plants'] });
-      queryClient.invalidateQueries({ queryKey: [`/api/plants/${plant.id}`] });
-      toast({
-        title: "Success",
-        description: "Feeding log removed successfully",
-      });
-    },
-    onError: (error) => {
-      console.error("Error deleting feeding log:", error);
-      toast({
-        title: "Error",
-        description: "Failed to remove feeding log",
-        variant: "destructive",
-      });
-    },
-  });
-
-  const deleteRepottingLogMutation = useMutation({
-    mutationFn: async (logId: number) => {
-      return apiRequest("DELETE", `/api/repotting-logs/${logId}`);
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: [`/api/plants/${plant.id}/repotting-logs`] });
-      toast({
-        title: "Success",
-        description: "Repotting log removed successfully",
-      });
-    },
-    onError: (error) => {
-      console.error("Error deleting repotting log:", error);
-      toast({
-        title: "Error",
-        description: "Failed to remove repotting log",
-        variant: "destructive",
-      });
-    },
-  });
-
-  const deleteSoilTopUpLogMutation = useMutation({
-    mutationFn: async (logId: number) => {
-      return apiRequest("DELETE", `/api/soil-top-up-logs/${logId}`);
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: [`/api/plants/${plant.id}/soil-top-up-logs`] });
-      toast({
-        title: "Success",
-        description: "Soil top up log removed successfully",
-      });
-    },
-    onError: (error) => {
-      console.error("Error deleting soil top up log:", error);
-      toast({
-        title: "Error",
-        description: "Failed to remove soil top up log",
-        variant: "destructive",
-      });
-    },
-  });
-
-  const deletePruningLogMutation = useMutation({
-    mutationFn: async (logId: number) => {
-      return apiRequest("DELETE", `/api/pruning-logs/${logId}`);
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: [`/api/plants/${plant.id}/pruning-logs`] });
-      toast({
-        title: "Success",
-        description: "Pruning log removed successfully",
-      });
-    },
-    onError: (error) => {
-      console.error("Error deleting pruning log:", error);
-      toast({
-        title: "Error",
-        description: "Failed to remove pruning log",
-        variant: "destructive",
-      });
-    },
-  });
-
-  const calculateNextCheckDate = () => {
-    if (plant.lastWatered) {
-      const lastWateredDate = new Date(plant.lastWatered);
-      const nextCheck = plant.nextCheck 
-        ? new Date(plant.nextCheck) 
-        : new Date(lastWateredDate.getTime() + 7 * 24 * 60 * 60 * 1000); // 7 days later by default
-      return format(nextCheck, "PPP");
-    }
-    return "Not set";
-  };
-
+  // Render functions
   const renderWateringLogs = () => {
     if (wateringLogsLoading) {
       return Array(3).fill(0).map((_, i) => (
@@ -306,7 +191,7 @@ export default function PlantCareHistory({
         <div className="text-center py-6 text-gray-500">
           <Droplets className="h-10 w-10 mx-auto mb-2 text-gray-300" />
           <p>No watering logs yet</p>
-          <p className="text-sm">Log when you water this plant to track its care history</p>
+          <p className="text-sm">Start tracking when you water this plant</p>
         </div>
       );
     }
@@ -374,7 +259,7 @@ export default function PlantCareHistory({
         <div className="text-center py-6 text-gray-500">
           <Flower className="h-10 w-10 mx-auto mb-2 text-gray-300" />
           <p>No feeding logs yet</p>
-          <p className="text-sm">Log when you fertilize this plant to track its care history</p>
+          <p className="text-sm">Track when you fertilize this plant</p>
         </div>
       );
     }
@@ -390,7 +275,9 @@ export default function PlantCareHistory({
               </CardTitle>
               {(log.fertilizer || log.amount) && (
                 <CardDescription>
-                  {log.fertilizer} {log.amount && `(${log.amount})`}
+                  {log.fertilizer && `Fertilizer: ${log.fertilizer}`}
+                  {log.fertilizer && log.amount && " • "}
+                  {log.amount && `Amount: ${log.amount}`}
                 </CardDescription>
               )}
             </div>
@@ -399,16 +286,11 @@ export default function PlantCareHistory({
                 variant="ghost" 
                 size="sm" 
                 className="h-7 px-2 text-destructive"
-                onClick={() => {
-                  // Delete the feeding log - we'd need to add this endpoint
-                  toast({
-                    title: "Undo not implemented yet",
-                    description: "We'll need a deletion endpoint for this feature",
-                    variant: "destructive"
-                  });
-                }}
+                onClick={() => deleteFeedingLogMutation.mutate(log.id)}
+                disabled={deleteFeedingLogMutation.isPending}
               >
-                Undo
+                <Trash2 className="h-3 w-3 mr-1" />
+                {deleteFeedingLogMutation.isPending ? "..." : "Undo"}
               </Button>
               <Badge variant="outline" className="text-xs">
                 {format(new Date(log.fedAt), "p")}
@@ -425,67 +307,302 @@ export default function PlantCareHistory({
     ));
   };
 
-  return (
-    <div className="mt-6">
-      <div className="flex justify-between items-center mb-4">
-        <h2 className="text-xl font-bold">Care History</h2>
-      </div>
-      
-      <Card className="mb-4">
-        <CardHeader className="py-2 px-4">
-          <CardTitle className="text-md flex items-center">
-            <Info className="h-4 w-4 mr-2 text-amber-500" />
-            Care Schedule
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="py-2 px-4">
-          <div className="grid grid-cols-2 gap-2">
+  const renderRepottingLogs = () => {
+    if (repottingLogsLoading) {
+      return Array(3).fill(0).map((_, i) => (
+        <div key={i} className="mb-2">
+          <Skeleton className="h-20 w-full mb-2" />
+        </div>
+      ));
+    }
+
+    if (repottingLogsError) {
+      return (
+        <div className="text-center py-4 text-red-500">
+          Failed to load repotting history
+        </div>
+      );
+    }
+
+    if (!repottingLogs || repottingLogs.length === 0) {
+      return (
+        <div className="text-center py-6 text-gray-500">
+          <Shovel className="h-10 w-10 mx-auto mb-2 text-gray-300" />
+          <p>No repotting logs yet</p>
+          <p className="text-sm">Log when you repot this plant to track its care history</p>
+        </div>
+      );
+    }
+
+    return repottingLogs.map((log) => (
+      <Card key={log.id} className="mb-3">
+        <CardHeader className="py-3 px-4">
+          <div className="flex justify-between items-start">
             <div>
-              <p className="text-sm font-medium">Last Watered</p>
-              <p className="text-sm">
-                {plant.lastWatered 
-                  ? format(new Date(plant.lastWatered), "PPP") 
-                  : "Never"}
-              </p>
+              <CardTitle className="text-md flex items-center">
+                <Shovel className="h-4 w-4 mr-2 text-orange-500" />
+                {format(new Date(log.repottedAt), "PPP")}
+              </CardTitle>
+              {(log.potSize || log.soilType) && (
+                <CardDescription>
+                  {log.potSize && `Pot Size: ${log.potSize}`}
+                  {log.potSize && log.soilType && " • "}
+                  {log.soilType && `Soil: ${log.soilType}`}
+                </CardDescription>
+              )}
             </div>
-            <div>
-              <p className="text-sm font-medium">Next Check</p>
-              <p className="text-sm flex items-center">
-                <CalendarIcon className="h-3 w-3 mr-1 text-gray-500" />
-                {calculateNextCheckDate()}
-              </p>
-            </div>
-            <div>
-              <p className="text-sm font-medium">Last Fed</p>
-              <p className="text-sm">
-                {plant.lastFed 
-                  ? format(new Date(plant.lastFed), "PPP") 
-                  : "Never"}
-              </p>
-            </div>
-            <div>
-              <p className="text-sm font-medium">Status</p>
-              <Badge 
-                variant={plant.status === "healthy" ? "default" : "destructive"}
-                className="mt-1"
+            <div className="flex items-center gap-2">
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                className="h-7 px-2 text-destructive"
+                onClick={() => deleteRepottingLogMutation.mutate(log.id)}
+                disabled={deleteRepottingLogMutation.isPending}
               >
-                {plant.status?.replace("_", " ")}
+                <Trash2 className="h-3 w-3 mr-1" />
+                {deleteRepottingLogMutation.isPending ? "..." : "Undo"}
+              </Button>
+              <Badge variant="outline" className="text-xs">
+                {format(new Date(log.repottedAt), "p")}
               </Badge>
             </div>
           </div>
-        </CardContent>
+        </CardHeader>
+        {log.notes && (
+          <CardContent className="py-0 px-4">
+            <p className="text-sm text-gray-600">{log.notes}</p>
+          </CardContent>
+        )}
       </Card>
-      
-      <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="w-full grid grid-cols-2">
-          <TabsTrigger value="watering" className="flex items-center">
-            <Droplets className="h-4 w-4 mr-2" />
-            Watering
-          </TabsTrigger>
-          <TabsTrigger value="feeding" className="flex items-center">
-            <Flower className="h-4 w-4 mr-2" />
-            Feeding
-          </TabsTrigger>
+    ));
+  };
+
+  const renderSoilTopUpLogs = () => {
+    if (soilTopUpLogsLoading) {
+      return Array(3).fill(0).map((_, i) => (
+        <div key={i} className="mb-2">
+          <Skeleton className="h-20 w-full mb-2" />
+        </div>
+      ));
+    }
+
+    if (soilTopUpLogsError) {
+      return (
+        <div className="text-center py-4 text-red-500">
+          Failed to load soil top up history
+        </div>
+      );
+    }
+
+    if (!soilTopUpLogs || soilTopUpLogs.length === 0) {
+      return (
+        <div className="text-center py-6 text-gray-500">
+          <Mountain className="h-10 w-10 mx-auto mb-2 text-gray-300" />
+          <p>No soil top up logs yet</p>
+          <p className="text-sm">Log when you add soil to this plant</p>
+        </div>
+      );
+    }
+
+    return soilTopUpLogs.map((log) => (
+      <Card key={log.id} className="mb-3">
+        <CardHeader className="py-3 px-4">
+          <div className="flex justify-between items-start">
+            <div>
+              <CardTitle className="text-md flex items-center">
+                <Mountain className="h-4 w-4 mr-2 text-brown-500" />
+                {format(new Date(log.toppedUpAt), "PPP")}
+              </CardTitle>
+              {(log.soilType || log.amount) && (
+                <CardDescription>
+                  {log.soilType && `Soil Type: ${log.soilType}`}
+                  {log.soilType && log.amount && " • "}
+                  {log.amount && `Amount: ${log.amount}`}
+                </CardDescription>
+              )}
+            </div>
+            <div className="flex items-center gap-2">
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                className="h-7 px-2 text-destructive"
+                onClick={() => deleteSoilTopUpLogMutation.mutate(log.id)}
+                disabled={deleteSoilTopUpLogMutation.isPending}
+              >
+                <Trash2 className="h-3 w-3 mr-1" />
+                {deleteSoilTopUpLogMutation.isPending ? "..." : "Undo"}
+              </Button>
+              <Badge variant="outline" className="text-xs">
+                {format(new Date(log.toppedUpAt), "p")}
+              </Badge>
+            </div>
+          </div>
+        </CardHeader>
+        {log.notes && (
+          <CardContent className="py-0 px-4">
+            <p className="text-sm text-gray-600">{log.notes}</p>
+          </CardContent>
+        )}
+      </Card>
+    ));
+  };
+
+  const renderPruningLogs = () => {
+    if (pruningLogsLoading) {
+      return Array(3).fill(0).map((_, i) => (
+        <div key={i} className="mb-2">
+          <Skeleton className="h-20 w-full mb-2" />
+        </div>
+      ));
+    }
+
+    if (pruningLogsError) {
+      return (
+        <div className="text-center py-4 text-red-500">
+          Failed to load pruning history
+        </div>
+      );
+    }
+
+    if (!pruningLogs || pruningLogs.length === 0) {
+      return (
+        <div className="text-center py-6 text-gray-500">
+          <Scissors className="h-10 w-10 mx-auto mb-2 text-gray-300" />
+          <p>No pruning logs yet</p>
+          <p className="text-sm">Log when you prune this plant</p>
+        </div>
+      );
+    }
+
+    return pruningLogs.map((log) => (
+      <Card key={log.id} className="mb-3">
+        <CardHeader className="py-3 px-4">
+          <div className="flex justify-between items-start">
+            <div>
+              <CardTitle className="text-md flex items-center">
+                <Scissors className="h-4 w-4 mr-2 text-purple-500" />
+                {format(new Date(log.prunedAt), "PPP")}
+              </CardTitle>
+              {(log.partsRemoved || log.reason) && (
+                <CardDescription>
+                  {log.partsRemoved && `Removed: ${log.partsRemoved}`}
+                  {log.partsRemoved && log.reason && " • "}
+                  {log.reason && `Reason: ${log.reason}`}
+                </CardDescription>
+              )}
+            </div>
+            <div className="flex items-center gap-2">
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                className="h-7 px-2 text-destructive"
+                onClick={() => deletePruningLogMutation.mutate(log.id)}
+                disabled={deletePruningLogMutation.isPending}
+              >
+                <Trash2 className="h-3 w-3 mr-1" />
+                {deletePruningLogMutation.isPending ? "..." : "Undo"}
+              </Button>
+              <Badge variant="outline" className="text-xs">
+                {format(new Date(log.prunedAt), "p")}
+              </Badge>
+            </div>
+          </div>
+        </CardHeader>
+        {log.notes && (
+          <CardContent className="py-0 px-4">
+            <p className="text-sm text-gray-600">{log.notes}</p>
+          </CardContent>
+        )}
+      </Card>
+    ));
+  };
+
+  return (
+    <div className="p-4">
+      {/* Plant Care Forms */}
+      {showWateringForm && (
+        <Dialog open={showWateringForm} onOpenChange={setShowWateringForm}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Add Watering Log</DialogTitle>
+            </DialogHeader>
+            <WateringLogForm 
+              plantId={plant.id} 
+              onSuccess={handleWateringSuccess}
+              onCancel={() => setShowWateringForm(false)}
+            />
+          </DialogContent>
+        </Dialog>
+      )}
+
+      {showFeedingForm && (
+        <Dialog open={showFeedingForm} onOpenChange={setShowFeedingForm}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Add Feeding Log</DialogTitle>
+            </DialogHeader>
+            <FeedingLogForm 
+              plantId={plant.id} 
+              onSuccess={handleFeedingSuccess}
+              onCancel={() => setShowFeedingForm(false)}
+            />
+          </DialogContent>
+        </Dialog>
+      )}
+
+      {showRepottingForm && (
+        <Dialog open={showRepottingForm} onOpenChange={setShowRepottingForm}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Add Repotting Log</DialogTitle>
+            </DialogHeader>
+            <RepottingLogForm 
+              plantId={plant.id} 
+              onSuccess={handleRepottingSuccess}
+              onCancel={() => setShowRepottingForm(false)}
+            />
+          </DialogContent>
+        </Dialog>
+      )}
+
+      {showSoilTopUpForm && (
+        <Dialog open={showSoilTopUpForm} onOpenChange={setShowSoilTopUpForm}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Add Soil Top Up Log</DialogTitle>
+            </DialogHeader>
+            <SoilTopUpLogForm 
+              plantId={plant.id} 
+              onSuccess={handleSoilTopUpSuccess}
+              onCancel={() => setShowSoilTopUpForm(false)}
+            />
+          </DialogContent>
+        </Dialog>
+      )}
+
+      {showPruningForm && (
+        <Dialog open={showPruningForm} onOpenChange={setShowPruningForm}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Add Pruning Log</DialogTitle>
+            </DialogHeader>
+            <PruningLogForm 
+              plantId={plant.id} 
+              onSuccess={handlePruningSuccess}
+              onCancel={() => setShowPruningForm(false)}
+            />
+          </DialogContent>
+        </Dialog>
+      )}
+
+      {/* Care History Tabs */}
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+        <TabsList className="grid w-full grid-cols-5">
+          <TabsTrigger value="watering">Water</TabsTrigger>
+          <TabsTrigger value="feeding">Feed</TabsTrigger>
+          <TabsTrigger value="repotting">Repot</TabsTrigger>
+          <TabsTrigger value="soil">Soil</TabsTrigger>
+          <TabsTrigger value="pruning">Prune</TabsTrigger>
         </TabsList>
         
         <TabsContent value="watering" className="mt-4">
@@ -494,6 +611,18 @@ export default function PlantCareHistory({
         
         <TabsContent value="feeding" className="mt-4">
           {renderFeedingLogs()}
+        </TabsContent>
+        
+        <TabsContent value="repotting" className="mt-4">
+          {renderRepottingLogs()}
+        </TabsContent>
+        
+        <TabsContent value="soil" className="mt-4">
+          {renderSoilTopUpLogs()}
+        </TabsContent>
+        
+        <TabsContent value="pruning" className="mt-4">
+          {renderPruningLogs()}
         </TabsContent>
       </Tabs>
     </div>

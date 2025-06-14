@@ -408,7 +408,27 @@ const PlantForm = ({ onSuccess, initialValues, plantId }: PlantFormProps) => {
             )}
           />
           
-          
+          <FormField
+            control={form.control}
+            name="wateringFrequencyDays"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Watering Frequency (days)</FormLabel>
+                <FormControl>
+                  <Input 
+                    type="number"
+                    placeholder="7" 
+                    {...field}
+                    onChange={(e) => field.onChange(parseInt(e.target.value) || 7)}
+                    className="bg-background"
+                    min="1"
+                    max="365"
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
           
           <FormField
             control={form.control}
