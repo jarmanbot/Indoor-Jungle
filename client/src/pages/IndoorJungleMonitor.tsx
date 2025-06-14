@@ -31,6 +31,93 @@ const IndoorJungleMonitor = () => {
         </div>
       </div>
 
+      {/* Device Mockup */}
+      <Card className="mb-6 overflow-hidden">
+        <CardContent className="p-8 bg-gradient-to-br from-gray-50 to-blue-50">
+          <div className="flex justify-center">
+            <div className="relative">
+              {/* Device SVG Mockup */}
+              <svg width="200" height="280" viewBox="0 0 200 280" className="drop-shadow-2xl">
+                {/* Device Body */}
+                <rect x="20" y="20" width="160" height="240" rx="20" ry="20" fill="#ffffff" stroke="#e5e7eb" strokeWidth="2"/>
+                
+                {/* Screen */}
+                <rect x="35" y="35" width="130" height="80" rx="8" ry="8" fill="#1f2937"/>
+                
+                {/* Screen Content */}
+                <text x="100" y="55" textAnchor="middle" fill="#10b981" fontSize="12" fontFamily="Arial, sans-serif">Indoor Jungle</text>
+                <text x="100" y="75" textAnchor="middle" fill="#6b7280" fontSize="10" fontFamily="Arial, sans-serif">Monitor v2.0</text>
+                <circle cx="45" cy="95" r="3" fill="#10b981"/>
+                <text x="55" y="99" fill="#e5e7eb" fontSize="8" fontFamily="Arial, sans-serif">Connected</text>
+                <text x="120" y="99" fill="#e5e7eb" fontSize="8" fontFamily="Arial, sans-serif">22°C 65%</text>
+                
+                {/* Sensors */}
+                <circle cx="100" cy="140" r="15" fill="#f3f4f6" stroke="#d1d5db" strokeWidth="1"/>
+                <circle cx="100" cy="140" r="8" fill="#3b82f6"/>
+                <text x="100" y="165" textAnchor="middle" fill="#6b7280" fontSize="8" fontFamily="Arial, sans-serif">TEMP/HUMID</text>
+                
+                {/* Light Sensor */}
+                <rect x="85" y="180" width="30" height="15" rx="7" ry="7" fill="#fbbf24"/>
+                <text x="100" y="205" textAnchor="middle" fill="#6b7280" fontSize="8" fontFamily="Arial, sans-serif">LIGHT</text>
+                
+                {/* Air Quality Sensor */}
+                <rect x="85" y="220" width="30" height="10" rx="5" ry="5" fill="#8b5cf6"/>
+                <text x="100" y="240" textAnchor="middle" fill="#6b7280" fontSize="8" fontFamily="Arial, sans-serif">AIR QUALITY</text>
+                
+                {/* Status LED */}
+                <circle cx="165" cy="35" r="4" fill="#10b981" className="animate-pulse"/>
+                
+                {/* Bluetooth Icon */}
+                <path d="M 150 250 L 155 245 L 150 240 L 155 235 L 150 230 M 150 240 L 145 235 M 150 240 L 145 245" 
+                      stroke="#3b82f6" strokeWidth="1.5" fill="none"/>
+                
+                {/* Battery Indicator */}
+                <rect x="160" y="250" width="15" height="8" rx="1" ry="1" fill="none" stroke="#6b7280" strokeWidth="1"/>
+                <rect x="175" y="252" width="2" height="4" fill="#6b7280"/>
+                <rect x="162" y="252" width="11" height="4" fill="#10b981"/>
+              </svg>
+              
+              {/* Floating Sensor Data */}
+              <div className="absolute -right-16 top-8 bg-white rounded-lg shadow-lg p-3 text-xs animate-pulse">
+                <div className="flex items-center mb-1">
+                  <div className="w-2 h-2 bg-red-500 rounded-full mr-2"></div>
+                  <span>24.5°C</span>
+                </div>
+                <div className="flex items-center mb-1">
+                  <div className="w-2 h-2 bg-blue-500 rounded-full mr-2"></div>
+                  <span>68% RH</span>
+                </div>
+                <div className="flex items-center">
+                  <div className="w-2 h-2 bg-yellow-500 rounded-full mr-2"></div>
+                  <span>850 lux</span>
+                </div>
+              </div>
+              
+              <div className="absolute -left-16 bottom-16 bg-white rounded-lg shadow-lg p-3 text-xs animate-pulse">
+                <div className="flex items-center mb-1">
+                  <div className="w-2 h-2 bg-purple-500 rounded-full mr-2"></div>
+                  <span>Good Air</span>
+                </div>
+                <div className="flex items-center">
+                  <div className="w-2 h-2 bg-green-500 rounded-full mr-2"></div>
+                  <span>98% Battery</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <div className="text-center mt-6">
+            <h3 className="text-lg font-semibold text-gray-800 mb-2">Indoor Jungle Monitor</h3>
+            <p className="text-sm text-gray-600">Professional environmental monitoring for optimal plant health</p>
+            <div className="flex justify-center items-center mt-3 space-x-4">
+              <span className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded">12-month battery</span>
+              <span className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded">Bluetooth 5.0</span>
+              <span className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded">IP65 rated</span>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
       <Card className="mb-6 overflow-hidden">
         <div className="bg-gradient-to-r from-green-600 to-blue-600 p-6 text-white">
           <div className="flex items-center justify-center mb-4">
