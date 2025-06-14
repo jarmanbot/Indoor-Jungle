@@ -54,11 +54,7 @@ export default function RepottingLogForm({ plantId, onSuccess, onCancel }: Repot
         ...data,
         repottedAt: date?.toISOString(),
       };
-      return apiRequest(`/api/plants/${plantId}/repotting-logs`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(logData),
-      });
+      return apiRequest("POST", `/api/plants/${plantId}/repotting-logs`, logData);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [`/api/plants/${plantId}/repotting-logs`] });

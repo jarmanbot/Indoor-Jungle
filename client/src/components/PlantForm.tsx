@@ -42,6 +42,7 @@ const formSchema = insertPlantSchema.extend({
   babyName: z.string().min(1, "Baby name is required"),
   commonName: z.string().min(1, "Common name is required"),
   location: z.string().min(1, "Location is required"),
+  wateringFrequencyDays: z.number().min(1, "Watering frequency must be at least 1 day").max(365, "Watering frequency cannot exceed 365 days"),
 })
 // Then explicitly make plantNumber and name optional since they're auto-generated
 .omit({ plantNumber: true, name: true })
@@ -111,6 +112,7 @@ const PlantForm = ({ onSuccess, initialValues, plantId }: PlantFormProps) => {
       lastWatered: initialValues?.lastWatered || undefined,
       nextCheck: initialValues?.nextCheck || undefined,
       lastFed: initialValues?.lastFed || undefined,
+      wateringFrequencyDays: initialValues?.wateringFrequencyDays || 7,
       notes: initialValues?.notes || "",
       plantNumber: initialValues?.plantNumber,
     },

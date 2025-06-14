@@ -54,11 +54,7 @@ export default function PruningLogForm({ plantId, onSuccess, onCancel }: Pruning
         ...data,
         prunedAt: date?.toISOString(),
       };
-      return apiRequest(`/api/plants/${plantId}/pruning-logs`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(logData),
-      });
+      return apiRequest("POST", `/api/plants/${plantId}/pruning-logs`, logData);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [`/api/plants/${plantId}/pruning-logs`] });

@@ -54,11 +54,7 @@ export default function SoilTopUpLogForm({ plantId, onSuccess, onCancel }: SoilT
         ...data,
         toppedUpAt: date?.toISOString(),
       };
-      return apiRequest(`/api/plants/${plantId}/soil-top-up-logs`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(logData),
-      });
+      return apiRequest("POST", `/api/plants/${plantId}/soil-top-up-logs`, logData);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [`/api/plants/${plantId}/soil-top-up-logs`] });

@@ -233,9 +233,7 @@ export default function PlantCareHistory({
 
   const deleteSoilTopUpLogMutation = useMutation({
     mutationFn: async (logId: number) => {
-      return apiRequest(`/api/soil-top-up-logs/${logId}`, {
-        method: "DELETE",
-      });
+      return apiRequest("DELETE", `/api/soil-top-up-logs/${logId}`);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [`/api/plants/${plant.id}/soil-top-up-logs`] });
@@ -256,9 +254,7 @@ export default function PlantCareHistory({
 
   const deletePruningLogMutation = useMutation({
     mutationFn: async (logId: number) => {
-      return apiRequest(`/api/pruning-logs/${logId}`, {
-        method: "DELETE",
-      });
+      return apiRequest("DELETE", `/api/pruning-logs/${logId}`);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [`/api/plants/${plant.id}/pruning-logs`] });
