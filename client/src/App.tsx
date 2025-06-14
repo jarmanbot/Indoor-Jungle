@@ -11,6 +11,11 @@ import Calendar from "@/pages/Calendar";
 import Tasks from "@/pages/Tasks";
 import Settings from "@/pages/Settings";
 import IndoorJungleMonitor from "@/pages/IndoorJungleMonitor";
+import Analytics from "@/pages/Analytics";
+import Achievements from "@/pages/Achievements";
+import PlantIdentification from "@/pages/PlantIdentification";
+import BulkCare from "@/pages/BulkCare";
+import SmartRecommendations from "@/pages/SmartRecommendations";
 import Navigation from "@/components/Navigation";
 import Header from "@/components/Header";
 // Import Game pages
