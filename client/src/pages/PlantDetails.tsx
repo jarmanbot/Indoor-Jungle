@@ -150,14 +150,6 @@ const PlantDetails = () => {
         <div className="p-4">
           <h1 className="text-2xl font-bold mb-2">{plant.name}</h1>
           
-          {plant.notes && (
-            <div className="mb-4 bg-neutral-light p-3 rounded-md">
-              <h3 className="font-medium mb-1">Notes</h3>
-              <p className="text-sm text-neutral-dark">{plant.notes}</p>
-            </div>
-          )}
-          
-          <h3 className="font-medium mb-2 mt-4">Care Information</h3>
           <div className="grid grid-cols-2 gap-4">
             <div className="bg-neutral-light rounded-md p-3">
               <div className="flex items-start">
@@ -239,6 +231,14 @@ const PlantDetails = () => {
           </div>
         </div>
       </div>
+      
+      {/* Notes Section */}
+      {plant.notes && (
+        <div className="mb-6 bg-white rounded-lg shadow-sm p-4">
+          <h3 className="font-medium mb-2">Notes</h3>
+          <p className="text-sm text-neutral-dark">{plant.notes}</p>
+        </div>
+      )}
       
       {/* Plant Care History */}
       <PlantCareHistory 
