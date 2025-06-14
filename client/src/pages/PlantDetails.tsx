@@ -267,9 +267,10 @@ const PlantDetails = () => {
                 size="sm" 
                 className="mt-2 w-full text-warning"
                 onClick={() => {
-                  // Set next check date to 7 days from now
+                  // Set next check date based on plant's watering frequency
                   const nextCheck = new Date();
-                  nextCheck.setDate(nextCheck.getDate() + 7);
+                  const frequency = plant.wateringFrequencyDays || 7;
+                  nextCheck.setDate(nextCheck.getDate() + frequency);
 
                   apiRequest('PATCH', `/api/plants/${plant.id}`, { 
                     nextCheck: nextCheck.toISOString()
@@ -277,7 +278,7 @@ const PlantDetails = () => {
                     queryClient.invalidateQueries({ queryKey: [`/api/plants/${plant.id}`] });
                     toast({
                       title: "Reminder set",
-                      description: "Your plant's next check has been scheduled",
+                      description: `Your plant's next check has been scheduled for ${frequency} days from now`,
                     });
                   });
                 }}
