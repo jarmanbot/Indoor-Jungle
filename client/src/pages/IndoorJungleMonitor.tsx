@@ -114,6 +114,14 @@ const IndoorJungleMonitor = () => {
               <span className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded">Bluetooth 5.0</span>
               <span className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded">IP65 rated</span>
             </div>
+            <div className="mt-4 p-3 bg-green-50 rounded-lg">
+              <p className="text-sm text-green-800 font-medium text-center">
+                Connect up to 10 sensors per app
+              </p>
+              <p className="text-xs text-green-600 text-center mt-1">
+                Place one in each room for precise, location-specific data that links directly to your plants
+              </p>
+            </div>
           </div>
         </CardContent>
       </Card>
@@ -302,6 +310,63 @@ const IndoorJungleMonitor = () => {
                 <p className="text-sm text-gray-600">Suggests best plant placement for optimal light exposure</p>
               </div>
             </div>
+            
+            <div className="flex items-center p-3 bg-orange-50 rounded-lg">
+              <Wifi className="h-6 w-6 text-orange-600 mr-3" />
+              <div>
+                <p className="font-medium">Multi-Room Monitoring</p>
+                <p className="text-sm text-gray-600">Connect up to 10 sensors across different rooms for location-specific plant care</p>
+              </div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Multi-Sensor Benefits */}
+      <Card className="mb-6">
+        <CardHeader>
+          <CardTitle>Room-Specific Plant Care</CardTitle>
+          <CardDescription>
+            Each sensor provides targeted environmental data for plants in that specific location
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-4">
+            <div className="bg-blue-50 p-4 rounded-lg">
+              <h4 className="font-medium text-blue-900 mb-2">Living Room Sensor</h4>
+              <p className="text-sm text-blue-700 mb-2">Tracks conditions for your fiddle leaf fig and monstera</p>
+              <div className="grid grid-cols-3 gap-2 text-xs">
+                <span className="bg-white px-2 py-1 rounded">23°C</span>
+                <span className="bg-white px-2 py-1 rounded">62% RH</span>
+                <span className="bg-white px-2 py-1 rounded">750 lux</span>
+              </div>
+            </div>
+            
+            <div className="bg-green-50 p-4 rounded-lg">
+              <h4 className="font-medium text-green-900 mb-2">Kitchen Sensor</h4>
+              <p className="text-sm text-green-700 mb-2">Monitors humidity for your herb garden and succulents</p>
+              <div className="grid grid-cols-3 gap-2 text-xs">
+                <span className="bg-white px-2 py-1 rounded">25°C</span>
+                <span className="bg-white px-2 py-1 rounded">58% RH</span>
+                <span className="bg-white px-2 py-1 rounded">920 lux</span>
+              </div>
+            </div>
+            
+            <div className="bg-purple-50 p-4 rounded-lg">
+              <h4 className="font-medium text-purple-900 mb-2">Bedroom Sensor</h4>
+              <p className="text-sm text-purple-700 mb-2">Optimizes air quality and light for your snake plants</p>
+              <div className="grid grid-cols-3 gap-2 text-xs">
+                <span className="bg-white px-2 py-1 rounded">21°C</span>
+                <span className="bg-white px-2 py-1 rounded">65% RH</span>
+                <span className="bg-white px-2 py-1 rounded">320 lux</span>
+              </div>
+            </div>
+          </div>
+          
+          <div className="mt-4 p-3 bg-gray-50 rounded-lg text-center">
+            <p className="text-sm text-gray-700">
+              Each plant automatically receives care recommendations based on its room's specific environmental conditions
+            </p>
           </div>
         </CardContent>
       </Card>
