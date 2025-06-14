@@ -5,7 +5,9 @@ import {
   insertPlantSchema, 
   insertCustomLocationSchema,
   insertWateringLogSchema,
-  insertFeedingLogSchema 
+  insertFeedingLogSchema,
+  insertSeasonalRecommendationSchema,
+  insertPlantRecommendationSchema
 } from "@shared/schema";
 import multer from "multer";
 import path from "path";
