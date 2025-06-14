@@ -14,7 +14,8 @@ import FeedingLogForm from "@/components/FeedingLogForm";
 import RepottingLogForm from "@/components/RepottingLogForm";
 import SoilTopUpLogForm from "@/components/SoilTopUpLogForm";
 import PruningLogForm from "@/components/PruningLogForm";
-import { ChevronLeft, Droplet, Clock, Package, MapPin, Edit, Trash, Hash, Flower, Shovel, Mountain, Scissors } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { ChevronLeft, Droplet, Clock, Package, MapPin, Edit, Trash, Hash, Flower, Shovel, Mountain, Scissors, Check, X } from "lucide-react";
 import PlantCareHistory from "@/components/PlantCareHistory";
 
 const PlantDetails = () => {
@@ -26,6 +27,8 @@ const PlantDetails = () => {
   const [showRepottingForm, setShowRepottingForm] = useState(false);
   const [showSoilTopUpForm, setShowSoilTopUpForm] = useState(false);
   const [showPruningForm, setShowPruningForm] = useState(false);
+  const [editingWateringFrequency, setEditingWateringFrequency] = useState(false);
+  const [wateringFrequencyValue, setWateringFrequencyValue] = useState("");
   const numericId = id ? parseInt(id) : 0;
 
   const { data: plant, isLoading, error } = useQuery<Plant>({
@@ -52,6 +55,52 @@ const PlantDetails = () => {
       });
     }
   });
+
+  const updateWateringFrequencyMutation = useMutation({
+    mutationFn: async (newFrequency: number) => {
+      await apiRequest('PATCH', `/api/plants/${id}`, { 
+        wateringFrequencyDays: newFrequency 
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [`/api/plants/${id}`] });
+      setEditingWateringFrequency(false);
+      toast({
+        title: "Watering frequency updated",
+        description: "Your plant's watering schedule has been updated",
+      });
+    },
+    onError: (error) => {
+      toast({
+        title: "Error",
+        description: error instanceof Error ? error.message : "Failed to update watering frequency",
+        variant: "destructive",
+      });
+    }
+  });
+
+  const handleWateringFrequencyEdit = () => {
+    setWateringFrequencyValue(plant?.wateringFrequencyDays?.toString() || "7");
+    setEditingWateringFrequency(true);
+  };
+
+  const handleWateringFrequencySave = () => {
+    const frequency = parseInt(wateringFrequencyValue);
+    if (frequency > 0 && frequency <= 365) {
+      updateWateringFrequencyMutation.mutate(frequency);
+    } else {
+      toast({
+        title: "Invalid frequency",
+        description: "Please enter a value between 1 and 365 days",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleWateringFrequencyCancel = () => {
+    setEditingWateringFrequency(false);
+    setWateringFrequencyValue("");
+  };
 
   if (isLoading) {
     return (
@@ -261,6 +310,59 @@ const PlantDetails = () => {
                 <div>
                   <h4 className="font-medium">Location</h4>
                   <p className="text-sm text-neutral-dark">{formatLocation(plant.location)}</p>
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-neutral-light rounded-md p-3">
+              <div className="flex items-start">
+                <Clock className="h-5 w-5 text-blue-500 mr-2 mt-0.5" />
+                <div className="flex-1">
+                  <h4 className="font-medium">Watering Frequency</h4>
+                  {editingWateringFrequency ? (
+                    <div className="flex items-center gap-2 mt-1">
+                      <Input
+                        type="number"
+                        value={wateringFrequencyValue}
+                        onChange={(e) => setWateringFrequencyValue(e.target.value)}
+                        className="h-7 w-16 text-sm"
+                        min="1"
+                        max="365"
+                      />
+                      <span className="text-sm text-neutral-dark">days</span>
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        className="h-7 w-7 p-0"
+                        onClick={handleWateringFrequencySave}
+                        disabled={updateWateringFrequencyMutation.isPending}
+                      >
+                        <Check className="h-3 w-3" />
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        className="h-7 w-7 p-0"
+                        onClick={handleWateringFrequencyCancel}
+                      >
+                        <X className="h-3 w-3" />
+                      </Button>
+                    </div>
+                  ) : (
+                    <div className="flex items-center gap-2 mt-1">
+                      <p className="text-sm text-neutral-dark">
+                        Every {plant.wateringFrequencyDays || 7} days
+                      </p>
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        className="h-7 w-7 p-0"
+                        onClick={handleWateringFrequencyEdit}
+                      >
+                        <Edit className="h-3 w-3" />
+                      </Button>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
