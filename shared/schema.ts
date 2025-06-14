@@ -76,6 +76,7 @@ export const plants = pgTable("plants", {
   nextCheck: timestamp("next_check"),
   lastFed: timestamp("last_fed"),
   wateringFrequencyDays: integer("watering_frequency_days").default(7), // Default to weekly
+  feedingFrequencyDays: integer("feeding_frequency_days").default(14), // Default to bi-weekly
   notes: text("notes"),
   
   // Images and status

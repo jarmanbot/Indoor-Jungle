@@ -16,6 +16,16 @@ const Calendar = () => {
     queryKey: ['/api/plants'],
   });
 
+  // Calculate next watering and feeding dates based on frequency
+  const calculateNextCareDate = (lastCareDate: string | null, frequencyDays: number) => {
+    if (!lastCareDate) return new Date(); // If never cared for, due now
+    
+    const lastDate = new Date(lastCareDate);
+    const nextDate = new Date(lastDate);
+    nextDate.setDate(lastDate.getDate() + frequencyDays);
+    return nextDate;
+  };
+
   // Filter plants for events on the selected date
   const getEventsForSelectedDate = () => {
     if (!date || !plants) return { wateringEvents: [], feedingEvents: [] };
@@ -23,13 +33,13 @@ const Calendar = () => {
     const formattedSelectedDate = format(date, 'yyyy-MM-dd');
     
     const wateringEvents = plants.filter(plant => {
-      if (!plant.nextCheck) return false;
-      return format(new Date(plant.nextCheck), 'yyyy-MM-dd') === formattedSelectedDate;
+      const nextWaterDate = calculateNextCareDate(plant.lastWatered, plant.wateringFrequencyDays || 7);
+      return format(nextWaterDate, 'yyyy-MM-dd') === formattedSelectedDate;
     });
     
     const feedingEvents = plants.filter(plant => {
-      if (!plant.lastFed) return false;
-      return format(new Date(plant.lastFed), 'yyyy-MM-dd') === formattedSelectedDate;
+      const nextFeedDate = calculateNextCareDate(plant.lastFed, plant.feedingFrequencyDays || 14);
+      return format(nextFeedDate, 'yyyy-MM-dd') === formattedSelectedDate;
     });
     
     return { wateringEvents, feedingEvents };

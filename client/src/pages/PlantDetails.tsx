@@ -29,6 +29,8 @@ const PlantDetails = () => {
   const [showPruningForm, setShowPruningForm] = useState(false);
   const [editingWateringFrequency, setEditingWateringFrequency] = useState(false);
   const [wateringFrequencyValue, setWateringFrequencyValue] = useState("");
+  const [editingFeedingFrequency, setEditingFeedingFrequency] = useState(false);
+  const [feedingFrequencyValue, setFeedingFrequencyValue] = useState("");
   const numericId = id ? parseInt(id) : 0;
 
   const { data: plant, isLoading, error } = useQuery<Plant>({
@@ -79,6 +81,29 @@ const PlantDetails = () => {
     }
   });
 
+  const updateFeedingFrequencyMutation = useMutation({
+    mutationFn: async (newFrequency: number) => {
+      await apiRequest('PATCH', `/api/plants/${id}`, { 
+        feedingFrequencyDays: newFrequency 
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [`/api/plants/${id}`] });
+      setEditingFeedingFrequency(false);
+      toast({
+        title: "Feeding frequency updated",
+        description: "Your plant's feeding schedule has been updated",
+      });
+    },
+    onError: (error) => {
+      toast({
+        title: "Error",
+        description: error instanceof Error ? error.message : "Failed to update feeding frequency",
+        variant: "destructive",
+      });
+    }
+  });
+
   const handleWateringFrequencyEdit = () => {
     setWateringFrequencyValue(plant?.wateringFrequencyDays?.toString() || "7");
     setEditingWateringFrequency(true);
@@ -100,6 +125,29 @@ const PlantDetails = () => {
   const handleWateringFrequencyCancel = () => {
     setEditingWateringFrequency(false);
     setWateringFrequencyValue("");
+  };
+
+  const handleFeedingFrequencyEdit = () => {
+    setFeedingFrequencyValue(plant?.feedingFrequencyDays?.toString() || "14");
+    setEditingFeedingFrequency(true);
+  };
+
+  const handleFeedingFrequencySave = () => {
+    const frequency = parseInt(feedingFrequencyValue);
+    if (frequency > 0 && frequency <= 365) {
+      updateFeedingFrequencyMutation.mutate(frequency);
+    } else {
+      toast({
+        title: "Invalid frequency",
+        description: "Please enter a value between 1 and 365 days",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleFeedingFrequencyCancel = () => {
+    setEditingFeedingFrequency(false);
+    setFeedingFrequencyValue("");
   };
 
   if (isLoading) {
@@ -359,6 +407,59 @@ const PlantDetails = () => {
                         variant="ghost"
                         className="h-7 w-7 p-0"
                         onClick={handleWateringFrequencyEdit}
+                      >
+                        <Edit className="h-3 w-3" />
+                      </Button>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-neutral-light rounded-md p-3">
+              <div className="flex items-start">
+                <Flower className="h-5 w-5 text-green-500 mr-2 mt-0.5" />
+                <div className="flex-1">
+                  <h4 className="font-medium">Feeding Frequency</h4>
+                  {editingFeedingFrequency ? (
+                    <div className="flex items-center gap-2 mt-1">
+                      <Input
+                        type="number"
+                        value={feedingFrequencyValue}
+                        onChange={(e) => setFeedingFrequencyValue(e.target.value)}
+                        className="h-7 w-16 text-sm"
+                        min="1"
+                        max="365"
+                      />
+                      <span className="text-sm text-neutral-dark">days</span>
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        className="h-7 w-7 p-0"
+                        onClick={handleFeedingFrequencySave}
+                        disabled={updateFeedingFrequencyMutation.isPending}
+                      >
+                        <Check className="h-3 w-3" />
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        className="h-7 w-7 p-0"
+                        onClick={handleFeedingFrequencyCancel}
+                      >
+                        <X className="h-3 w-3" />
+                      </Button>
+                    </div>
+                  ) : (
+                    <div className="flex items-center gap-2 mt-1">
+                      <p className="text-sm text-neutral-dark">
+                        Every {plant.feedingFrequencyDays || 14} days
+                      </p>
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        className="h-7 w-7 p-0"
+                        onClick={handleFeedingFrequencyEdit}
                       >
                         <Edit className="h-3 w-3" />
                       </Button>

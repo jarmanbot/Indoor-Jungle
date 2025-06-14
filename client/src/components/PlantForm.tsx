@@ -408,27 +408,51 @@ const PlantForm = ({ onSuccess, initialValues, plantId }: PlantFormProps) => {
             )}
           />
           
-          <FormField
-            control={form.control}
-            name="wateringFrequencyDays"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Watering Frequency (days)</FormLabel>
-                <FormControl>
-                  <Input 
-                    type="number"
-                    placeholder="7" 
-                    {...field}
-                    onChange={(e) => field.onChange(parseInt(e.target.value) || 7)}
-                    className="bg-background"
-                    min="1"
-                    max="365"
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+          <div className="grid gap-6 md:grid-cols-2">
+            <FormField
+              control={form.control}
+              name="wateringFrequencyDays"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Watering Frequency (days)</FormLabel>
+                  <FormControl>
+                    <Input 
+                      type="number"
+                      placeholder="7" 
+                      {...field}
+                      onChange={(e) => field.onChange(parseInt(e.target.value) || 7)}
+                      className="bg-background"
+                      min="1"
+                      max="365"
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            
+            <FormField
+              control={form.control}
+              name="feedingFrequencyDays"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Feeding Frequency (days)</FormLabel>
+                  <FormControl>
+                    <Input 
+                      type="number"
+                      placeholder="14" 
+                      {...field}
+                      onChange={(e) => field.onChange(parseInt(e.target.value) || 14)}
+                      className="bg-background"
+                      min="1"
+                      max="365"
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
           
           <FormField
             control={form.control}
