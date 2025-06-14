@@ -18,6 +18,7 @@ import BulkCare from "@/pages/BulkCare";
 import SmartRecommendations from "@/pages/SmartRecommendations";
 import Navigation from "@/components/Navigation";
 import Header from "@/components/Header";
+import FloatingActionButton from "@/components/FloatingActionButton";
 // Import Game pages
 import Game from "@/pages/Game";
 import GameDashboard from "@/pages/Game/Dashboard";
@@ -74,6 +75,9 @@ function Router() {
       
       {/* Show navigation on all pages except add and edit */}
       {!location.includes("/add") && <Navigation />}
+      
+      {/* Floating Action Button on main pages */}
+      {!hideHeader && !location.includes("/add") && !location.includes("/settings") && <FloatingActionButton />}
     </div>
   );
 }
