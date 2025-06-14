@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
 import { format } from "date-fns";
 import { 
   Tabs, 
@@ -30,12 +30,20 @@ import {
   Flower, 
   CalendarIcon, 
   PlusCircle, 
-  Info 
+  Info,
+  Shovel,
+  Scissors,
+  Mountain,
+  Trash2
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { apiRequest } from "@/lib/queryClient";
 import WateringLogForm from "./WateringLogForm";
 import FeedingLogForm from "./FeedingLogForm";
-import type { Plant, WateringLog, FeedingLog } from "@shared/schema";
+import RepottingLogForm from "./RepottingLogForm";
+import SoilTopUpLogForm from "./SoilTopUpLogForm";
+import PruningLogForm from "./PruningLogForm";
+import type { Plant, WateringLog, FeedingLog, RepottingLog, SoilTopUpLog, PruningLog } from "@shared/schema";
 
 interface PlantCareHistoryProps {
   plant: Plant;
