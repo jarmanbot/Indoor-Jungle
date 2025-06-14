@@ -17,10 +17,10 @@ const Calendar = () => {
   });
 
   // Calculate next watering and feeding dates based on frequency
-  const calculateNextCareDate = (lastCareDate: string | null, frequencyDays: number) => {
-    if (!lastCareDate) return new Date(); // If never cared for, due now
+  const calculateNextCareDate = (lastCareTimestamp: Date | string | null, frequencyDays: number) => {
+    if (!lastCareTimestamp) return new Date(); // If never cared for, due now
     
-    const lastDate = new Date(lastCareDate);
+    const lastDate = new Date(lastCareTimestamp);
     const nextDate = new Date(lastDate);
     nextDate.setDate(lastDate.getDate() + frequencyDays);
     return nextDate;
@@ -54,13 +54,13 @@ const Calendar = () => {
     const formattedDay = format(day, 'yyyy-MM-dd');
     
     const hasWateringEvent = plants.some(plant => {
-      if (!plant.nextCheck) return false;
-      return format(new Date(plant.nextCheck), 'yyyy-MM-dd') === formattedDay;
+      const nextWaterDate = calculateNextCareDate(plant.lastWatered, plant.wateringFrequencyDays || 7);
+      return format(nextWaterDate, 'yyyy-MM-dd') === formattedDay;
     });
     
     const hasFeedingEvent = plants.some(plant => {
-      if (!plant.lastFed) return false;
-      return format(new Date(plant.lastFed), 'yyyy-MM-dd') === formattedDay;
+      const nextFeedDate = calculateNextCareDate(plant.lastFed, plant.feedingFrequencyDays || 14);
+      return format(nextFeedDate, 'yyyy-MM-dd') === formattedDay;
     });
     
     if (hasWateringEvent && hasFeedingEvent) return "bg-purple-100 text-purple-600 font-bold";

@@ -420,6 +420,7 @@ const PlantForm = ({ onSuccess, initialValues, plantId }: PlantFormProps) => {
                       type="number"
                       placeholder="7" 
                       {...field}
+                      value={field.value || ""}
                       onChange={(e) => field.onChange(parseInt(e.target.value) || 7)}
                       className="bg-background"
                       min="1"
@@ -442,6 +443,7 @@ const PlantForm = ({ onSuccess, initialValues, plantId }: PlantFormProps) => {
                       type="number"
                       placeholder="14" 
                       {...field}
+                      value={field.value || ""}
                       onChange={(e) => field.onChange(parseInt(e.target.value) || 14)}
                       className="bg-background"
                       min="1"
