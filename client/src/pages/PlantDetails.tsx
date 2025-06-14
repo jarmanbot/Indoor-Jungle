@@ -173,7 +173,7 @@ const PlantDetails = () => {
                 className="mt-2 w-full text-blue-600 border-blue-200"
                 onClick={() => setShowWateringForm(true)}
               >
-                Water Now
+                Log Watering
               </Button>
             </div>
             
@@ -223,7 +223,7 @@ const PlantDetails = () => {
                 className="mt-2 w-full text-green-600 border-green-200"
                 onClick={() => setShowFeedingForm(true)}
               >
-                Feed Now
+                Log Feeding
               </Button>
             </div>
             

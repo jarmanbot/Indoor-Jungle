@@ -255,43 +255,23 @@ export default function PlantCareHistory({
         <h2 className="text-xl font-bold">Care History</h2>
         <div className="flex space-x-2">
           {activeTab === "watering" ? (
-            <Dialog open={showWateringForm} onOpenChange={setShowWateringForm}>
-              <DialogTrigger asChild>
-                <Button size="sm" className="bg-blue-400 hover:bg-blue-700 text-black">
-                  <PlusCircle className="h-4 w-4 mr-1" />
-                  Water Now
-                </Button>
-              </DialogTrigger>
-              <DialogContent>
-                <DialogHeader>
-                  <DialogTitle>Log Watering</DialogTitle>
-                </DialogHeader>
-                <WateringLogForm 
-                  plantId={plant.id}
-                  onSuccess={handleWateringSuccess}
-                  onCancel={() => setShowWateringForm(false)}
-                />
-              </DialogContent>
-            </Dialog>
+            <Button 
+              size="sm" 
+              className="bg-blue-400 hover:bg-blue-700 text-black"
+              onClick={() => setShowWateringForm(true)}
+            >
+              <PlusCircle className="h-4 w-4 mr-1" />
+              Log Watering
+            </Button>
           ) : (
-            <Dialog open={showFeedingForm} onOpenChange={setShowFeedingForm}>
-              <DialogTrigger asChild>
-                <Button size="sm" className="bg-green-600 hover:bg-green-700">
-                  <PlusCircle className="h-4 w-4 mr-1" />
-                  Feed Now
-                </Button>
-              </DialogTrigger>
-              <DialogContent>
-                <DialogHeader>
-                  <DialogTitle>Log Feeding</DialogTitle>
-                </DialogHeader>
-                <FeedingLogForm 
-                  plantId={plant.id}
-                  onSuccess={handleFeedingSuccess}
-                  onCancel={() => setShowFeedingForm(false)}
-                />
-              </DialogContent>
-            </Dialog>
+            <Button 
+              size="sm" 
+              className="bg-green-600 hover:bg-green-700"
+              onClick={() => setShowFeedingForm(true)}
+            >
+              <PlusCircle className="h-4 w-4 mr-1" />
+              Log Feeding
+            </Button>
           )}
         </div>
       </div>
