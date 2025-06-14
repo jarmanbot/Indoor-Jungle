@@ -3,7 +3,7 @@ import { Link } from "wouter";
 import PlantCard from "@/components/PlantCard";
 import { Plant } from "@shared/schema";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Plus, Leaf, CalendarRange, ImageIcon } from "lucide-react";
+import { Plus, Leaf, CalendarRange, ImageIcon, Thermometer } from "lucide-react";
 
 const Home = () => {
   const { data: plants, isLoading, error } = useQuery<Plant[]>({
@@ -21,9 +21,14 @@ const Home = () => {
       
       <div className="flex justify-between items-center bg-white p-2 border-b border-gray-200">
         <h2 className="font-bold text-gray-800 text-lg">my plants</h2>
-        <Link href="/add" className="bg-green-600 rounded-full w-7 h-7 flex items-center justify-center">
-          <Plus className="h-5 w-5 text-white" />
-        </Link>
+        <div className="flex items-center gap-2">
+          <Link href="/indoor-jungle-monitor" className="bg-blue-600 rounded-full w-7 h-7 flex items-center justify-center">
+            <Thermometer className="h-4 w-4 text-white" />
+          </Link>
+          <Link href="/add" className="bg-green-600 rounded-full w-7 h-7 flex items-center justify-center">
+            <Plus className="h-5 w-5 text-white" />
+          </Link>
+        </div>
       </div>
       
       <div className="plant-list">

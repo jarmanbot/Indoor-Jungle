@@ -10,6 +10,7 @@ import PlantDetails from "@/pages/PlantDetails";
 import Calendar from "@/pages/Calendar";
 import Tasks from "@/pages/Tasks";
 import Settings from "@/pages/Settings";
+import IndoorJungleMonitor from "@/pages/IndoorJungleMonitor";
 import Navigation from "@/components/Navigation";
 import Header from "@/components/Header";
 // Import Game pages
@@ -33,6 +34,7 @@ function Router() {
     if (location === "/calendar") return "calendar";
     if (location === "/tasks") return "tasks";
     if (location === "/settings") return "settings";
+    if (location === "/indoor-jungle-monitor") return "indoor jungle monitor";
     if (location.startsWith("/plant/")) return "plant details";
     if (location.startsWith("/game")) return "LVS INDOOR JUNGLE";
     if (location.startsWith("/grow-to-earn")) return "GROW TO EARN";
@@ -50,6 +52,7 @@ function Router() {
         <Route path="/calendar" component={Calendar} />
         <Route path="/tasks" component={Tasks} />
         <Route path="/settings" component={Settings} />
+        <Route path="/indoor-jungle-monitor" component={IndoorJungleMonitor} />
         {/* Game routes */}
         <Route path="/game" component={Game} />
         <Route path="/game/level/:level" component={LevelDetail} />
