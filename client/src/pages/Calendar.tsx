@@ -99,109 +99,86 @@ const Calendar = () => {
         {date ? `Events for ${format(date, 'MMMM d, yyyy')}` : 'Select a date to see events'}
       </h3>
 
-      <Tabs defaultValue="watering" className="w-full">
-        <TabsList className="grid w-full grid-cols-2">
-          <TabsTrigger value="watering" className="flex items-center">
-            <Droplet className="h-4 w-4 mr-2" />
-            Watering ({wateringEvents.length})
-          </TabsTrigger>
-          <TabsTrigger value="feeding" className="flex items-center">
-            <Package className="h-4 w-4 mr-2" />
-            Feeding ({feedingEvents.length})
-          </TabsTrigger>
-        </TabsList>
-        
-        <TabsContent value="watering" className="mt-4">
-          {wateringEvents.length === 0 ? (
-            <div className="text-center py-8 bg-neutral-light rounded-md">
-              <p className="text-neutral-dark">No watering checks scheduled for this day</p>
-            </div>
-          ) : (
-            <div className="space-y-3">
-              {wateringEvents.map(plant => (
-                <Card key={plant.id} className="overflow-hidden">
-                  <div className="flex items-center p-3">
-                    <div className="h-12 w-12 rounded-md overflow-hidden mr-3">
-                      <a href={`/plant/${plant.id}`}>
-                        <img 
-                          src={plant.imageUrl || "https://via.placeholder.com/48?text=Plant"} 
-                          alt={plant.name}
-                          className="h-full w-full object-cover"
-                        />
-                      </a>
-                    </div>
-                    <div className="flex-1">
-                      <a href={`/plant/${plant.id}`} className="hover:underline">
-                        <h4 className="font-medium">{plant.name}</h4>
-                      </a>
-                      <p className="text-sm text-neutral-dark">Check water levels</p>
-                    </div>
-                    <div className="flex space-x-2">
-                      <a 
-                        href={`/plant/${plant.id}`}
-                        className="text-sm bg-blue-500 text-white px-3 py-1 rounded-md"
-                      >
-                        Details
-                      </a>
-                      <button 
-                        className="text-sm bg-primary text-white px-3 py-1 rounded-md"
-                        onClick={() => {
-                          toast({
-                            title: "Watering checked",
-                            description: `${plant.name} has been marked as checked`,
-                          });
-                        }}
-                      >
-                        Done
-                      </button>
-                    </div>
-                  </div>
-                </Card>
-              ))}
-            </div>
-          )}
-        </TabsContent>
-        
-        <TabsContent value="feeding" className="mt-4">
-          {feedingEvents.length === 0 ? (
-            <div className="text-center py-8 bg-neutral-light rounded-md">
-              <p className="text-neutral-dark">No feeding events for this day</p>
-            </div>
-          ) : (
-            <div className="space-y-3">
-              {feedingEvents.map(plant => (
-                <Card key={plant.id} className="overflow-hidden">
-                  <div className="flex items-center p-3">
-                    <div className="h-12 w-12 rounded-md overflow-hidden mr-3">
-                      <a href={`/plant/${plant.id}`}>
-                        <img 
-                          src={plant.imageUrl || "https://via.placeholder.com/48?text=Plant"} 
-                          alt={plant.name}
-                          className="h-full w-full object-cover"
-                        />
-                      </a>
-                    </div>
-                    <div className="flex-1">
-                      <a href={`/plant/${plant.id}`} className="hover:underline">
-                        <h4 className="font-medium">{plant.name}</h4>
-                      </a>
-                      <p className="text-sm text-neutral-dark">Fertilizing day</p>
-                    </div>
-                    <div>
-                      <a 
-                        href={`/plant/${plant.id}`}
-                        className="text-sm bg-green-500 text-white px-3 py-1 rounded-md"
-                      >
-                        Details
-                      </a>
-                    </div>
-                  </div>
-                </Card>
-              ))}
-            </div>
-          )}
-        </TabsContent>
-      </Tabs>
+{wateringEvents.length === 0 && feedingEvents.length === 0 ? (
+        <div className="text-center py-8 bg-neutral-light rounded-md">
+          <p className="text-neutral-dark">No plant care scheduled for this day</p>
+        </div>
+      ) : (
+        <div className="space-y-3">
+          {wateringEvents.map(plant => (
+            <Card key={`watering-${plant.id}`} className="overflow-hidden">
+              <div className="flex items-center p-3">
+                <Droplet className="h-5 w-5 text-blue-500 mr-3" />
+                <div className="h-12 w-12 rounded-md overflow-hidden mr-3">
+                  <a href={`/plant/${plant.id}`}>
+                    <img 
+                      src={plant.imageUrl || "https://via.placeholder.com/48?text=Plant"} 
+                      alt={plant.name}
+                      className="h-full w-full object-cover"
+                    />
+                  </a>
+                </div>
+                <div className="flex-1">
+                  <a href={`/plant/${plant.id}`} className="hover:underline">
+                    <h4 className="font-medium">{plant.name}</h4>
+                  </a>
+                  <p className="text-sm text-neutral-dark">Check water levels</p>
+                </div>
+                <div className="flex space-x-2">
+                  <a 
+                    href={`/plant/${plant.id}`}
+                    className="text-sm bg-blue-500 text-white px-3 py-1 rounded-md"
+                  >
+                    Details
+                  </a>
+                  <button 
+                    className="text-sm bg-primary text-white px-3 py-1 rounded-md"
+                    onClick={() => {
+                      toast({
+                        title: "Watering checked",
+                        description: `${plant.name} has been marked as checked`,
+                      });
+                    }}
+                  >
+                    Done
+                  </button>
+                </div>
+              </div>
+            </Card>
+          ))}
+          
+          {feedingEvents.map(plant => (
+            <Card key={`feeding-${plant.id}`} className="overflow-hidden">
+              <div className="flex items-center p-3">
+                <Package className="h-5 w-5 text-green-500 mr-3" />
+                <div className="h-12 w-12 rounded-md overflow-hidden mr-3">
+                  <a href={`/plant/${plant.id}`}>
+                    <img 
+                      src={plant.imageUrl || "https://via.placeholder.com/48?text=Plant"} 
+                      alt={plant.name}
+                      className="h-full w-full object-cover"
+                    />
+                  </a>
+                </div>
+                <div className="flex-1">
+                  <a href={`/plant/${plant.id}`} className="hover:underline">
+                    <h4 className="font-medium">{plant.name}</h4>
+                  </a>
+                  <p className="text-sm text-neutral-dark">Fertilizing day</p>
+                </div>
+                <div>
+                  <a 
+                    href={`/plant/${plant.id}`}
+                    className="text-sm bg-green-500 text-white px-3 py-1 rounded-md"
+                  >
+                    Details
+                  </a>
+                </div>
+              </div>
+            </Card>
+          ))}
+        </div>
+      )}
     </div>
   );
 };
