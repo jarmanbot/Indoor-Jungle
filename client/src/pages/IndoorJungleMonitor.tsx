@@ -18,7 +18,6 @@ import {
 const IndoorJungleMonitor = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-green-50 to-blue-50 p-4">
-      {/* Header */}
       <div className="flex items-center mb-6">
         <Link href="/">
           <Button variant="ghost" size="sm" className="mr-2">
@@ -32,7 +31,6 @@ const IndoorJungleMonitor = () => {
         </div>
       </div>
 
-      {/* Hero Section */}
       <Card className="mb-6 overflow-hidden">
         <div className="bg-gradient-to-r from-green-600 to-blue-600 p-6 text-white">
           <div className="flex items-center justify-center mb-4">
@@ -49,7 +47,6 @@ const IndoorJungleMonitor = () => {
         </div>
       </Card>
 
-      {/* Device Preview */}
       <Card className="mb-6">
         <CardHeader>
           <CardTitle className="flex items-center">
@@ -63,16 +60,20 @@ const IndoorJungleMonitor = () => {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="bg-gray-50 rounded-lg p-4 mb-4">
-            {/* Device mockup image */}
+          <div className="bg-gray-100 rounded-lg p-6 mb-4">
             <div className="flex justify-center">
-              <img 
-                src="/indoor-jungle-monitor-mockup.svg" 
-                alt="Indoor Jungle Monitor mounted on wall showing temperature, humidity, light level, and air quality data"
-                className="w-full max-w-md rounded-lg shadow-sm"
-              />
+              <div className="relative">
+                <div className="w-32 h-40 bg-white rounded-xl shadow-lg border-2 border-gray-200 flex flex-col items-center justify-center">
+                  <div className="w-16 h-16 bg-gradient-to-br from-green-400 to-blue-500 rounded-full flex items-center justify-center mb-2">
+                    <Thermometer className="h-8 w-8 text-white" />
+                  </div>
+                  <div className="text-xs font-medium text-gray-600">Indoor Jungle</div>
+                  <div className="text-xs text-gray-500">Monitor</div>
+                  <div className="absolute top-2 right-2 w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+                </div>
+              </div>
             </div>
-          </div></CardContent>
+          </div>
           
           <div className="grid grid-cols-2 gap-4">
             <div className="text-center p-3 bg-blue-50 rounded-lg">
@@ -87,7 +88,6 @@ const IndoorJungleMonitor = () => {
         </CardContent>
       </Card>
 
-      {/* Features */}
       <Card className="mb-6">
         <CardHeader>
           <CardTitle>What It Monitors</CardTitle>
@@ -132,7 +132,6 @@ const IndoorJungleMonitor = () => {
         </CardContent>
       </Card>
 
-      {/* Setup Process */}
       <Card className="mb-6">
         <CardHeader>
           <CardTitle>Easy Setup Process</CardTitle>
@@ -158,11 +157,11 @@ const IndoorJungleMonitor = () => {
               </div>
               <div>
                 <h4 className="font-medium mb-1">Bluetooth Pairing</h4>
-                <p className="text-sm text-gray-600">Hold the button on your monitor until it blinks blue, then tap "Connect" in the app</p>
+                <p className="text-sm text-gray-600">Hold the button on your monitor until it blinks blue, then tap Connect in the app</p>
                 <div className="mt-2 p-3 bg-blue-50 rounded-lg">
                   <div className="flex items-center">
                     <Smartphone className="h-6 w-6 text-blue-600 mr-2" />
-                    <span className="text-sm">📡 Searching for devices...</span>
+                    <span className="text-sm">Searching for devices...</span>
                   </div>
                   <div className="mt-2 text-sm text-gray-600">
                     Found: Indoor Jungle Monitor #IJ-2024
@@ -184,7 +183,6 @@ const IndoorJungleMonitor = () => {
         </CardContent>
       </Card>
 
-      {/* Smart Features */}
       <Card className="mb-6">
         <CardHeader>
           <CardTitle>Smart Plant Care Features</CardTitle>
@@ -221,7 +219,6 @@ const IndoorJungleMonitor = () => {
         </CardContent>
       </Card>
 
-      {/* CTA Section */}
       <Card className="mb-6">
         <CardContent className="p-6 text-center">
           <h3 className="text-xl font-bold mb-2">Be the First to Know</h3>
