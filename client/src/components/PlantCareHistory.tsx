@@ -253,27 +253,6 @@ export default function PlantCareHistory({
     <div className="mt-6">
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-xl font-bold">Care History</h2>
-        <div className="flex space-x-2">
-          {activeTab === "watering" ? (
-            <Button 
-              size="sm" 
-              className="bg-blue-400 hover:bg-blue-700 text-black"
-              onClick={() => setShowWateringForm(true)}
-            >
-              <PlusCircle className="h-4 w-4 mr-1" />
-              Log Watering
-            </Button>
-          ) : (
-            <Button 
-              size="sm" 
-              className="bg-green-600 hover:bg-green-700"
-              onClick={() => setShowFeedingForm(true)}
-            >
-              <PlusCircle className="h-4 w-4 mr-1" />
-              Log Feeding
-            </Button>
-          )}
-        </div>
       </div>
       
       <Card className="mb-4">
