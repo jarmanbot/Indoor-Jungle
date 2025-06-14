@@ -146,7 +146,7 @@ const PlantCard = ({ plant }: PlantCardProps) => {
           onClick={handleWaterNow}
         >
           <Droplets className="h-3 w-3 mr-1" />
-          Water Now (Quick Log)
+          Log Watering (Quick Log)
         </Button>
         <Button 
           size="sm" 
@@ -155,7 +155,7 @@ const PlantCard = ({ plant }: PlantCardProps) => {
           onClick={handleFeedNow}
         >
           <Package className="h-3 w-3 mr-1" />
-          Feed Now (Quick Log)
+          Log Feeding (Quick Log)
         </Button>
       </div>
     </div>
