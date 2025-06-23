@@ -15,14 +15,20 @@ import {
   Zap, 
   Search, 
   Camera,
-  BarChart3
+  BarChart3,
+  Brain,
+  Award,
+  Gamepad2,
+  Monitor,
+  Settings,
+  Calendar
 } from "lucide-react";
 
 const FloatingActionButton = () => {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
-    <div className="fixed bottom-20 right-4 z-50">
+    <div className="fixed top-32 right-4 z-50">
       <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
         <DropdownMenuTrigger asChild>
           <Button
@@ -34,9 +40,9 @@ const FloatingActionButton = () => {
         </DropdownMenuTrigger>
         
         <DropdownMenuContent 
-          side="top" 
-          className="w-56 mb-2 mr-4"
-          align="end"
+          side="left" 
+          className="w-64 mr-2"
+          align="start"
         >
           <DropdownMenuItem asChild>
             <Link href="/add" className="flex items-center cursor-pointer">
@@ -50,14 +56,21 @@ const FloatingActionButton = () => {
           <DropdownMenuItem asChild>
             <Link href="/bulk-care" className="flex items-center cursor-pointer">
               <Zap className="h-4 w-4 mr-3" />
-              Quick Bulk Care
+              Bulk Care Tools
             </Link>
           </DropdownMenuItem>
           
           <DropdownMenuItem asChild>
             <Link href="/identify" className="flex items-center cursor-pointer">
               <Camera className="h-4 w-4 mr-3" />
-              Identify Plant
+              Plant Identification
+            </Link>
+          </DropdownMenuItem>
+          
+          <DropdownMenuItem asChild>
+            <Link href="/recommendations" className="flex items-center cursor-pointer">
+              <Brain className="h-4 w-4 mr-3" />
+              Smart Recommendations
             </Link>
           </DropdownMenuItem>
           
@@ -66,14 +79,46 @@ const FloatingActionButton = () => {
           <DropdownMenuItem asChild>
             <Link href="/analytics" className="flex items-center cursor-pointer">
               <BarChart3 className="h-4 w-4 mr-3" />
-              View Analytics
+              Analytics & Insights
             </Link>
           </DropdownMenuItem>
           
           <DropdownMenuItem asChild>
-            <Link href="/recommendations" className="flex items-center cursor-pointer">
-              <Search className="h-4 w-4 mr-3" />
-              Get Recommendations
+            <Link href="/achievements" className="flex items-center cursor-pointer">
+              <Award className="h-4 w-4 mr-3" />
+              Achievements
+            </Link>
+          </DropdownMenuItem>
+          
+          <DropdownMenuItem asChild>
+            <Link href="/calendar" className="flex items-center cursor-pointer">
+              <Calendar className="h-4 w-4 mr-3" />
+              Care Calendar
+            </Link>
+          </DropdownMenuItem>
+          
+          <DropdownMenuSeparator />
+          
+          <DropdownMenuItem asChild>
+            <Link href="/game" className="flex items-center cursor-pointer">
+              <Gamepad2 className="h-4 w-4 mr-3" />
+              Indoor Jungle Game
+            </Link>
+          </DropdownMenuItem>
+          
+          <DropdownMenuItem asChild>
+            <Link href="/indoor-jungle-monitor" className="flex items-center cursor-pointer">
+              <Monitor className="h-4 w-4 mr-3" />
+              Environmental Monitor
+            </Link>
+          </DropdownMenuItem>
+          
+          <DropdownMenuSeparator />
+          
+          <DropdownMenuItem asChild>
+            <Link href="/settings" className="flex items-center cursor-pointer">
+              <Settings className="h-4 w-4 mr-3" />
+              Settings
             </Link>
           </DropdownMenuItem>
         </DropdownMenuContent>

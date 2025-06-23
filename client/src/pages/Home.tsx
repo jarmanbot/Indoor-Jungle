@@ -5,7 +5,7 @@ import { Plant } from "@shared/schema";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Leaf, CalendarRange, ImageIcon, Thermometer, Zap, Search, Brain, BarChart3, Award } from "lucide-react";
+import { Plus, Leaf, Droplet, Package, ImageIcon, Thermometer, Zap, Search, Brain, BarChart3, Award, CalendarRange } from "lucide-react";
 
 const Home = () => {
   const { data: plants, isLoading, error } = useQuery<Plant[]>({
@@ -19,49 +19,64 @@ const Home = () => {
     const daysSince = Math.floor((Date.now() - new Date(plant.lastWatered).getTime()) / (1000 * 60 * 60 * 24));
     return daysSince >= (plant.wateringFrequencyDays || 7);
   }).length || 0;
+  
+  const plantsNeedingFeeding = plants?.filter(plant => {
+    if (!plant.lastFed) return true;
+    const daysSince = Math.floor((Date.now() - new Date(plant.lastFed).getTime()) / (1000 * 60 * 60 * 24));
+    return daysSince >= (plant.feedingFrequencyDays || 14);
+  }).length || 0;
 
   return (
     <div className="pb-20">
       {/* Header with stats */}
       <div className="bg-gradient-to-r from-green-50 to-blue-50 p-4 border-b">
-        <div className="flex justify-between items-center mb-4">
+        <div className="flex justify-between items-center mb-3">
           <div>
             <h2 className="font-bold text-gray-800 text-lg">My Plants</h2>
             <p className="text-sm text-gray-600">{totalPlants} plants in your collection</p>
           </div>
-          <div className="flex items-center gap-2">
-            <Link href="/add" className="bg-green-600 hover:bg-green-700 rounded-full w-10 h-10 flex items-center justify-center transition-colors">
-              <Plus className="h-5 w-5 text-white" />
-            </Link>
-          </div>
         </div>
 
-        {/* Quick stats */}
+        {/* Compact stats */}
         {totalPlants > 0 && (
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-3 gap-2">
             <Card className="bg-white/70 backdrop-blur-sm">
-              <CardContent className="p-3">
-                <div className="flex items-center gap-2">
-                  <div className="bg-blue-100 rounded-full p-2">
-                    <Leaf className="h-4 w-4 text-blue-600" />
+              <CardContent className="p-2">
+                <div className="flex items-center gap-1">
+                  <div className="bg-blue-100 rounded-full p-1">
+                    <Leaf className="h-3 w-3 text-blue-600" />
                   </div>
                   <div>
-                    <div className="text-lg font-bold">{totalPlants}</div>
-                    <p className="text-xs text-gray-600">Total plants</p>
+                    <div className="text-sm font-bold">{totalPlants}</div>
+                    <p className="text-xs text-gray-600">Total</p>
                   </div>
                 </div>
               </CardContent>
             </Card>
             
             <Card className="bg-white/70 backdrop-blur-sm">
-              <CardContent className="p-3">
-                <div className="flex items-center gap-2">
-                  <div className="bg-orange-100 rounded-full p-2">
-                    <CalendarRange className="h-4 w-4 text-orange-600" />
+              <CardContent className="p-2">
+                <div className="flex items-center gap-1">
+                  <div className="bg-orange-100 rounded-full p-1">
+                    <Droplet className="h-3 w-3 text-orange-600" />
                   </div>
                   <div>
-                    <div className="text-lg font-bold">{plantsNeedingWater}</div>
+                    <div className="text-sm font-bold">{plantsNeedingWater}</div>
                     <p className="text-xs text-gray-600">Need water</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+            
+            <Card className="bg-white/70 backdrop-blur-sm">
+              <CardContent className="p-2">
+                <div className="flex items-center gap-1">
+                  <div className="bg-green-100 rounded-full p-1">
+                    <Package className="h-3 w-3 text-green-600" />
+                  </div>
+                  <div>
+                    <div className="text-sm font-bold">{plantsNeedingFeeding}</div>
+                    <p className="text-xs text-gray-600">Need feed</p>
                   </div>
                 </div>
               </CardContent>
@@ -70,34 +85,34 @@ const Home = () => {
         )}
       </div>
 
-      {/* Quick Actions */}
-      <div className="p-4 bg-white border-b">
-        <h3 className="font-medium text-gray-800 mb-3">Quick Actions</h3>
-        <div className="grid grid-cols-4 gap-3">
-          <Link href="/bulk-care" className="flex flex-col items-center p-3 rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors">
-            <div className="bg-green-100 rounded-full p-2 mb-2">
-              <Zap className="h-4 w-4 text-green-600" />
+      {/* Compact Quick Actions */}
+      <div className="p-3 bg-white border-b">
+        <h3 className="font-medium text-gray-800 mb-2 text-sm">Quick Actions</h3>
+        <div className="grid grid-cols-4 gap-2">
+          <Link href="/bulk-care" className="flex flex-col items-center p-2 rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors">
+            <div className="bg-green-100 rounded-full p-1.5 mb-1">
+              <Zap className="h-3 w-3 text-green-600" />
             </div>
             <span className="text-xs text-center text-gray-700">Bulk Care</span>
           </Link>
           
-          <Link href="/identify" className="flex flex-col items-center p-3 rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors">
-            <div className="bg-blue-100 rounded-full p-2 mb-2">
-              <Search className="h-4 w-4 text-blue-600" />
+          <Link href="/identify" className="flex flex-col items-center p-2 rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors">
+            <div className="bg-blue-100 rounded-full p-1.5 mb-1">
+              <Search className="h-3 w-3 text-blue-600" />
             </div>
             <span className="text-xs text-center text-gray-700">Plant ID</span>
           </Link>
           
-          <Link href="/recommendations" className="flex flex-col items-center p-3 rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors">
-            <div className="bg-purple-100 rounded-full p-2 mb-2">
-              <Brain className="h-4 w-4 text-purple-600" />
+          <Link href="/recommendations" className="flex flex-col items-center p-2 rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors">
+            <div className="bg-purple-100 rounded-full p-1.5 mb-1">
+              <Brain className="h-3 w-3 text-purple-600" />
             </div>
             <span className="text-xs text-center text-gray-700">Smart Tips</span>
           </Link>
           
-          <Link href="/analytics" className="flex flex-col items-center p-3 rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors">
-            <div className="bg-indigo-100 rounded-full p-2 mb-2">
-              <BarChart3 className="h-4 w-4 text-indigo-600" />
+          <Link href="/analytics" className="flex flex-col items-center p-2 rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors">
+            <div className="bg-indigo-100 rounded-full p-1.5 mb-1">
+              <BarChart3 className="h-3 w-3 text-indigo-600" />
             </div>
             <span className="text-xs text-center text-gray-700">Analytics</span>
           </Link>
