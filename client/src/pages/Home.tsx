@@ -36,9 +36,7 @@ const Home = () => {
             <h2 className="font-bold text-gray-800 text-lg">My Plants</h2>
             <p className="text-sm text-gray-600">{totalPlants} plants in your collection</p>
           </div>
-          <div className="flex items-center">
-            <FloatingActionButton />
-          </div>
+
         </div>
 
         {/* Compact stats */}

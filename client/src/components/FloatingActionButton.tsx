@@ -24,7 +24,11 @@ import {
   Calendar
 } from "lucide-react";
 
-const FloatingActionButton = () => {
+interface FloatingActionButtonProps {
+  isInHeader?: boolean;
+}
+
+const FloatingActionButton = ({ isInHeader = false }: FloatingActionButtonProps) => {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
@@ -33,9 +37,13 @@ const FloatingActionButton = () => {
         <DropdownMenuTrigger asChild>
           <Button
             size="sm"
-            className="h-10 w-10 rounded-full bg-amber-700 hover:bg-amber-800 shadow-lg hover:shadow-xl transition-all duration-200"
+            className={`h-8 ${isInHeader ? 'w-20 rounded-md bg-amber-800 hover:bg-amber-900' : 'w-10 rounded-full bg-amber-700 hover:bg-amber-800'} shadow-lg hover:shadow-xl transition-all duration-200`}
           >
-            <Plus className={`h-5 w-5 transition-transform duration-200 ${isOpen ? 'rotate-45' : ''}`} />
+            {isInHeader ? (
+              <span className="text-xs font-medium text-white mr-1">MENU</span>
+            ) : (
+              <Plus className={`h-5 w-5 transition-transform duration-200 ${isOpen ? 'rotate-45' : ''}`} />
+            )}
           </Button>
         </DropdownMenuTrigger>
         

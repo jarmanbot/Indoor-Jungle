@@ -1,6 +1,7 @@
 import { Link } from "wouter";
 import { Search, Plus, Menu } from "lucide-react";
 import { useLocation } from "wouter";
+import FloatingActionButton from "./FloatingActionButton";
 
 interface HeaderProps {
   title?: string;
@@ -34,11 +35,8 @@ const Header = ({ title }: HeaderProps) => {
   return (
     <header className="px-4 py-3 bg-green-600 flex items-center justify-between shadow-sm">
       <h1 className="text-white font-medium text-xl">INDOOR JUNGLE</h1>
-      <div className="flex space-x-3">
-        <Link href="/add" className="text-white flex items-center">
-          <span className="mr-1">ADD PLANT</span>
-          <Plus className="h-5 w-5" />
-        </Link>
+      <div className="flex items-center">
+        <FloatingActionButton isInHeader={true} />
       </div>
     </header>
   );
