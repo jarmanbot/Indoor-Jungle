@@ -28,21 +28,21 @@ const FloatingActionButton = () => {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
-    <div className="fixed top-32 right-4 z-50">
+    <div className="relative">
       <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
         <DropdownMenuTrigger asChild>
           <Button
-            size="lg"
-            className="h-14 w-14 rounded-full bg-green-600 hover:bg-green-700 shadow-lg hover:shadow-xl transition-all duration-200"
+            size="sm"
+            className="h-10 w-10 rounded-full bg-amber-700 hover:bg-amber-800 shadow-lg hover:shadow-xl transition-all duration-200"
           >
-            <Plus className={`h-6 w-6 transition-transform duration-200 ${isOpen ? 'rotate-45' : ''}`} />
+            <Plus className={`h-5 w-5 transition-transform duration-200 ${isOpen ? 'rotate-45' : ''}`} />
           </Button>
         </DropdownMenuTrigger>
         
         <DropdownMenuContent 
-          side="left" 
-          className="w-64 mr-2"
-          align="start"
+          side="bottom" 
+          className="w-64 mt-2"
+          align="end"
         >
           <DropdownMenuItem asChild>
             <Link href="/add" className="flex items-center cursor-pointer">

@@ -1,6 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "wouter";
 import PlantCard from "@/components/PlantCard";
+import FloatingActionButton from "@/components/FloatingActionButton";
 import { Plant } from "@shared/schema";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Card, CardContent } from "@/components/ui/card";
@@ -34,6 +35,9 @@ const Home = () => {
           <div>
             <h2 className="font-bold text-gray-800 text-lg">My Plants</h2>
             <p className="text-sm text-gray-600">{totalPlants} plants in your collection</p>
+          </div>
+          <div className="flex items-center">
+            <FloatingActionButton />
           </div>
         </div>
 
