@@ -225,6 +225,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
           plantData.lastFed = new Date(plantData.lastFed);
         }
         
+        // Convert numeric strings to numbers for update
+        if (plantData.wateringFrequencyDays && typeof plantData.wateringFrequencyDays === 'string') {
+          plantData.wateringFrequencyDays = parseInt(plantData.wateringFrequencyDays, 10);
+        }
+        if (plantData.feedingFrequencyDays && typeof plantData.feedingFrequencyDays === 'string') {
+          plantData.feedingFrequencyDays = parseInt(plantData.feedingFrequencyDays, 10);
+        }
+        
         console.log("Update plant data:", plantData);
 
         const updatedPlant = await storage.updatePlant(id, plantData);
