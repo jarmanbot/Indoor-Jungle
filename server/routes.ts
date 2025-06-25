@@ -169,6 +169,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
           plantData.lastFed = new Date(plantData.lastFed);
         }
         
+        // Convert numeric strings to numbers (multipart form data sends everything as strings)
+        if (plantData.wateringFrequencyDays && typeof plantData.wateringFrequencyDays === 'string') {
+          plantData.wateringFrequencyDays = parseInt(plantData.wateringFrequencyDays, 10);
+        }
+        if (plantData.feedingFrequencyDays && typeof plantData.feedingFrequencyDays === 'string') {
+          plantData.feedingFrequencyDays = parseInt(plantData.feedingFrequencyDays, 10);
+        }
+        
         console.log("Plant data to validate:", plantData);
         
         // Validate plant data
