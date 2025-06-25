@@ -91,8 +91,11 @@ const PlantCard = ({ plant, index = 0 }: PlantCardProps) => {
     }
   };
   
+  const isEven = index % 2 === 0;
+  const bgColor = isEven ? "bg-green-50" : "bg-blue-50";
+  
   return (
-    <div className="relative bg-white border-b border-gray-200 py-2 pl-3 pr-2">
+    <div className={`relative ${bgColor} border-b border-gray-200 py-2 pl-3 pr-2`}>
       <div className="flex items-center">
         <Link href={`/plant/${plant.id}`} className="flex flex-1">
           {/* Plant Image */}
