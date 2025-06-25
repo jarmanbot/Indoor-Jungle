@@ -92,7 +92,7 @@ const PlantCard = ({ plant, index = 0 }: PlantCardProps) => {
   };
   
   const isEven = index % 2 === 0;
-  const bgColor = isEven ? "bg-green-50" : "bg-blue-50";
+  const bgColor = isEven ? "bg-blue-50" : "bg-green-50";
   
   return (
     <div className={`relative ${bgColor} border-b border-gray-200 py-2 pl-3 pr-2`}>

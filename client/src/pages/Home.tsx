@@ -125,7 +125,7 @@ const Home = () => {
         {isLoading ? (
           // Loading state
           Array(3).fill(0).map((_, i) => (
-            <div key={i} className={`relative ${i % 2 === 0 ? 'bg-green-50' : 'bg-blue-50'} border-b border-gray-200 py-2 pl-3 pr-2 flex items-center`}>
+            <div key={i} className={`relative ${i % 2 === 0 ? 'bg-blue-50' : 'bg-green-50'} border-b border-gray-200 py-2 pl-3 pr-2 flex items-center`}>
               <Skeleton className="w-16 h-16 mr-3 rounded-md" />
               <div className="flex-1">
                 <Skeleton className="h-4 w-24 mb-2" />
