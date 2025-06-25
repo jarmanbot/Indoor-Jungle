@@ -32,25 +32,21 @@ const FloatingActionButton = ({ isInHeader = false }: FloatingActionButtonProps)
   const [isOpen, setIsOpen] = useState(false);
 
   return (
-    <div className="relative">
+    <div className="fixed top-20 right-4 z-50">
       <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
         <DropdownMenuTrigger asChild>
           <Button
             size="sm"
-            className={`h-8 ${isInHeader ? 'w-20 rounded-md bg-amber-800 hover:bg-amber-900' : 'w-10 rounded-full bg-amber-700 hover:bg-amber-800'} shadow-lg hover:shadow-xl transition-all duration-200`}
+            className="h-12 w-12 rounded-lg bg-amber-800 hover:bg-amber-900 shadow-lg hover:shadow-xl transition-all duration-200"
           >
-            {isInHeader ? (
-              <span className="text-xs font-medium text-white mr-1">MENU</span>
-            ) : (
-              <Plus className={`h-5 w-5 transition-transform duration-200 ${isOpen ? 'rotate-45' : ''}`} />
-            )}
+            <Plus className={`h-5 w-5 transition-transform duration-200 ${isOpen ? 'rotate-45' : ''}`} />
           </Button>
         </DropdownMenuTrigger>
         
         <DropdownMenuContent 
-          side="bottom" 
-          className="w-64 mt-2"
-          align="end"
+          side="left" 
+          className="w-64 mr-2"
+          align="start"
         >
           <DropdownMenuItem asChild>
             <Link href="/add" className="flex items-center cursor-pointer">

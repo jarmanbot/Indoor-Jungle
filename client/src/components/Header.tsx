@@ -35,9 +35,6 @@ const Header = ({ title }: HeaderProps) => {
   return (
     <header className="px-4 py-3 bg-green-600 flex items-center justify-between shadow-sm">
       <h1 className="text-white font-medium text-xl">INDOOR JUNGLE</h1>
-      <div className="flex items-center">
-        <FloatingActionButton isInHeader={true} />
-      </div>
     </header>
   );
 };
