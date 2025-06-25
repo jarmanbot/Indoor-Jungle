@@ -41,15 +41,15 @@ const Home = () => {
 
         {/* Compact stats */}
         {totalPlants > 0 && (
-          <div className="grid grid-cols-3 gap-2">
+          <div className="grid grid-cols-3 gap-1.5">
             <Card className="bg-white/70 backdrop-blur-sm">
-              <CardContent className="p-2">
+              <CardContent className="p-1.5">
                 <div className="flex items-center gap-1">
-                  <div className="bg-blue-100 rounded-full p-1">
-                    <Leaf className="h-3 w-3 text-blue-600" />
+                  <div className="bg-blue-100 rounded-full p-0.5">
+                    <Leaf className="h-2.5 w-2.5 text-blue-600" />
                   </div>
                   <div>
-                    <div className="text-sm font-bold">{totalPlants}</div>
+                    <div className="text-xs font-bold">{totalPlants}</div>
                     <p className="text-xs text-gray-600">Total</p>
                   </div>
                 </div>
@@ -57,13 +57,13 @@ const Home = () => {
             </Card>
             
             <Card className="bg-white/70 backdrop-blur-sm">
-              <CardContent className="p-2">
+              <CardContent className="p-1.5">
                 <div className="flex items-center gap-1">
-                  <div className="bg-orange-100 rounded-full p-1">
-                    <Droplet className="h-3 w-3 text-orange-600" />
+                  <div className="bg-orange-100 rounded-full p-0.5">
+                    <Droplet className="h-2.5 w-2.5 text-orange-600" />
                   </div>
                   <div>
-                    <div className="text-sm font-bold">{plantsNeedingWater}</div>
+                    <div className="text-xs font-bold">{plantsNeedingWater}</div>
                     <p className="text-xs text-gray-600">Need water</p>
                   </div>
                 </div>
@@ -71,13 +71,13 @@ const Home = () => {
             </Card>
             
             <Card className="bg-white/70 backdrop-blur-sm">
-              <CardContent className="p-2">
+              <CardContent className="p-1.5">
                 <div className="flex items-center gap-1">
-                  <div className="bg-green-100 rounded-full p-1">
-                    <Package className="h-3 w-3 text-green-600" />
+                  <div className="bg-green-100 rounded-full p-0.5">
+                    <Package className="h-2.5 w-2.5 text-green-600" />
                   </div>
                   <div>
-                    <div className="text-sm font-bold">{plantsNeedingFeeding}</div>
+                    <div className="text-xs font-bold">{plantsNeedingFeeding}</div>
                     <p className="text-xs text-gray-600">Need feed</p>
                   </div>
                 </div>
@@ -88,33 +88,33 @@ const Home = () => {
       </div>
 
       {/* Compact Quick Actions */}
-      <div className="p-3 bg-white border-b">
-        <h3 className="font-medium text-gray-800 mb-2 text-sm">Quick Actions</h3>
-        <div className="grid grid-cols-4 gap-2">
-          <Link href="/bulk-care" className="flex flex-col items-center p-2 rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors">
-            <div className="bg-green-100 rounded-full p-1.5 mb-1">
-              <Zap className="h-3 w-3 text-green-600" />
+      <div className="p-2 bg-white border-b">
+        <h3 className="font-medium text-gray-800 mb-1.5 text-sm">Quick Actions</h3>
+        <div className="grid grid-cols-4 gap-1.5">
+          <Link href="/bulk-care" className="flex flex-col items-center p-1.5 rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors">
+            <div className="bg-green-100 rounded-full p-1 mb-0.5">
+              <Zap className="h-2.5 w-2.5 text-green-600" />
             </div>
             <span className="text-xs text-center text-gray-700">Bulk Care</span>
           </Link>
           
-          <Link href="/identify" className="flex flex-col items-center p-2 rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors">
-            <div className="bg-blue-100 rounded-full p-1.5 mb-1">
-              <Search className="h-3 w-3 text-blue-600" />
+          <Link href="/identify" className="flex flex-col items-center p-1.5 rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors">
+            <div className="bg-blue-100 rounded-full p-1 mb-0.5">
+              <Search className="h-2.5 w-2.5 text-blue-600" />
             </div>
             <span className="text-xs text-center text-gray-700">Plant ID</span>
           </Link>
           
-          <Link href="/recommendations" className="flex flex-col items-center p-2 rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors">
-            <div className="bg-purple-100 rounded-full p-1.5 mb-1">
-              <Brain className="h-3 w-3 text-purple-600" />
+          <Link href="/recommendations" className="flex flex-col items-center p-1.5 rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors">
+            <div className="bg-purple-100 rounded-full p-1 mb-0.5">
+              <Brain className="h-2.5 w-2.5 text-purple-600" />
             </div>
             <span className="text-xs text-center text-gray-700">Smart Tips</span>
           </Link>
           
-          <Link href="/analytics" className="flex flex-col items-center p-2 rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors">
-            <div className="bg-indigo-100 rounded-full p-1.5 mb-1">
-              <BarChart3 className="h-3 w-3 text-indigo-600" />
+          <Link href="/analytics" className="flex flex-col items-center p-1.5 rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors">
+            <div className="bg-indigo-100 rounded-full p-1 mb-0.5">
+              <BarChart3 className="h-2.5 w-2.5 text-indigo-600" />
             </div>
             <span className="text-xs text-center text-gray-700">Analytics</span>
           </Link>
