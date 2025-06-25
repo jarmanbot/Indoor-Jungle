@@ -33,48 +33,6 @@ const FloatingActionButton = ({ isInHeader = false }: FloatingActionButtonProps)
 
   return (
     <div className="fixed top-20 right-4 z-50">
-      {/* Floating container with quick actions and menu button */}
-      <div className="bg-white/90 backdrop-blur-sm rounded-lg shadow-lg p-2 mb-2">
-        <h3 className="text-xs font-semibold text-gray-700 mb-1.5">Quick Actions</h3>
-        <div className="grid grid-cols-2 gap-1.5 mb-2">
-          <Link href="/bulk-care">
-            <div className="flex flex-col items-center p-1.5 rounded-md bg-gray-50 hover:bg-gray-100 transition-colors">
-              <div className="bg-green-100 rounded-full p-1 mb-0.5">
-                <Zap className="h-2.5 w-2.5 text-green-600" />
-              </div>
-              <span className="text-xs text-center text-gray-700">Bulk Care</span>
-            </div>
-          </Link>
-          
-          <Link href="/identify">
-            <div className="flex flex-col items-center p-1.5 rounded-md bg-gray-50 hover:bg-gray-100 transition-colors">
-              <div className="bg-blue-100 rounded-full p-1 mb-0.5">
-                <Search className="h-2.5 w-2.5 text-blue-600" />
-              </div>
-              <span className="text-xs text-center text-gray-700">Plant ID</span>
-            </div>
-          </Link>
-          
-          <Link href="/recommendations">
-            <div className="flex flex-col items-center p-1.5 rounded-md bg-gray-50 hover:bg-gray-100 transition-colors">
-              <div className="bg-purple-100 rounded-full p-1 mb-0.5">
-                <Brain className="h-2.5 w-2.5 text-purple-600" />
-              </div>
-              <span className="text-xs text-center text-gray-700">Smart Tips</span>
-            </div>
-          </Link>
-          
-          <Link href="/analytics">
-            <div className="flex flex-col items-center p-1.5 rounded-md bg-gray-50 hover:bg-gray-100 transition-colors">
-              <div className="bg-indigo-100 rounded-full p-1 mb-0.5">
-                <BarChart3 className="h-2.5 w-2.5 text-indigo-600" />
-              </div>
-              <span className="text-xs text-center text-gray-700">Analytics</span>
-            </div>
-          </Link>
-        </div>
-      </div>
-
       <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
         <DropdownMenuTrigger asChild>
           <Button

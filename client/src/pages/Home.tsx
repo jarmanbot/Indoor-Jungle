@@ -39,50 +39,64 @@ const Home = () => {
 
         </div>
 
-        {/* Compact stats */}
+        {/* Compact stats and Quick Actions in same row */}
         {totalPlants > 0 && (
-          <div className="grid grid-cols-3 gap-2 mb-3">
-            <Card className="bg-white/70 backdrop-blur-sm">
-              <CardContent className="p-1.5">
-                <div className="flex items-center gap-1">
-                  <div className="bg-blue-100 rounded-full p-1">
-                    <Leaf className="h-2.5 w-2.5 text-blue-600" />
-                  </div>
-                  <div>
-                    <div className="text-xs font-bold">{totalPlants}</div>
-                    <p className="text-xs text-gray-600">Total</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-            
-            <Card className="bg-white/70 backdrop-blur-sm">
-              <CardContent className="p-1.5">
-                <div className="flex items-center gap-1">
-                  <div className="bg-orange-100 rounded-full p-1">
-                    <Droplet className="h-2.5 w-2.5 text-orange-600" />
-                  </div>
-                  <div>
-                    <div className="text-xs font-bold">{plantsNeedingWater}</div>
-                    <p className="text-xs text-gray-600">Need water</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-            
-            <Card className="bg-white/70 backdrop-blur-sm">
-              <CardContent className="p-1.5">
-                <div className="flex items-center gap-1">
-                  <div className="bg-green-100 rounded-full p-1">
-                    <Package className="h-2.5 w-2.5 text-green-600" />
-                  </div>
-                  <div>
-                    <div className="text-xs font-bold">{plantsNeedingFeeding}</div>
-                    <p className="text-xs text-gray-600">Need feed</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+          <div className="grid grid-cols-2 gap-3 mb-3">
+            {/* Stats Column */}
+            <div>
+              <h3 className="text-xs font-semibold text-gray-700 mb-1">Stats</h3>
+              <div className="grid grid-cols-3 gap-1">
+                <Card className="bg-white/70 backdrop-blur-sm p-1">
+                  <CardContent className="p-0 text-center">
+                    <div className="text-xs font-bold text-blue-600">{totalPlants}</div>
+                    <div className="text-xs text-gray-600">Total</div>
+                  </CardContent>
+                </Card>
+                <Card className="bg-white/70 backdrop-blur-sm p-1">
+                  <CardContent className="p-0 text-center">
+                    <div className="text-xs font-bold text-orange-600">{plantsNeedingWater}</div>
+                    <div className="text-xs text-gray-600">Water</div>
+                  </CardContent>
+                </Card>
+                <Card className="bg-white/70 backdrop-blur-sm p-1">
+                  <CardContent className="p-0 text-center">
+                    <div className="text-xs font-bold text-green-600">{plantsNeedingFeeding}</div>
+                    <div className="text-xs text-gray-600">Feed</div>
+                  </CardContent>
+                </Card>
+              </div>
+            </div>
+
+            {/* Quick Actions Column */}
+            <div>
+              <h3 className="text-xs font-semibold text-gray-700 mb-1">Quick Actions</h3>
+              <div className="grid grid-cols-2 gap-1">
+                <Link href="/add">
+                  <Badge variant="outline" className="flex items-center gap-1 px-1 py-1 cursor-pointer hover:bg-green-50 text-xs w-full justify-center">
+                    <Plus className="h-3 w-3" />
+                    Add
+                  </Badge>
+                </Link>
+                <Link href="/calendar">
+                  <Badge variant="outline" className="flex items-center gap-1 px-1 py-1 cursor-pointer hover:bg-blue-50 text-xs w-full justify-center">
+                    <CalendarRange className="h-3 w-3" />
+                    Cal
+                  </Badge>
+                </Link>
+                <Link href="/analytics">
+                  <Badge variant="outline" className="flex items-center gap-1 px-1 py-1 cursor-pointer hover:bg-purple-50 text-xs w-full justify-center">
+                    <BarChart3 className="h-3 w-3" />
+                    Stats
+                  </Badge>
+                </Link>
+                <Link href="/achievements">
+                  <Badge variant="outline" className="flex items-center gap-1 px-1 py-1 cursor-pointer hover:bg-yellow-50 text-xs w-full justify-center">
+                    <Award className="h-3 w-3" />
+                    Awards
+                  </Badge>
+                </Link>
+              </div>
+            </div>
           </div>
         )}
       </div>
