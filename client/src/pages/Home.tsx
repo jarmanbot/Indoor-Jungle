@@ -30,7 +30,7 @@ const Home = () => {
   return (
     <div className="pb-20">
       {/* Header with stats */}
-      <div className="bg-gradient-to-r from-green-50 to-blue-50 p-4 border-b">
+      <div className="bg-green-50 p-4 border-b">
         <div className="flex justify-between items-center mb-3">
           <div>
             <h2 className="font-bold text-gray-800 text-lg">My Plants</h2>
@@ -42,7 +42,7 @@ const Home = () => {
         {/* Compact stats */}
         {totalPlants > 0 && (
           <div className="grid grid-cols-3 gap-1.5">
-            <Card className="bg-white/70 backdrop-blur-sm">
+            <Card className="bg-green-100 border-green-200">
               <CardContent className="p-1.5">
                 <div className="flex items-center gap-1">
                   <div className="bg-blue-100 rounded-full p-0.5">
@@ -56,7 +56,7 @@ const Home = () => {
               </CardContent>
             </Card>
             
-            <Card className="bg-white/70 backdrop-blur-sm">
+            <Card className="bg-green-100 border-green-200">
               <CardContent className="p-1.5">
                 <div className="flex items-center gap-1">
                   <div className="bg-orange-100 rounded-full p-0.5">
@@ -70,7 +70,7 @@ const Home = () => {
               </CardContent>
             </Card>
             
-            <Card className="bg-white/70 backdrop-blur-sm">
+            <Card className="bg-green-100 border-green-200">
               <CardContent className="p-1.5">
                 <div className="flex items-center gap-1">
                   <div className="bg-green-100 rounded-full p-0.5">
@@ -88,33 +88,33 @@ const Home = () => {
       </div>
 
       {/* Compact Quick Actions */}
-      <div className="p-2 bg-white border-b">
+      <div className="p-2 bg-green-100 border-b">
         <h3 className="font-medium text-gray-800 mb-1.5 text-sm">Quick Actions</h3>
         <div className="grid grid-cols-4 gap-1.5">
-          <Link href="/bulk-care" className="flex flex-col items-center p-1.5 rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors">
-            <div className="bg-green-100 rounded-full p-1 mb-0.5">
-              <Zap className="h-2.5 w-2.5 text-green-600" />
+          <Link href="/bulk-care" className="flex flex-col items-center p-1.5 rounded-lg bg-white hover:bg-green-50 transition-colors">
+            <div className="bg-green-200 rounded-full p-1 mb-0.5">
+              <Zap className="h-2.5 w-2.5 text-green-700" />
             </div>
             <span className="text-xs text-center text-gray-700">Bulk Care</span>
           </Link>
           
-          <Link href="/identify" className="flex flex-col items-center p-1.5 rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors">
-            <div className="bg-blue-100 rounded-full p-1 mb-0.5">
-              <Search className="h-2.5 w-2.5 text-blue-600" />
+          <Link href="/identify" className="flex flex-col items-center p-1.5 rounded-lg bg-white hover:bg-green-50 transition-colors">
+            <div className="bg-blue-200 rounded-full p-1 mb-0.5">
+              <Search className="h-2.5 w-2.5 text-blue-700" />
             </div>
             <span className="text-xs text-center text-gray-700">Plant ID</span>
           </Link>
           
-          <Link href="/recommendations" className="flex flex-col items-center p-1.5 rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors">
-            <div className="bg-purple-100 rounded-full p-1 mb-0.5">
-              <Brain className="h-2.5 w-2.5 text-purple-600" />
+          <Link href="/recommendations" className="flex flex-col items-center p-1.5 rounded-lg bg-white hover:bg-green-50 transition-colors">
+            <div className="bg-purple-200 rounded-full p-1 mb-0.5">
+              <Brain className="h-2.5 w-2.5 text-purple-700" />
             </div>
             <span className="text-xs text-center text-gray-700">Smart Tips</span>
           </Link>
           
-          <Link href="/analytics" className="flex flex-col items-center p-1.5 rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors">
-            <div className="bg-indigo-100 rounded-full p-1 mb-0.5">
-              <BarChart3 className="h-2.5 w-2.5 text-indigo-600" />
+          <Link href="/analytics" className="flex flex-col items-center p-1.5 rounded-lg bg-white hover:bg-green-50 transition-colors">
+            <div className="bg-indigo-200 rounded-full p-1 mb-0.5">
+              <BarChart3 className="h-2.5 w-2.5 text-indigo-700" />
             </div>
             <span className="text-xs text-center text-gray-700">Analytics</span>
           </Link>

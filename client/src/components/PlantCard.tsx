@@ -9,9 +9,10 @@ import { queryClient } from "@/lib/queryClient";
 
 interface PlantCardProps {
   plant: Plant;
+  index?: number;
 }
 
-const PlantCard = ({ plant }: PlantCardProps) => {
+const PlantCard = ({ plant, index = 0 }: PlantCardProps) => {
   const { toast } = useToast();
 
   // Format dates for display
