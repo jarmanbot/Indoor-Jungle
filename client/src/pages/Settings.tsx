@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Link, useLocation } from "wouter";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -7,11 +8,12 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { Bell, Moon, Info, HelpCircle, Palette, Database, Shield, Download, Upload, Clock } from "lucide-react";
+import { Bell, Moon, Info, HelpCircle, Palette, Database, Shield, Download, Upload, Clock, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 
 const Settings = () => {
+  const [, setLocation] = useLocation();
   const [notificationsEnabled, setNotificationsEnabled] = useState(true);
   const [darkModeEnabled, setDarkModeEnabled] = useState(false);
   const [defaultWateringFreq, setDefaultWateringFreq] = useState("7");
@@ -24,7 +26,13 @@ const Settings = () => {
     toast({
       title: "Settings saved",
       description: "Your preferences have been updated",
+      duration: 1500,
     });
+    
+    // Navigate back to plants page after 1500ms
+    setTimeout(() => {
+      setLocation('/');
+    }, 1500);
   };
 
   const handleExport = () => {
@@ -44,7 +52,15 @@ const Settings = () => {
 
   return (
     <div className="p-4 pb-16">
-      <h2 className="text-2xl font-bold text-neutral-darkest mb-6">Settings</h2>
+      <div className="flex items-center justify-between mb-6">
+        <h2 className="text-2xl font-bold text-neutral-darkest">Settings</h2>
+        <Link href="/">
+          <Button variant="ghost" size="sm" className="flex items-center gap-2">
+            <ArrowLeft className="h-4 w-4" />
+            Back
+          </Button>
+        </Link>
+      </div>
       
       <Tabs defaultValue="general" className="w-full">
         <TabsList className="grid w-full grid-cols-4">
