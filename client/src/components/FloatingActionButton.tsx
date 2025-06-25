@@ -37,7 +37,7 @@ const FloatingActionButton = ({ isInHeader = false }: FloatingActionButtonProps)
         <DropdownMenuTrigger asChild>
           <Button
             size="sm"
-            className="h-12 w-12 rounded-lg bg-amber-800 hover:bg-amber-900 shadow-lg hover:shadow-xl transition-all duration-200"
+            className="h-10 w-16 rounded-md bg-amber-800 hover:bg-amber-900 shadow-lg hover:shadow-xl transition-all duration-200"
           >
             <Plus className={`h-5 w-5 transition-transform duration-200 ${isOpen ? 'rotate-45' : ''}`} />
           </Button>
