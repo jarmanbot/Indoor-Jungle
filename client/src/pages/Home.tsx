@@ -39,69 +39,87 @@ const Home = () => {
 
         </div>
 
-        {/* Compact stats and Quick Actions in same row */}
+        {/* Compact stats */}
         {totalPlants > 0 && (
-          <div className="grid grid-cols-2 gap-3 mb-3">
-            {/* Stats Column */}
-            <div>
-              <h3 className="text-xs font-semibold text-gray-700 mb-1">Stats</h3>
-              <div className="grid grid-cols-3 gap-1">
-                <Card className="bg-white/70 backdrop-blur-sm p-1">
-                  <CardContent className="p-0 text-center">
-                    <div className="text-xs font-bold text-blue-600">{totalPlants}</div>
-                    <div className="text-xs text-gray-600">Total</div>
-                  </CardContent>
-                </Card>
-                <Card className="bg-white/70 backdrop-blur-sm p-1">
-                  <CardContent className="p-0 text-center">
-                    <div className="text-xs font-bold text-orange-600">{plantsNeedingWater}</div>
-                    <div className="text-xs text-gray-600">Water</div>
-                  </CardContent>
-                </Card>
-                <Card className="bg-white/70 backdrop-blur-sm p-1">
-                  <CardContent className="p-0 text-center">
-                    <div className="text-xs font-bold text-green-600">{plantsNeedingFeeding}</div>
-                    <div className="text-xs text-gray-600">Feed</div>
-                  </CardContent>
-                </Card>
-              </div>
-            </div>
-
-            {/* Quick Actions Column */}
-            <div>
-              <h3 className="text-xs font-semibold text-gray-700 mb-1">Quick Actions</h3>
-              <div className="grid grid-cols-2 gap-1">
-                <Link href="/add">
-                  <Badge variant="outline" className="flex items-center gap-1 px-1 py-1 cursor-pointer hover:bg-green-50 text-xs w-full justify-center">
-                    <Plus className="h-3 w-3" />
-                    Add
-                  </Badge>
-                </Link>
-                <Link href="/calendar">
-                  <Badge variant="outline" className="flex items-center gap-1 px-1 py-1 cursor-pointer hover:bg-blue-50 text-xs w-full justify-center">
-                    <CalendarRange className="h-3 w-3" />
-                    Cal
-                  </Badge>
-                </Link>
-                <Link href="/analytics">
-                  <Badge variant="outline" className="flex items-center gap-1 px-1 py-1 cursor-pointer hover:bg-purple-50 text-xs w-full justify-center">
-                    <BarChart3 className="h-3 w-3" />
-                    Stats
-                  </Badge>
-                </Link>
-                <Link href="/achievements">
-                  <Badge variant="outline" className="flex items-center gap-1 px-1 py-1 cursor-pointer hover:bg-yellow-50 text-xs w-full justify-center">
-                    <Award className="h-3 w-3" />
-                    Awards
-                  </Badge>
-                </Link>
-              </div>
-            </div>
+          <div className="grid grid-cols-3 gap-2">
+            <Card className="bg-white/70 backdrop-blur-sm">
+              <CardContent className="p-2">
+                <div className="flex items-center gap-1">
+                  <div className="bg-blue-100 rounded-full p-1">
+                    <Leaf className="h-3 w-3 text-blue-600" />
+                  </div>
+                  <div>
+                    <div className="text-sm font-bold">{totalPlants}</div>
+                    <p className="text-xs text-gray-600">Total</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+            
+            <Card className="bg-white/70 backdrop-blur-sm">
+              <CardContent className="p-2">
+                <div className="flex items-center gap-1">
+                  <div className="bg-orange-100 rounded-full p-1">
+                    <Droplet className="h-3 w-3 text-orange-600" />
+                  </div>
+                  <div>
+                    <div className="text-sm font-bold">{plantsNeedingWater}</div>
+                    <p className="text-xs text-gray-600">Need water</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+            
+            <Card className="bg-white/70 backdrop-blur-sm">
+              <CardContent className="p-2">
+                <div className="flex items-center gap-1">
+                  <div className="bg-green-100 rounded-full p-1">
+                    <Package className="h-3 w-3 text-green-600" />
+                  </div>
+                  <div>
+                    <div className="text-sm font-bold">{plantsNeedingFeeding}</div>
+                    <p className="text-xs text-gray-600">Need feed</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
           </div>
         )}
       </div>
 
-
+      {/* Compact Quick Actions */}
+      <div className="p-3 bg-white border-b">
+        <h3 className="font-medium text-gray-800 mb-2 text-sm">Quick Actions</h3>
+        <div className="grid grid-cols-4 gap-2">
+          <Link href="/bulk-care" className="flex flex-col items-center p-2 rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors">
+            <div className="bg-green-100 rounded-full p-1.5 mb-1">
+              <Zap className="h-3 w-3 text-green-600" />
+            </div>
+            <span className="text-xs text-center text-gray-700">Bulk Care</span>
+          </Link>
+          
+          <Link href="/identify" className="flex flex-col items-center p-2 rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors">
+            <div className="bg-blue-100 rounded-full p-1.5 mb-1">
+              <Search className="h-3 w-3 text-blue-600" />
+            </div>
+            <span className="text-xs text-center text-gray-700">Plant ID</span>
+          </Link>
+          
+          <Link href="/recommendations" className="flex flex-col items-center p-2 rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors">
+            <div className="bg-purple-100 rounded-full p-1.5 mb-1">
+              <Brain className="h-3 w-3 text-purple-600" />
+            </div>
+            <span className="text-xs text-center text-gray-700">Smart Tips</span>
+          </Link>
+          
+          <Link href="/analytics" className="flex flex-col items-center p-2 rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors">
+            <div className="bg-indigo-100 rounded-full p-1.5 mb-1">
+              <BarChart3 className="h-3 w-3 text-indigo-600" />
+            </div>
+            <span className="text-xs text-center text-gray-700">Analytics</span>
+          </Link>
+        </div>
+      </div>
       
       <div className="plant-list">
         {isLoading ? (
