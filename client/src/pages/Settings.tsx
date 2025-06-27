@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, useLocation } from "wouter";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
@@ -17,21 +17,51 @@ const Settings = () => {
   const [darkModeEnabled, setDarkModeEnabled] = useState(false);
   const [defaultWateringFreq, setDefaultWateringFreq] = useState("7");
   const [defaultFeedingFreq, setDefaultFeedingFreq] = useState("14");
+
+  // Load default frequencies from localStorage on mount
+  useEffect(() => {
+    try {
+      const savedWateringFreq = localStorage.getItem('defaultWateringFreq');
+      const savedFeedingFreq = localStorage.getItem('defaultFeedingFreq');
+      
+      if (savedWateringFreq) {
+        setDefaultWateringFreq(savedWateringFreq);
+      }
+      if (savedFeedingFreq) {
+        setDefaultFeedingFreq(savedFeedingFreq);
+      }
+    } catch (error) {
+      console.error("Failed to load default care frequencies:", error);
+    }
+  }, []);
   const [temperatureUnit, setTemperatureUnit] = useState("celsius");
   const [autoBackup, setAutoBackup] = useState(true);
   const { toast } = useToast();
 
   const handleSave = () => {
-    toast({
-      title: "Settings saved",
-      description: "Your preferences have been updated",
-      duration: 1500,
-    });
-    
-    // Navigate back to plants page after 1500ms
-    setTimeout(() => {
-      setLocation('/');
-    }, 1500);
+    try {
+      // Save default care frequencies to localStorage
+      localStorage.setItem('defaultWateringFreq', defaultWateringFreq);
+      localStorage.setItem('defaultFeedingFreq', defaultFeedingFreq);
+      
+      toast({
+        title: "Settings saved",
+        description: "Your preferences have been updated",
+        duration: 1500,
+      });
+      
+      // Navigate back to plants page after 1500ms
+      setTimeout(() => {
+        setLocation('/');
+      }, 1500);
+    } catch (error) {
+      console.error("Failed to save settings:", error);
+      toast({
+        title: "Error saving settings",
+        description: "Failed to save your preferences. Please try again.",
+        variant: "destructive",
+      });
+    }
   };
 
   const handleExport = () => {

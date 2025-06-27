@@ -66,10 +66,12 @@ const PlantForm = ({ onSuccess, initialValues, plantId }: PlantFormProps) => {
   const [showCustomLocationDialog, setShowCustomLocationDialog] = useState(false);
   const [customLocation, setCustomLocation] = useState("");
   const [customLocations, setCustomLocations] = useState<string[]>([]);
+  const [defaultWateringFreq, setDefaultWateringFreq] = useState(7);
+  const [defaultFeedingFreq, setDefaultFeedingFreq] = useState(14);
   
-  // Load saved custom locations on mount
+  // Load saved custom locations and default care frequencies on mount
   useEffect(() => {
-    // First load from localStorage for immediate display
+    // Load custom locations from localStorage for immediate display
     try {
       const savedLocations = localStorage.getItem('customLocations');
       if (savedLocations) {
@@ -79,7 +81,22 @@ const PlantForm = ({ onSuccess, initialValues, plantId }: PlantFormProps) => {
       console.error("Failed to load custom locations from localStorage:", error);
     }
     
-    // Then fetch from server for up-to-date data
+    // Load default care frequencies from localStorage
+    try {
+      const savedWateringFreq = localStorage.getItem('defaultWateringFreq');
+      const savedFeedingFreq = localStorage.getItem('defaultFeedingFreq');
+      
+      if (savedWateringFreq) {
+        setDefaultWateringFreq(parseInt(savedWateringFreq) || 7);
+      }
+      if (savedFeedingFreq) {
+        setDefaultFeedingFreq(parseInt(savedFeedingFreq) || 14);
+      }
+    } catch (error) {
+      console.error("Failed to load default care frequencies from localStorage:", error);
+    }
+    
+    // Then fetch custom locations from server for up-to-date data
     const fetchLocations = async () => {
       try {
         const response = await fetch('/api/locations');
@@ -112,11 +129,22 @@ const PlantForm = ({ onSuccess, initialValues, plantId }: PlantFormProps) => {
       lastWatered: initialValues?.lastWatered || undefined,
       nextCheck: initialValues?.nextCheck || undefined,
       lastFed: initialValues?.lastFed || undefined,
-      wateringFrequencyDays: initialValues?.wateringFrequencyDays || 7,
+      wateringFrequencyDays: initialValues?.wateringFrequencyDays || defaultWateringFreq,
+      feedingFrequencyDays: initialValues?.feedingFrequencyDays || defaultFeedingFreq,
       notes: initialValues?.notes || "",
       plantNumber: initialValues?.plantNumber,
     },
   });
+
+  // Update form default values when default frequencies are loaded
+  useEffect(() => {
+    if (!initialValues?.wateringFrequencyDays) {
+      form.setValue('wateringFrequencyDays', defaultWateringFreq);
+    }
+    if (!initialValues?.feedingFrequencyDays) {
+      form.setValue('feedingFrequencyDays', defaultFeedingFreq);
+    }
+  }, [defaultWateringFreq, defaultFeedingFreq, form, initialValues]);
 
   const handleImageSelected = (file: File) => {
     setSelectedImage(file);
@@ -418,10 +446,10 @@ const PlantForm = ({ onSuccess, initialValues, plantId }: PlantFormProps) => {
                   <FormControl>
                     <Input 
                       type="number"
-                      placeholder="7" 
+                      placeholder={defaultWateringFreq.toString()} 
                       {...field}
                       value={field.value || ""}
-                      onChange={(e) => field.onChange(parseInt(e.target.value) || 7)}
+                      onChange={(e) => field.onChange(parseInt(e.target.value) || defaultWateringFreq)}
                       className="bg-background"
                       min="1"
                       max="365"
@@ -441,10 +469,10 @@ const PlantForm = ({ onSuccess, initialValues, plantId }: PlantFormProps) => {
                   <FormControl>
                     <Input 
                       type="number"
-                      placeholder="14" 
+                      placeholder={defaultFeedingFreq.toString()} 
                       {...field}
                       value={field.value || ""}
-                      onChange={(e) => field.onChange(parseInt(e.target.value) || 14)}
+                      onChange={(e) => field.onChange(parseInt(e.target.value) || defaultFeedingFreq)}
                       className="bg-background"
                       min="1"
                       max="365"
