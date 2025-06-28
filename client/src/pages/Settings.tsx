@@ -84,6 +84,31 @@ const Settings = () => {
     });
   };
 
+  const handleAlphaTestingToggle = (checked: boolean) => {
+    if (checked) {
+      enableAlphaTestingMode();
+      toast({
+        title: "Alpha testing mode enabled",
+        description: "Your data will now be stored locally on this device only",
+      });
+    } else {
+      disableAlphaTestingMode();
+      toast({
+        title: "Alpha testing mode disabled",
+        description: "Your data will now use the server database",
+      });
+    }
+    setAlphaTestingEnabled(checked);
+  };
+
+  const handleClearAlphaData = () => {
+    alphaStorage.clear();
+    toast({
+      title: "Local data cleared",
+      description: "All alpha testing data has been removed from this device",
+    });
+  };
+
   return (
     <div className="p-4 pb-16">
       <div className="flex items-center justify-between mb-6">
@@ -190,6 +215,49 @@ const Settings = () => {
                 max="90"
               />
             </div>
+          </CardContent>
+        </Card>
+
+        {/* Alpha Testing */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <TestTube className="h-4 w-4" />
+              Alpha Testing Mode
+            </CardTitle>
+            <CardDescription>Store data locally for isolated testing</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <Label className="text-sm font-medium">Enable Alpha Testing</Label>
+                <p className="text-xs text-muted-foreground">Keep your data separate from other users</p>
+              </div>
+              <Switch 
+                checked={alphaTestingEnabled} 
+                onCheckedChange={handleAlphaTestingToggle} 
+              />
+            </div>
+            
+            {alphaTestingEnabled && (
+              <>
+                <Separator />
+                <div className="space-y-3">
+                  <div className="text-xs text-muted-foreground">
+                    When alpha testing is enabled, all your plant data is stored locally on this device only. 
+                    Other users won't see your data and you won't see theirs.
+                  </div>
+                  <Button 
+                    onClick={handleClearAlphaData} 
+                    className="w-full" 
+                    variant="outline"
+                    size="sm"
+                  >
+                    Clear All Local Data
+                  </Button>
+                </div>
+              </>
+            )}
           </CardContent>
         </Card>
 

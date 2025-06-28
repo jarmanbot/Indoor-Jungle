@@ -98,10 +98,35 @@ Indoor Jungle is a Web3 plant care application that combines a traditional plant
 - Public folder for static assets and uploads
 - Environment variables for database and API keys
 
+## Alpha Testing Mode
+
+For isolated user testing, the app includes an Alpha Testing Mode that stores all data locally on each device:
+
+### Features
+- **Local Data Storage**: All plant data, care logs, and settings stored in browser localStorage
+- **Complete Isolation**: Each tester's data remains separate and private
+- **Visual Indicator**: Orange "ALPHA" badge in header when enabled
+- **Easy Toggle**: Enable/disable in Settings with one click
+- **Data Management**: Clear local data option for fresh starts
+
+### Usage Instructions for Alpha Testers
+1. Go to Settings
+2. Enable "Alpha Testing Mode" 
+3. All your plant data will now be stored locally
+4. Orange "ALPHA" badge shows you're in testing mode
+5. Other testers won't see your data and you won't see theirs
+
+### Technical Implementation
+- Intercepts all API calls when alpha mode is enabled
+- Uses localStorage to store plants, care logs, and custom locations
+- Maintains same data structure as server for seamless switching
+- Auto-generates IDs and plant numbers locally
+
 ## Changelog
 
 ```
 Changelog:
+- June 27, 2025. Added Alpha Testing Mode for isolated user testing
 - June 14, 2025. Initial setup
 ```
 
