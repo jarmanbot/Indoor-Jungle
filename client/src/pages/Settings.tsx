@@ -7,9 +7,10 @@ import { Separator } from "@/components/ui/separator";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { Bell, Moon, Info, HelpCircle, Palette, Database, Shield, Download, Upload, Clock, ArrowLeft } from "lucide-react";
+import { Bell, Moon, Info, HelpCircle, Palette, Database, Shield, Download, Upload, Clock, ArrowLeft, TestTube } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
+import { isAlphaTestingMode, enableAlphaTestingMode, disableAlphaTestingMode, alphaStorage } from "@/lib/alphaTestingMode";
 
 const Settings = () => {
   const [, setLocation] = useLocation();
@@ -17,8 +18,9 @@ const Settings = () => {
   const [darkModeEnabled, setDarkModeEnabled] = useState(false);
   const [defaultWateringFreq, setDefaultWateringFreq] = useState("7");
   const [defaultFeedingFreq, setDefaultFeedingFreq] = useState("14");
+  const [alphaTestingEnabled, setAlphaTestingEnabled] = useState(false);
 
-  // Load default frequencies from localStorage on mount
+  // Load default frequencies and alpha testing mode from localStorage on mount
   useEffect(() => {
     try {
       const savedWateringFreq = localStorage.getItem('defaultWateringFreq');
@@ -30,8 +32,11 @@ const Settings = () => {
       if (savedFeedingFreq) {
         setDefaultFeedingFreq(savedFeedingFreq);
       }
+      
+      // Check alpha testing mode
+      setAlphaTestingEnabled(isAlphaTestingMode());
     } catch (error) {
-      console.error("Failed to load default care frequencies:", error);
+      console.error("Failed to load settings:", error);
     }
   }, []);
   const [temperatureUnit, setTemperatureUnit] = useState("celsius");
