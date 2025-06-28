@@ -3,19 +3,26 @@
 
 const ALPHA_MODE_KEY = 'alphaTestingMode';
 const ALPHA_DATA_PREFIX = 'alpha_';
+const ADMIN_PASSWORD = 'digipl@nts';
 
 export function isAlphaTestingMode(): boolean {
-  return window.localStorage.getItem(ALPHA_MODE_KEY) === 'true';
+  // Alpha mode is always on unless explicitly disabled with password
+  const mode = window.localStorage.getItem(ALPHA_MODE_KEY);
+  return mode !== 'disabled';
 }
 
 export function enableAlphaTestingMode(): void {
-  window.localStorage.setItem(ALPHA_MODE_KEY, 'true');
+  window.localStorage.setItem(ALPHA_MODE_KEY, 'enabled');
   console.log('Alpha testing mode enabled - data will be stored locally');
 }
 
-export function disableAlphaTestingMode(): void {
-  window.localStorage.setItem(ALPHA_MODE_KEY, 'false');
-  console.log('Alpha testing mode disabled - data will use server');
+export function disableAlphaTestingMode(password: string): boolean {
+  if (password === ADMIN_PASSWORD) {
+    window.localStorage.setItem(ALPHA_MODE_KEY, 'disabled');
+    console.log('Alpha testing mode disabled - data will use server');
+    return true;
+  }
+  return false;
 }
 
 // Simple storage helpers that work with the existing API structure

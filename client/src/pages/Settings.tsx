@@ -7,10 +7,11 @@ import { Separator } from "@/components/ui/separator";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { Bell, Moon, Info, HelpCircle, Palette, Database, Shield, Download, Upload, Clock, ArrowLeft, TestTube } from "lucide-react";
+import { Bell, Moon, Info, HelpCircle, Palette, Database, Shield, Download, Upload, Clock, ArrowLeft, TestTube, Lock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { isAlphaTestingMode, enableAlphaTestingMode, disableAlphaTestingMode, alphaStorage } from "@/lib/alphaTestingMode";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 
 const Settings = () => {
   const [, setLocation] = useLocation();
@@ -18,7 +19,9 @@ const Settings = () => {
   const [darkModeEnabled, setDarkModeEnabled] = useState(false);
   const [defaultWateringFreq, setDefaultWateringFreq] = useState("7");
   const [defaultFeedingFreq, setDefaultFeedingFreq] = useState("14");
-  const [alphaTestingEnabled, setAlphaTestingEnabled] = useState(false);
+  const [alphaTestingEnabled, setAlphaTestingEnabled] = useState(true);
+  const [showPasswordDialog, setShowPasswordDialog] = useState(false);
+  const [password, setPassword] = useState("");
 
   // Load default frequencies and alpha testing mode from localStorage on mount
   useEffect(() => {
@@ -87,18 +90,34 @@ const Settings = () => {
   const handleAlphaTestingToggle = (checked: boolean) => {
     if (checked) {
       enableAlphaTestingMode();
+      setAlphaTestingEnabled(true);
       toast({
         title: "Alpha testing mode enabled",
         description: "Your data will now be stored locally on this device only",
       });
     } else {
-      disableAlphaTestingMode();
+      // Show password dialog to disable alpha mode
+      setShowPasswordDialog(true);
+    }
+  };
+
+  const handlePasswordSubmit = () => {
+    const success = disableAlphaTestingMode(password);
+    if (success) {
+      setAlphaTestingEnabled(false);
+      setShowPasswordDialog(false);
+      setPassword("");
       toast({
         title: "Alpha testing mode disabled",
         description: "Your data will now use the server database",
       });
+    } else {
+      toast({
+        title: "Incorrect password",
+        description: "Please enter the correct admin password",
+        variant: "destructive",
+      });
     }
-    setAlphaTestingEnabled(checked);
   };
 
   const handleClearAlphaData = () => {
@@ -225,18 +244,21 @@ const Settings = () => {
               <TestTube className="h-4 w-4" />
               Alpha Testing Mode
             </CardTitle>
-            <CardDescription>Store data locally for isolated testing</CardDescription>
+            <CardDescription>Store data locally for isolated testing (Password protected)</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="flex items-center justify-between">
               <div>
-                <Label className="text-sm font-medium">Enable Alpha Testing</Label>
-                <p className="text-xs text-muted-foreground">Keep your data separate from other users</p>
+                <Label className="text-sm font-medium">Alpha Testing Active</Label>
+                <p className="text-xs text-muted-foreground">Data isolated on this device - Admin password required to disable</p>
               </div>
-              <Switch 
-                checked={alphaTestingEnabled} 
-                onCheckedChange={handleAlphaTestingToggle} 
-              />
+              <div className="flex items-center gap-2">
+                <Switch 
+                  checked={alphaTestingEnabled} 
+                  onCheckedChange={handleAlphaTestingToggle} 
+                />
+                <Lock className="h-4 w-4 text-muted-foreground" />
+              </div>
             </div>
             
             {alphaTestingEnabled && (
@@ -244,8 +266,8 @@ const Settings = () => {
                 <Separator />
                 <div className="space-y-3">
                   <div className="text-xs text-muted-foreground">
-                    When alpha testing is enabled, all your plant data is stored locally on this device only. 
-                    Other users won't see your data and you won't see theirs.
+                    Alpha testing mode is active. All plant data is stored locally on this device only. 
+                    Users can't access the shared database without the admin password.
                   </div>
                   <Button 
                     onClick={handleClearAlphaData} 
@@ -260,6 +282,42 @@ const Settings = () => {
             )}
           </CardContent>
         </Card>
+
+        {/* Password Dialog */}
+        <Dialog open={showPasswordDialog} onOpenChange={setShowPasswordDialog}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Admin Password Required</DialogTitle>
+            </DialogHeader>
+            <div className="space-y-4">
+              <p className="text-sm text-muted-foreground">
+                Enter the admin password to disable alpha testing mode and access the shared database:
+              </p>
+              <Input
+                type="password"
+                placeholder="Enter admin password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                onKeyDown={(e) => e.key === 'Enter' && handlePasswordSubmit()}
+              />
+              <div className="flex gap-2">
+                <Button onClick={handlePasswordSubmit} className="flex-1">
+                  Disable Alpha Mode
+                </Button>
+                <Button 
+                  variant="outline" 
+                  onClick={() => {
+                    setShowPasswordDialog(false);
+                    setPassword("");
+                  }}
+                  className="flex-1"
+                >
+                  Cancel
+                </Button>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
 
         {/* Data Management */}
         <Card>

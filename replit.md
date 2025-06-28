@@ -110,11 +110,11 @@ For isolated user testing, the app includes an Alpha Testing Mode that stores al
 - **Data Management**: Clear local data option for fresh starts
 
 ### Usage Instructions for Alpha Testers
-1. Go to Settings
-2. Enable "Alpha Testing Mode" 
-3. All your plant data will now be stored locally
-4. Orange "ALPHA" badge shows you're in testing mode
-5. Other testers won't see your data and you won't see theirs
+1. Alpha Testing Mode is enabled by default
+2. Orange "ALPHA" badge shows testing mode is active
+3. All plant data is stored locally on each device
+4. Each tester's data remains completely isolated
+5. Admin password (`digipl@nts`) required to access shared database
 
 ### Technical Implementation
 - Intercepts all API calls when alpha mode is enabled
@@ -126,6 +126,7 @@ For isolated user testing, the app includes an Alpha Testing Mode that stores al
 
 ```
 Changelog:
+- June 27, 2025. Added password-protected Alpha Testing Mode (default on) with admin password digipl@nts
 - June 27, 2025. Added Alpha Testing Mode for isolated user testing
 - June 14, 2025. Initial setup
 ```
