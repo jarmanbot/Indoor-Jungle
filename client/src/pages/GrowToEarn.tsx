@@ -1,5 +1,5 @@
 
-  import { Link } from "wouter";
+import { Link } from "wouter";
 import { 
   Leaf, 
   Sprout, 
@@ -8,7 +8,8 @@ import {
   Coins, 
   Medal, 
   ArrowRight,
-  Gamepad 
+  Gamepad,
+  ChevronDown 
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { 
@@ -20,101 +21,174 @@ import {
   CardTitle 
 } from "@/components/ui/card";
 
+// Simple SVG illustrations
+const PlantIllustration = () => (
+  <svg viewBox="0 0 100 100" className="w-16 h-16">
+    <rect x="35" y="70" width="30" height="25" fill="#8B4513" rx="2"/>
+    <path d="M40 70 Q50 50 60 70" fill="#22C55E" stroke="#16A34A" strokeWidth="2"/>
+    <circle cx="45" cy="60" r="3" fill="#EF4444"/>
+    <circle cx="55" cy="58" r="2" fill="#F59E0B"/>
+  </svg>
+);
+
+const NFTIllustration = () => (
+  <svg viewBox="0 0 100 100" className="w-16 h-16">
+    <rect x="20" y="20" width="60" height="60" fill="#3B82F6" rx="8" stroke="#1D4ED8" strokeWidth="2"/>
+    <rect x="30" y="30" width="40" height="40" fill="#93C5FD" rx="4"/>
+    <circle cx="50" cy="50" r="8" fill="#FBBF24"/>
+    <text x="50" y="75" textAnchor="middle" fontSize="8" fill="white">NFT</text>
+  </svg>
+);
+
+const TokenIllustration = () => (
+  <svg viewBox="0 0 100 100" className="w-16 h-16">
+    <circle cx="50" cy="50" r="30" fill="#F59E0B" stroke="#D97706" strokeWidth="3"/>
+    <text x="50" y="55" textAnchor="middle" fontSize="12" fill="white" fontWeight="bold">LVS</text>
+    <path d="M25 50 L35 40 L35 45 L65 45 L65 40 L75 50 L65 60 L65 55 L35 55 L35 60 Z" fill="#FCD34D" opacity="0.7"/>
+  </svg>
+);
+
 export default function GrowToEarn() {
   return (
     <div className="pb-20">
-      {/* Hero section */}
-      <div className="bg-gradient-to-br from-green-600 to-green-800 text-white p-6 rounded-b-lg">
-        <div className="flex items-center mb-4">
-          <Sprout className="h-8 w-8 mr-3" />
-          <h1 className="text-2xl font-bold">Grow to Earn</h1>
+      {/* Simple Hero section */}
+      <div className="bg-gradient-to-br from-green-500 to-green-700 text-white p-6 text-center">
+        <div className="mb-4">
+          <Sprout className="h-12 w-12 mx-auto mb-2" />
+          <h1 className="text-3xl font-bold">Grow to Earn</h1>
         </div>
-        <p className="mb-4">
-           Grow to Earn connects your real world plant babies to the virtual world. Connect your crypto wallet to the INDOOR JUNGLE app, register your plant pot via the QR code and your first plant NFT will be ready for you in game. Complete tasks in the game to upgrade your virtual plants and earn LVS tokens, the in game currency. The more you upgrade your NFT's you can earn more LVS and bonuses. Buy and sell your virtual plants, pots and other plant care accesory NFTs to earn LVS. Use LVS in game to buy even more plant NFTs or buy collecable plant pots for your plant babies to earn even more in game bonuses. You can even withdraw your LVS and swap them for other crytocurrencies like Bitcoin, Etherum or Ripple turning your in game progress into assetts you can trade in Crypto exchanges or store in your crypto wallets as investments for your future. *we recommend and support MetaMask.   
-          
+        <p className="text-lg mb-6 leading-relaxed">
+          Turn your real plant care into virtual rewards!
         </p>
-        <div className="flex justify-between items-center mt-6">
+        
+        {/* Simple visual flow */}
+        <div className="flex justify-center items-center space-x-4 mb-4">
           <div className="text-center">
-            <div className="bg-white/20 rounded-full p-3 inline-block mb-2">
-              <Leaf className="h-6 w-6" />
-            </div>
-            <p className="text-xs">Real Plants</p>
+            <PlantIllustration />
+            <p className="text-sm mt-1">Care for Real Plants</p>
           </div>
-          <ArrowRight className="h-5 w-5" />
+          <ArrowRight className="h-6 w-6 opacity-80" />
           <div className="text-center">
-            <div className="bg-white/20 rounded-full p-3 inline-block mb-2">
-              <QrCode className="h-6 w-6" />
-            </div>
-            <p className="text-xs">NFT Planter</p>
+            <NFTIllustration />
+            <p className="text-sm mt-1">Get NFT Plants</p>
           </div>
-          <ArrowRight className="h-5 w-5" />
+          <ArrowRight className="h-6 w-6 opacity-80" />
           <div className="text-center">
-            <div className="bg-white/20 rounded-full p-3 inline-block mb-2">
-              <Coins className="h-6 w-6" />
+            <TokenIllustration />
+            <p className="text-sm mt-1">Earn LVS Tokens</p>
+          </div>
+        </div>
+        
+        <div className="flex items-center justify-center mt-8">
+          <ChevronDown className="h-6 w-6 animate-bounce opacity-70" />
+        </div>
+      </div>
+
+      {/* How it works - Simple steps */}
+      <div className="p-6 bg-white">
+        <h2 className="text-2xl font-bold mb-6 text-center">How It Works</h2>
+        
+        <div className="space-y-6">
+          <div className="flex items-start space-x-4">
+            <div className="bg-green-500 text-white rounded-full w-8 h-8 flex items-center justify-center text-lg font-bold flex-shrink-0">1</div>
+            <div>
+              <h3 className="font-semibold text-lg mb-1">Add Your Real Plants</h3>
+              <p className="text-gray-600">Track your plant care in the app - watering, feeding, and general maintenance.</p>
             </div>
-            <p className="text-xs">LVS Tokens</p>
+          </div>
+
+          <div className="flex items-start space-x-4">
+            <div className="bg-blue-500 text-white rounded-full w-8 h-8 flex items-center justify-center text-lg font-bold flex-shrink-0">2</div>
+            <div>
+              <h3 className="font-semibold text-lg mb-1">Connect Your Wallet</h3>
+              <p className="text-gray-600">Link your crypto wallet (MetaMask recommended) to access game features.</p>
+            </div>
+          </div>
+
+          <div className="flex items-start space-x-4">
+            <div className="bg-purple-500 text-white rounded-full w-8 h-8 flex items-center justify-center text-lg font-bold flex-shrink-0">3</div>
+            <div>
+              <h3 className="font-semibold text-lg mb-1">Get NFT Plants</h3>
+              <p className="text-gray-600">Your real plant care creates virtual NFT plants that grow with your care success.</p>
+            </div>
+          </div>
+
+          <div className="flex items-start space-x-4">
+            <div className="bg-yellow-500 text-white rounded-full w-8 h-8 flex items-center justify-center text-lg font-bold flex-shrink-0">4</div>
+            <div>
+              <h3 className="font-semibold text-lg mb-1">Earn LVS Tokens</h3>
+              <p className="text-gray-600">Get rewarded with LVS tokens for consistent plant care and game activities.</p>
+            </div>
           </div>
         </div>
       </div>
 
-      {/* How it works */}
-      <div className="p-4">
-        <h2 className="text-xl font-bold mb-4">How It Works</h2>
+      {/* Detailed Explanation Section */}
+      <div className="p-6 bg-gray-50">
+        <h2 className="text-2xl font-bold mb-6 text-center">The Complete Grow-to-Earn System</h2>
         
+        <div className="bg-white rounded-lg p-6 mb-6 shadow-sm">
+          <h3 className="text-lg font-semibold mb-3 text-green-600">Real World meets Virtual World</h3>
+          <p className="text-gray-700 leading-relaxed">
+            Grow to Earn connects your real world plant babies to the virtual world. Connect your crypto wallet to the INDOOR JUNGLE app, register your plant pot via the QR code and your first plant NFT will be ready for you in the game. Complete tasks in the game to upgrade your virtual plants and earn LVS tokens, the in-game currency.
+          </p>
+        </div>
+
         <div className="space-y-4">
           <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-lg flex items-center">
-                <span className="bg-green-100 text-green-600 rounded-full w-6 h-6 flex items-center justify-center text-sm mr-2">1</span>
-                Register Your Plant Pot
+            <CardHeader>
+              <CardTitle className="flex items-center">
+                <QrCode className="h-5 w-5 mr-2 text-blue-600" />
+                NFT Plant Registration
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="text-sm text-gray-600">
-                Add your real plants to the Plant Care app and maintain their care records.
+              <p className="text-sm text-gray-600 mb-3">
+                Purchase and mint digital NFT planters that link to your real plants. Different rarities offer different benefits and earning potential.
               </p>
+              <div className="bg-blue-50 p-3 rounded">
+                <p className="text-xs text-blue-700">
+                  <strong>Tip:</strong> Rarer NFT plants generate more LVS tokens and unlock special bonuses
+                </p>
+              </div>
             </CardContent>
           </Card>
 
           <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-lg flex items-center">
-                <span className="bg-green-100 text-green-600 rounded-full w-6 h-6 flex items-center justify-center text-sm mr-2">2</span>
-                Mint NFT Planters
+            <CardHeader>
+              <CardTitle className="flex items-center">
+                <Coins className="h-5 w-5 mr-2 text-yellow-600" />
+                LVS Token Economy
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="text-sm text-gray-600">
-                Purchase and mint digital NFT planters that link to your real plants. Different rarities offer different benefits.
+              <p className="text-sm text-gray-600 mb-3">
+                The more you upgrade your NFTs, the more LVS tokens you can earn. Buy and sell your virtual plants, pots and other plant care accessory NFTs to earn LVS. Use LVS in-game to buy even more plant NFTs or collectible plant pots.
               </p>
+              <div className="bg-yellow-50 p-3 rounded">
+                <p className="text-xs text-yellow-700">
+                  <strong>Real Value:</strong> Withdraw your LVS and swap them for other cryptocurrencies like Bitcoin, Ethereum or Ripple
+                </p>
+              </div>
             </CardContent>
           </Card>
 
           <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-lg flex items-center">
-                <span className="bg-green-100 text-green-600 rounded-full w-6 h-6 flex items-center justify-center text-sm mr-2">3</span>
-                Care for Your Plants
+            <CardHeader>
+              <CardTitle className="flex items-center">
+                <Gamepad className="h-5 w-5 mr-2 text-purple-600" />
+                Game Integration
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="text-sm text-gray-600">
-                Successfully care for your plants in real life to generate virtual benefits. The app tracks your care activities.
+              <p className="text-sm text-gray-600 mb-3">
+                Your real plant care success directly impacts your virtual plant health and earning potential. The app tracks your care activities and rewards consistent, quality care.
               </p>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-lg flex items-center">
-                <span className="bg-green-100 text-green-600 rounded-full w-6 h-6 flex items-center justify-center text-sm mr-2">4</span>
-                Earn LVS Tokens
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-sm text-gray-600">
-                Earn LVS tokens based on your plant care success. More plants and rarer NFT planters generate more tokens.
-              </p>
+              <div className="bg-purple-50 p-3 rounded">
+                <p className="text-xs text-purple-700">
+                  <strong>Growth System:</strong> Virtual plants level up based on your real-world care consistency
+                </p>
+              </div>
             </CardContent>
           </Card>
         </div>
@@ -160,31 +234,29 @@ export default function GrowToEarn() {
       </div>
 
       {/* CTA section */}
-      <div className="p-4 text-center">
-        <Card>
-          <CardHeader>
-            <CardTitle>Ready to Start?</CardTitle>
-            <CardDescription>
-              Connect your crypto wallet to the INDOOR JUNGLE app, register your plant pot via the QR code and your first NFT will be ready for you in game *we recommend and support MetaMask           </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="flex justify-center space-x-4">
-              <Link href="/game">
-                <Button className="bg-green-600 hover:bg-green-700">
-                  Play Game
-                </Button>
-              </Link>
-              <Link href="/">
-                <Button variant="outline">
-                  View My Plants
-                </Button>
-              </Link>
-            </div>
-          </CardContent>
-          <CardFooter className="text-xs text-gray-500 justify-center">
-            Requires a connected cryptocurrency wallet
-          </CardFooter>
-        </Card>
+      <div className="p-6 bg-gradient-to-r from-green-500 to-blue-500 text-white text-center">
+        <h2 className="text-2xl font-bold mb-4">Ready to Start Earning?</h2>
+        <p className="mb-6 opacity-90">
+          Connect your crypto wallet and start turning your plant care into rewards!
+        </p>
+        
+        <div className="flex flex-col sm:flex-row justify-center gap-4 mb-4">
+          <Link href="/game">
+            <Button className="bg-white text-green-600 hover:bg-gray-100 font-semibold px-6 py-3">
+              Start Playing
+            </Button>
+          </Link>
+          <Link href="/">
+            <Button variant="outline" className="border-white text-white hover:bg-white hover:text-green-600 px-6 py-3">
+              Add My Plants
+            </Button>
+          </Link>
+        </div>
+        
+        <div className="text-sm opacity-75">
+          <p>💡 <strong>Recommended:</strong> MetaMask wallet for best experience</p>
+          <p className="mt-1">🌱 Start with your existing plants or add new ones</p>
+        </div>
       </div>
     </div>
   );
