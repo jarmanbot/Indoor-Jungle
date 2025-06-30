@@ -68,14 +68,28 @@ export function getNextId(): number {
   return id;
 }
 
-// Helper to generate plant numbers
-let nextPlantNumber = 2; // Start from 2 since 1 is reserved for the demo plant
+// Helper to generate plant numbers - finds the next available number sequentially
 export function getNextPlantNumber(): number {
-  const stored = alphaStorage.get('nextPlantNumber') || 2;
-  const number = Math.max(nextPlantNumber, stored);
-  nextPlantNumber = number + 1;
-  alphaStorage.set('nextPlantNumber', nextPlantNumber);
-  return number;
+  const plants = alphaStorage.get('plants') || [];
+  
+  // Get all existing plant numbers, sorted
+  const existingNumbers = plants
+    .map((plant: any) => plant.plantNumber)
+    .filter((num: number) => typeof num === 'number')
+    .sort((a: number, b: number) => a - b);
+  
+  // Find the first gap in the sequence, starting from 1
+  let nextNumber = 1;
+  for (const existingNumber of existingNumbers) {
+    if (existingNumber === nextNumber) {
+      nextNumber++;
+    } else if (existingNumber > nextNumber) {
+      // Found a gap, use the current nextNumber
+      break;
+    }
+  }
+  
+  return nextNumber;
 }
 
 // Initialize alpha testing mode with demo plant
