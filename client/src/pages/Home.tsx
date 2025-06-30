@@ -42,47 +42,53 @@ const Home = () => {
         {/* Compact stats */}
         {totalPlants > 0 && (
           <div className="grid grid-cols-3 gap-1.5">
-            <Card className="bg-green-100 border-green-200">
-              <CardContent className="p-1.5">
-                <div className="flex items-center gap-1">
-                  <div className="bg-blue-100 rounded-full p-0.5">
-                    <Leaf className="h-2.5 w-2.5 text-blue-600" />
+            <Link href="/analytics">
+              <Card className="bg-green-100 border-green-200 hover:bg-green-200 transition-colors cursor-pointer">
+                <CardContent className="p-1.5">
+                  <div className="flex items-center gap-1">
+                    <div className="bg-blue-100 rounded-full p-0.5">
+                      <Leaf className="h-2.5 w-2.5 text-blue-600" />
+                    </div>
+                    <div>
+                      <div className="text-xs font-bold">{totalPlants}</div>
+                      <p className="text-xs text-gray-600">Total</p>
+                    </div>
                   </div>
-                  <div>
-                    <div className="text-xs font-bold">{totalPlants}</div>
-                    <p className="text-xs text-gray-600">Total</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+                </CardContent>
+              </Card>
+            </Link>
             
-            <Card className="bg-green-100 border-green-200">
-              <CardContent className="p-1.5">
-                <div className="flex items-center gap-1">
-                  <div className="bg-orange-100 rounded-full p-0.5">
-                    <Droplet className="h-2.5 w-2.5 text-orange-600" />
+            <Link href="/bulk-care">
+              <Card className="bg-green-100 border-green-200 hover:bg-green-200 transition-colors cursor-pointer">
+                <CardContent className="p-1.5">
+                  <div className="flex items-center gap-1">
+                    <div className="bg-orange-100 rounded-full p-0.5">
+                      <Droplet className="h-2.5 w-2.5 text-orange-600" />
+                    </div>
+                    <div>
+                      <div className="text-xs font-bold">{plantsNeedingWater}</div>
+                      <p className="text-xs text-gray-600">Need water</p>
+                    </div>
                   </div>
-                  <div>
-                    <div className="text-xs font-bold">{plantsNeedingWater}</div>
-                    <p className="text-xs text-gray-600">Need water</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+                </CardContent>
+              </Card>
+            </Link>
             
-            <Card className="bg-green-100 border-green-200">
-              <CardContent className="p-1.5">
-                <div className="flex items-center gap-1">
-                  <div className="bg-green-100 rounded-full p-0.5">
-                    <Package className="h-2.5 w-2.5 text-green-600" />
+            <Link href="/bulk-care">
+              <Card className="bg-green-100 border-green-200 hover:bg-green-200 transition-colors cursor-pointer">
+                <CardContent className="p-1.5">
+                  <div className="flex items-center gap-1">
+                    <div className="bg-green-100 rounded-full p-0.5">
+                      <Package className="h-2.5 w-2.5 text-green-600" />
+                    </div>
+                    <div>
+                      <div className="text-xs font-bold">{plantsNeedingFeeding}</div>
+                      <p className="text-xs text-gray-600">Need feed</p>
+                    </div>
                   </div>
-                  <div>
-                    <div className="text-xs font-bold">{plantsNeedingFeeding}</div>
-                    <p className="text-xs text-gray-600">Need feed</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+                </CardContent>
+              </Card>
+            </Link>
           </div>
         )}
       </div>

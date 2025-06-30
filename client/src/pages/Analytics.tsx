@@ -2,6 +2,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { 
   TrendingUp, 
   Calendar, 
@@ -10,12 +11,15 @@ import {
   Clock,
   Award,
   BarChart3,
-  PieChart
+  PieChart,
+  ChevronLeft
 } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
+import { useLocation } from "wouter";
 import { Plant } from "@shared/schema";
 
 const Analytics = () => {
+  const [_, setLocation] = useLocation();
   const { data: plants } = useQuery<Plant[]>({
     queryKey: ['/api/plants'],
   });
@@ -33,6 +37,9 @@ const Analytics = () => {
 
   return (
     <div className="p-4 pb-20">
+      <Button onClick={() => setLocation('/')} variant="ghost" className="mb-4">
+        <ChevronLeft className="mr-2 h-4 w-4" /> Back to Plants
+      </Button>
       <h2 className="text-2xl font-bold text-neutral-darkest mb-6">Plant Analytics</h2>
       
       <Tabs defaultValue="overview" className="w-full">
