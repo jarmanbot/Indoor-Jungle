@@ -94,13 +94,10 @@ export function getNextPlantNumber(): number {
 
 // Initialize alpha testing mode with demo plant from server
 export async function initializeAlphaMode(): Promise<void> {
-  console.log('Alpha mode: initializeAlphaMode called, isAlphaTestingMode():', isAlphaTestingMode());
   if (!isAlphaTestingMode()) return;
   
   const plants = alphaStorage.get('plants') || [];
-  console.log('Alpha mode: Current plants in localStorage:', plants);
   const demoPlantIndex = plants.findIndex((plant: any) => plant.plantNumber === 1);
-  console.log('Alpha mode: Demo plant index:', demoPlantIndex);
   
   // If demo plant doesn't exist locally, fetch it from server
   if (demoPlantIndex === -1) {
@@ -111,8 +108,7 @@ export async function initializeAlphaMode(): Promise<void> {
       const originalMode = window.localStorage.getItem(ALPHA_MODE_KEY);
       window.localStorage.setItem(ALPHA_MODE_KEY, 'disabled');
       
-      // Fetch all plants and find the one with plantNumber = 1
-      const response = await fetch('/api/plants');
+      const response = await fetch('/api/plants/1');
       
       // Restore alpha mode
       if (originalMode) {
@@ -122,51 +118,20 @@ export async function initializeAlphaMode(): Promise<void> {
       }
       
       if (response.ok) {
-        const serverPlants = await response.json();
-        console.log('Alpha mode: Fetched plants from server:', serverPlants);
+        const serverPlant = await response.json();
+        console.log('Alpha mode: Successfully fetched demo plant from server:', serverPlant);
         
-        // Find the plant with plantNumber = 1
-        const serverPlant = serverPlants.find((plant: any) => plant.plantNumber === 1);
+        // Add server plant to local storage with some alpha mode modifications
+        const demoPlant = {
+          ...serverPlant,
+          id: 1, // Ensure ID is 1 for consistency
+          plantNumber: 1, // Ensure plant number is 1
+          notes: (serverPlant.notes || '') + '\n\nThis demo plant is shared across all alpha testers and cannot be deleted in alpha mode.'
+        };
         
-        if (serverPlant) {
-          console.log('Alpha mode: Found demo plant #1 from server:', serverPlant);
-          
-          // Add server plant to local storage with some alpha mode modifications
-          const demoPlant = {
-            ...serverPlant,
-            id: 1, // Ensure ID is 1 for consistency in alpha mode
-            plantNumber: 1, // Ensure plant number is 1
-            notes: (serverPlant.notes || '') + '\n\nThis demo plant is shared across all alpha testers and cannot be deleted in alpha mode.'
-          };
-          
-          plants.unshift(demoPlant);
-          alphaStorage.set('plants', plants);
-          console.log('Alpha mode: Demo plant added to local storage');
-        } else {
-          console.log('Alpha mode: No plant with plantNumber = 1 found on server, using fallback');
-          // Use fallback demo plant if no plant #1 found
-          const fallbackDemoPlant = {
-            id: 1,
-            plantNumber: 1,
-            babyName: "Demo Plant",
-            commonName: "Sample Houseplant",
-            latinName: "Plantus Demonstratus",
-            name: "Demo Plant",
-            location: "living_room",
-            lastWatered: null,
-            nextCheck: null,
-            lastFed: null,
-            wateringFrequencyDays: 7,
-            feedingFrequencyDays: 14,
-            notes: "This is your demo plant to explore the app! This plant cannot be deleted in alpha mode.",
-            imageUrl: "/demo-plant.gif",
-            status: "healthy",
-            createdAt: new Date().toISOString(),
-            updatedAt: new Date().toISOString()
-          };
-          plants.unshift(fallbackDemoPlant);
-          alphaStorage.set('plants', plants);
-        }
+        plants.unshift(demoPlant);
+        alphaStorage.set('plants', plants);
+        console.log('Alpha mode: Demo plant added to local storage');
       } else {
         console.log('Alpha mode: Could not fetch demo plant from server, using fallback');
         // Use fallback demo plant if server fetch fails
