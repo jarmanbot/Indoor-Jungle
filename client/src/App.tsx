@@ -32,6 +32,12 @@ function Router() {
   const [location] = useLocation();
   const { isAuthenticated, isLoading } = useAuth();
   
+  // Debug logging
+  console.log("App Debug - Location:", location);
+  console.log("App Debug - isAuthenticated:", isAuthenticated);
+  console.log("App Debug - isLoading:", isLoading);
+  console.log("App Debug - Alpha mode:", typeof window !== 'undefined' && window.localStorage.getItem('alphaTestingMode'));
+  
   const isGameRoute = location.startsWith("/game");
   const isGrowToEarnRoute = location.startsWith("/grow-to-earn");
   const hideHeader = isGameRoute || isGrowToEarnRoute;

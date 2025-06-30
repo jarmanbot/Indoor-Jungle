@@ -7,8 +7,14 @@ export function useAuth() {
     retry: false,
   });
 
+  const alphaMode = isAlphaTestingMode();
+  console.log("useAuth Debug - Alpha mode:", alphaMode);
+  console.log("useAuth Debug - Query user:", user);
+  console.log("useAuth Debug - Query isLoading:", isLoading);
+
   // In alpha testing mode, always return authenticated state
-  if (isAlphaTestingMode()) {
+  if (alphaMode) {
+    console.log("useAuth Debug - Returning alpha user");
     return {
       user: {
         id: 'alpha-user',
@@ -21,6 +27,7 @@ export function useAuth() {
     };
   }
 
+  console.log("useAuth Debug - Returning regular auth, isAuthenticated:", !!user);
   return {
     user,
     isLoading,

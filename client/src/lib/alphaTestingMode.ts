@@ -8,7 +8,10 @@ const ADMIN_PASSWORD = 'digipl@nts';
 export function isAlphaTestingMode(): boolean {
   // Alpha mode is always on unless explicitly disabled with password
   const mode = window.localStorage.getItem(ALPHA_MODE_KEY);
-  return mode !== 'disabled';
+  const result = mode !== 'disabled';
+  console.log("Alpha Testing Mode Debug - mode from localStorage:", mode);
+  console.log("Alpha Testing Mode Debug - isAlphaTestingMode result:", result);
+  return result;
 }
 
 export function enableAlphaTestingMode(): void {
