@@ -19,15 +19,18 @@ import SmartRecommendations from "@/pages/SmartRecommendations";
 import Navigation from "@/components/Navigation";
 import Header from "@/components/Header";
 import FloatingActionButton from "@/components/FloatingActionButton";
+import Landing from "@/pages/Landing";
 // Import Game pages
 import Game from "@/pages/Game";
 import GameDashboard from "@/pages/Game/Dashboard";
 import GameMarketplace from "@/pages/Game/Marketplace";
+import { useAuth } from "@/hooks/useAuth";
 import LevelDetail from "@/pages/Game/LevelDetail";
 import GrowToEarn from "@/pages/GrowToEarn";
 
 function Router() {
   const [location] = useLocation();
+  const { isAuthenticated, isLoading } = useAuth();
   
   const isGameRoute = location.startsWith("/game");
   const isGrowToEarnRoute = location.startsWith("/grow-to-earn");
@@ -52,32 +55,38 @@ function Router() {
       {!hideHeader && <Header title={getPageTitle()} />}
       
       <Switch>
-        <Route path="/" component={Home} />
-        <Route path="/add" component={AddPlant} />
-        <Route path="/plant/:id" component={PlantDetails} />
-        <Route path="/calendar" component={Calendar} />
-        <Route path="/tasks" component={Tasks} />
-        <Route path="/settings" component={Settings} />
-        <Route path="/indoor-jungle-monitor" component={IndoorJungleMonitor} />
-        <Route path="/analytics" component={Analytics} />
-        <Route path="/achievements" component={Achievements} />
-        <Route path="/identify" component={PlantIdentification} />
-        <Route path="/bulk-care" component={BulkCare} />
-        <Route path="/recommendations" component={SmartRecommendations} />
-        {/* Game routes */}
-        <Route path="/game" component={Game} />
-        <Route path="/game/level/:level" component={LevelDetail} />
-        <Route path="/game/:level" component={Game} />
-        <Route path="/game/marketplace" component={GameMarketplace} />
-        <Route path="/grow-to-earn" component={GrowToEarn} />
+        {isLoading || !isAuthenticated ? (
+          <Route path="/" component={Landing} />
+        ) : (
+          <>
+            <Route path="/" component={Home} />
+            <Route path="/add" component={AddPlant} />
+            <Route path="/plant/:id" component={PlantDetails} />
+            <Route path="/calendar" component={Calendar} />
+            <Route path="/tasks" component={Tasks} />
+            <Route path="/settings" component={Settings} />
+            <Route path="/indoor-jungle-monitor" component={IndoorJungleMonitor} />
+            <Route path="/analytics" component={Analytics} />
+            <Route path="/achievements" component={Achievements} />
+            <Route path="/identify" component={PlantIdentification} />
+            <Route path="/bulk-care" component={BulkCare} />
+            <Route path="/recommendations" component={SmartRecommendations} />
+            {/* Game routes */}
+            <Route path="/game" component={Game} />
+            <Route path="/game/level/:level" component={LevelDetail} />
+            <Route path="/game/:level" component={Game} />
+            <Route path="/game/marketplace" component={GameMarketplace} />
+            <Route path="/grow-to-earn" component={GrowToEarn} />
+          </>
+        )}
         <Route component={NotFound} />
       </Switch>
       
-      {/* Show navigation on all pages except add and edit */}
-      {!location.includes("/add") && <Navigation />}
+      {/* Show navigation on all pages except add and edit, and only when authenticated */}
+      {!location.includes("/add") && isAuthenticated && <Navigation />}
       
-      {/* Floating Action Button on main pages */}
-      {!hideHeader && !location.includes("/add") && !location.includes("/settings") && <FloatingActionButton />}
+      {/* Floating Action Button on main pages, only when authenticated */}
+      {!hideHeader && !location.includes("/add") && !location.includes("/settings") && isAuthenticated && <FloatingActionButton />}
     </div>
   );
 }
