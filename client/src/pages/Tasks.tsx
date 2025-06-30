@@ -79,6 +79,9 @@ const Tasks = () => {
 
   return (
     <div className="p-4 pb-16">
+      <Button onClick={() => setLocation('/')} variant="ghost" className="mb-4">
+        <ChevronLeft className="mr-2 h-4 w-4" /> Back to Plants
+      </Button>
       <h2 className="text-lg font-medium text-neutral-darkest mb-4">Plant Tasks</h2>
 
       {isLoading ? (

@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { useLocation } from "wouter";
 import { 
   Camera, 
   Upload, 
@@ -10,10 +11,12 @@ import {
   Clock,
   Sparkles,
   BookOpen,
-  Target
+  Target,
+  ChevronLeft
 } from "lucide-react";
 
 const PlantIdentification = () => {
+  const [_, setLocation] = useLocation();
   const [isIdentifying, setIsIdentifying] = useState(false);
 
   const handlePhotoUpload = () => {
@@ -26,6 +29,9 @@ const PlantIdentification = () => {
 
   return (
     <div className="p-4 pb-20">
+      <Button onClick={() => setLocation('/')} variant="ghost" className="mb-4">
+        <ChevronLeft className="mr-2 h-4 w-4" /> Back to Plants
+      </Button>
       <h2 className="text-2xl font-bold text-neutral-darkest mb-6">Plant Identification</h2>
       
       {/* Main Upload Section */}
