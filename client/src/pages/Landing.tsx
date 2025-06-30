@@ -1,21 +1,8 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Leaf, Sprout, Calendar, BarChart3, Camera, Bell } from "lucide-react";
-import { isAlphaTestingMode } from "@/lib/alphaTestingMode";
-import { useLocation } from "wouter";
 
 export default function Landing() {
-  const [_, setLocation] = useLocation();
-  
-  const handleGetStarted = () => {
-    if (isAlphaTestingMode()) {
-      // In alpha mode, go directly to the app
-      setLocation("/");
-    } else {
-      // In admin mode, go through authentication
-      window.location.href = "/api/login";
-    }
-  };
   return (
     <div className="min-h-screen bg-gradient-to-br from-green-50 to-blue-50">
       {/* Hero Section */}
@@ -36,7 +23,7 @@ export default function Landing() {
               <Button 
                 size="lg" 
                 className="bg-white text-green-600 hover:bg-green-50 font-semibold px-8 py-3"
-                onClick={handleGetStarted}
+                onClick={() => window.location.href = "/api/login"}
               >
                 Get Started
               </Button>
@@ -138,7 +125,7 @@ export default function Landing() {
           <Button 
             size="lg" 
             className="bg-green-600 hover:bg-green-700 text-white px-8 py-3"
-            onClick={handleGetStarted}
+            onClick={() => window.location.href = "/api/login"}
           >
             Start Your Plant Journey
           </Button>
