@@ -128,6 +128,7 @@ For isolated user testing, the app includes an Alpha Testing Mode that stores al
 
 ```
 Changelog:
+- June 30, 2025. Added Replit Auth integration with OpenID Connect authentication
 - June 27, 2025. Added password-protected Alpha Testing Mode (default on) with admin password digipl@nts
 - June 27, 2025. Added Alpha Testing Mode for isolated user testing
 - June 14, 2025. Initial setup

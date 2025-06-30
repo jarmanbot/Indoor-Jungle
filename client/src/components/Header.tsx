@@ -51,8 +51,8 @@ const Header = ({ title }: HeaderProps) => {
       
       {isAuthenticated && (
         <div className="flex items-center gap-2">
-          {user?.firstName && (
-            <span className="text-white text-sm">Hi, {user.firstName}</span>
+          {(user as any)?.firstName && (
+            <span className="text-white text-sm">Hi, {(user as any).firstName}</span>
           )}
           <Button
             variant="ghost"
