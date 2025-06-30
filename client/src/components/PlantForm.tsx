@@ -257,9 +257,9 @@ const PlantForm = ({ onSuccess, initialValues, plantId }: PlantFormProps) => {
           console.log('Creating plant with ID:', plantId, 'and plant number:', plantNumber);
           
           const newPlant = {
+            ...data,
             id: plantId,
             plantNumber: plantNumber,
-            ...data,
             name: data.babyName,
             imageUrl: imageUrl,
             lastWatered: null,
