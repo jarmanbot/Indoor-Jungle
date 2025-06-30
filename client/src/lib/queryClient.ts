@@ -17,6 +17,22 @@ function handleAlphaRequest(method: string, url: string, data?: unknown): any {
     if (method === 'GET') {
       return alphaStorage.get('plants') || [];
     }
+    // Handle FormData plant creation (with images)
+    if (method === 'POST') {
+      const plants = alphaStorage.get('plants') || [];
+      const plantData = data as any;
+      const newPlant = {
+        ...plantData,
+        id: getNextId(),
+        plantNumber: getNextPlantNumber(),
+        name: plantData?.babyName || plantData?.name,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
+      };
+      plants.push(newPlant);
+      alphaStorage.set('plants', plants);
+      return newPlant;
+    }
   }
   
   if (endpoint === 'plants/json' && method === 'POST') {

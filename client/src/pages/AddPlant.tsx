@@ -9,7 +9,12 @@ const AddPlant = () => {
   const handleSuccess = () => {
     // Invalidate the plants cache and redirect to home
     queryClient.invalidateQueries({ queryKey: ['/api/plants'] });
-    setLocation("/");
+    queryClient.refetchQueries({ queryKey: ['/api/plants'] });
+    
+    // Use a slight delay to ensure the redirect happens after cache invalidation
+    setTimeout(() => {
+      setLocation("/");
+    }, 200);
   };
 
   return (

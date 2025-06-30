@@ -283,8 +283,10 @@ const PlantForm = ({ onSuccess, initialValues, plantId }: PlantFormProps) => {
           : "Your plant has been added to your collection",
       });
       
-      // Call the success callback
-      onSuccess();
+      // Wait a moment for the toast to appear, then call success callback
+      setTimeout(() => {
+        onSuccess();
+      }, 100);
     } catch (error) {
       console.error("Error saving plant:", error);
       toast({
