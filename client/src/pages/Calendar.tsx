@@ -2,13 +2,16 @@ import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Calendar as CalendarComponent } from "@/components/ui/calendar";
 import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import { Plant } from "@shared/schema";
 import { format } from "date-fns";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Droplet, Package } from "lucide-react";
+import { Droplet, Package, ChevronLeft } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { useLocation } from "wouter";
 
 const Calendar = () => {
+  const [_, setLocation] = useLocation();
   const [date, setDate] = useState<Date | undefined>(new Date());
   const { toast } = useToast();
   
@@ -72,6 +75,9 @@ const Calendar = () => {
 
   return (
     <div className="p-4 pb-16">
+      <Button onClick={() => setLocation('/')} variant="ghost" className="mb-4">
+        <ChevronLeft className="mr-2 h-4 w-4" /> Back to Plants
+      </Button>
       <h2 className="text-lg font-medium text-neutral-darkest mb-4">Plant Calendar</h2>
       
       <Card>

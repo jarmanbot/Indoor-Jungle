@@ -8,16 +8,19 @@ import { Textarea } from "@/components/ui/textarea";
 import { Plant } from "@shared/schema";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
+import { useLocation } from "wouter";
 import { 
   Droplet, 
   Package, 
   CheckCircle, 
   Clock,
   Check,
-  Zap
+  Zap,
+  ChevronLeft
 } from "lucide-react";
 
 const BulkCare = () => {
+  const [_, setLocation] = useLocation();
   const [selectedPlants, setSelectedPlants] = useState<number[]>([]);
   const [notes, setNotes] = useState("");
   const [careType, setCareType] = useState<"watering" | "feeding" | null>(null);
@@ -128,6 +131,9 @@ const BulkCare = () => {
 
   return (
     <div className="p-4 pb-20">
+      <Button onClick={() => setLocation('/')} variant="ghost" className="mb-4">
+        <ChevronLeft className="mr-2 h-4 w-4" /> Back to Plants
+      </Button>
       <h2 className="text-2xl font-bold text-neutral-darkest mb-6">Bulk Plant Care</h2>
       
       {/* Quick Actions */}

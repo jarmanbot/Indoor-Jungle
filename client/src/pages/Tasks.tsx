@@ -1,11 +1,11 @@
 import { useQuery } from "@tanstack/react-query";
-import { Link } from "wouter";
+import { Link, useLocation } from "wouter";
 import { Plant, PlantStatus } from "@shared/schema";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { format, isAfter, isPast, isToday, addDays } from "date-fns";
-import { Droplet, Package, Clock } from "lucide-react";
+import { Droplet, Package, Clock, ChevronLeft } from "lucide-react";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { 
@@ -19,6 +19,7 @@ import WateringLogForm from "@/components/WateringLogForm";
 import FeedingLogForm from "@/components/FeedingLogForm";
 
 const Tasks = () => {
+  const [_, setLocation] = useLocation();
   const { data: plants, isLoading } = useQuery<Plant[]>({
     queryKey: ['/api/plants'],
   });
