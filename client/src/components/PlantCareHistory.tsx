@@ -78,7 +78,9 @@ export default function PlantCareHistory({
     queryFn: async () => {
       if (isAlphaTestingMode()) {
         const allLogs = alphaStorage.get('wateringLogs') || [];
-        return allLogs.filter((log: any) => log.plantId === plant.id);
+        return allLogs
+          .filter((log: any) => log.plantId === plant.id)
+          .sort((a: any, b: any) => new Date(b.wateredAt).getTime() - new Date(a.wateredAt).getTime());
       }
       const response = await fetch(`/api/plants/${plant.id}/watering-logs`);
       if (!response.ok) throw new Error('Failed to fetch watering logs');
@@ -92,7 +94,9 @@ export default function PlantCareHistory({
     queryFn: async () => {
       if (isAlphaTestingMode()) {
         const allLogs = alphaStorage.get('feedingLogs') || [];
-        return allLogs.filter((log: any) => log.plantId === plant.id);
+        return allLogs
+          .filter((log: any) => log.plantId === plant.id)
+          .sort((a: any, b: any) => new Date(b.fedAt).getTime() - new Date(a.fedAt).getTime());
       }
       const response = await fetch(`/api/plants/${plant.id}/feeding-logs`);
       if (!response.ok) throw new Error('Failed to fetch feeding logs');
@@ -106,7 +110,9 @@ export default function PlantCareHistory({
     queryFn: async () => {
       if (isAlphaTestingMode()) {
         const allLogs = alphaStorage.get('repottingLogs') || [];
-        return allLogs.filter((log: any) => log.plantId === plant.id);
+        return allLogs
+          .filter((log: any) => log.plantId === plant.id)
+          .sort((a: any, b: any) => new Date(b.repottedAt).getTime() - new Date(a.repottedAt).getTime());
       }
       const response = await fetch(`/api/plants/${plant.id}/repotting-logs`);
       if (!response.ok) throw new Error('Failed to fetch repotting logs');
@@ -120,7 +126,9 @@ export default function PlantCareHistory({
     queryFn: async () => {
       if (isAlphaTestingMode()) {
         const allLogs = alphaStorage.get('soilTopUpLogs') || [];
-        return allLogs.filter((log: any) => log.plantId === plant.id);
+        return allLogs
+          .filter((log: any) => log.plantId === plant.id)
+          .sort((a: any, b: any) => new Date(b.toppedUpAt).getTime() - new Date(a.toppedUpAt).getTime());
       }
       const response = await fetch(`/api/plants/${plant.id}/soil-top-up-logs`);
       if (!response.ok) throw new Error('Failed to fetch soil top up logs');
@@ -134,7 +142,9 @@ export default function PlantCareHistory({
     queryFn: async () => {
       if (isAlphaTestingMode()) {
         const allLogs = alphaStorage.get('pruningLogs') || [];
-        return allLogs.filter((log: any) => log.plantId === plant.id);
+        return allLogs
+          .filter((log: any) => log.plantId === plant.id)
+          .sort((a: any, b: any) => new Date(b.prunedAt).getTime() - new Date(a.prunedAt).getTime());
       }
       const response = await fetch(`/api/plants/${plant.id}/pruning-logs`);
       if (!response.ok) throw new Error('Failed to fetch pruning logs');
