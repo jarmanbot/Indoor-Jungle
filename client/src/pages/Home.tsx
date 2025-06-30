@@ -9,9 +9,16 @@ import { Badge } from "@/components/ui/badge";
 import { Plus, Leaf, Droplet, Package, ImageIcon, Thermometer, Zap, Search, Brain, BarChart3, Award, CalendarRange } from "lucide-react";
 
 const Home = () => {
-  const { data: plants, isLoading, error } = useQuery<Plant[]>({
+  const { data: plants, isLoading, error, refetch } = useQuery<Plant[]>({
     queryKey: ['/api/plants'],
+    staleTime: 0, // Always refetch on mount
+    refetchOnMount: true,
   });
+
+  // Debug log for plants data
+  console.log("Home page - Plants data:", plants);
+  console.log("Home page - IsLoading:", isLoading);
+  console.log("Home page - Error:", error);
 
   // Calculate stats for dashboard
   const totalPlants = plants?.length || 0;
