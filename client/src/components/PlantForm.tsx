@@ -33,7 +33,7 @@ import {
   insertPlantSchema, 
   type InsertCustomLocation 
 } from "@shared/schema";
-import { isAlphaTestingMode } from "@/lib/alphaTestingMode";
+import { isAlphaTestingMode, alphaStorage, getNextId, getNextPlantNumber } from "@/lib/alphaTestingMode";
 import ImageUpload from "./ImageUpload";
 import { PlusCircle } from "lucide-react";
 
@@ -207,38 +207,46 @@ const PlantForm = ({ onSuccess, initialValues, plantId }: PlantFormProps) => {
       console.log("Form submitted with data:", data);
       setIsSubmitting(true);
       
-      // In alpha testing mode, always use JSON (no image uploads)
+      // In alpha testing mode, save directly to localStorage
       if (isAlphaTestingMode()) {
-        console.log("Alpha mode: Uploading as JSON...");
-        // Prepare data with backwards compatibility
-        const jsonData = {
-          ...data,
-          name: data.babyName, // Ensure name field is set from babyName
-          imageUrl: selectedImage ? "/demo-plant.gif" : undefined // Placeholder for alpha mode
-        };
+        console.log("Alpha mode: Saving to localStorage...");
         
-        // Make the API request
-        const url = plantId ? `/api/plants/${plantId}` : '/api/plants/json';
-        console.log("Sending POST request to:", url);
-        console.log("Request data:", jsonData);
+        const plants = alphaStorage.get('plants') || [];
         
-        const response = await fetch(url, {
-          method: plantId ? 'PATCH' : 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(jsonData),
-        });
-        
-        console.log("Response status:", response.status);
-        if (!response.ok) {
-          const errorData = await response.json();
-          console.error("Error response:", errorData);
-          throw new Error(errorData.message || "Failed to save plant");
+        if (plantId) {
+          // Update existing plant
+          const plantIndex = plants.findIndex((p: any) => p.id === plantId);
+          if (plantIndex !== -1) {
+            plants[plantIndex] = {
+              ...plants[plantIndex],
+              ...data,
+              name: data.babyName,
+              imageUrl: selectedImage ? "/demo-plant.gif" : plants[plantIndex].imageUrl,
+              updatedAt: new Date().toISOString()
+            };
+            alphaStorage.set('plants', plants);
+            console.log("Plant updated in localStorage");
+          }
+        } else {
+          // Create new plant
+          const newPlant = {
+            id: getNextId(),
+            plantNumber: getNextPlantNumber(),
+            ...data,
+            name: data.babyName,
+            imageUrl: selectedImage ? "/demo-plant.gif" : undefined,
+            lastWatered: null,
+            nextCheck: null,
+            lastFed: null,
+            status: "healthy",
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString()
+          };
+          
+          plants.push(newPlant);
+          alphaStorage.set('plants', plants);
+          console.log("New plant saved to localStorage:", newPlant);
         }
-        
-        const result = await response.json();
-        console.log("Success response:", result);
       } else if (selectedImage) {
         console.log("Uploading with image...");
         // Using FormData for image upload

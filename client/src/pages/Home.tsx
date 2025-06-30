@@ -7,10 +7,24 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Plus, Leaf, Droplet, Package, ImageIcon, Thermometer, Zap, Search, Brain, BarChart3, Award, CalendarRange } from "lucide-react";
+import { isAlphaTestingMode, alphaStorage } from "@/lib/alphaTestingMode";
 
 const Home = () => {
   const { data: plants, isLoading, error, refetch } = useQuery<Plant[]>({
     queryKey: ['/api/plants'],
+    queryFn: async () => {
+      if (isAlphaTestingMode()) {
+        // In alpha mode, get plants from localStorage
+        return alphaStorage.get('plants') || [];
+      } else {
+        // Normal API call
+        const response = await fetch('/api/plants');
+        if (!response.ok) {
+          throw new Error('Failed to fetch plants');
+        }
+        return response.json();
+      }
+    },
     staleTime: 0, // Always refetch on mount
     refetchOnMount: true,
   });
