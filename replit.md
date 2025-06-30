@@ -130,7 +130,6 @@ For isolated user testing, the app includes an Alpha Testing Mode that stores al
 
 ```
 Changelog:
-- June 30, 2025. Alpha testers now see shared demo plant #1 from cloud database in their local storage
 - June 30, 2025. Added image compression for alpha mode with individual plant photos (400px max, 70% quality)
 - June 30, 2025. Added admin password protection for "Clear all data" functionality
 - June 30, 2025. Added Replit Auth integration with OpenID Connect authentication
