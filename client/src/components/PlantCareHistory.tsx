@@ -77,7 +77,8 @@ export default function PlantCareHistory({
     queryKey: ['/api/plants', plant.id, 'watering-logs'],
     queryFn: async () => {
       if (isAlphaTestingMode()) {
-        return alphaStorage.get(`wateringLogs_${plant.id}`) || [];
+        const allLogs = alphaStorage.get('wateringLogs') || [];
+        return allLogs.filter((log: any) => log.plantId === plant.id);
       }
       const response = await fetch(`/api/plants/${plant.id}/watering-logs`);
       if (!response.ok) throw new Error('Failed to fetch watering logs');
@@ -90,7 +91,8 @@ export default function PlantCareHistory({
     queryKey: ['/api/plants', plant.id, 'feeding-logs'],
     queryFn: async () => {
       if (isAlphaTestingMode()) {
-        return alphaStorage.get(`feedingLogs_${plant.id}`) || [];
+        const allLogs = alphaStorage.get('feedingLogs') || [];
+        return allLogs.filter((log: any) => log.plantId === plant.id);
       }
       const response = await fetch(`/api/plants/${plant.id}/feeding-logs`);
       if (!response.ok) throw new Error('Failed to fetch feeding logs');
@@ -103,7 +105,8 @@ export default function PlantCareHistory({
     queryKey: ['/api/plants', plant.id, 'repotting-logs'],
     queryFn: async () => {
       if (isAlphaTestingMode()) {
-        return alphaStorage.get(`repottingLogs_${plant.id}`) || [];
+        const allLogs = alphaStorage.get('repottingLogs') || [];
+        return allLogs.filter((log: any) => log.plantId === plant.id);
       }
       const response = await fetch(`/api/plants/${plant.id}/repotting-logs`);
       if (!response.ok) throw new Error('Failed to fetch repotting logs');
@@ -116,7 +119,8 @@ export default function PlantCareHistory({
     queryKey: ['/api/plants', plant.id, 'soil-top-up-logs'],
     queryFn: async () => {
       if (isAlphaTestingMode()) {
-        return alphaStorage.get(`soilTopUpLogs_${plant.id}`) || [];
+        const allLogs = alphaStorage.get('soilTopUpLogs') || [];
+        return allLogs.filter((log: any) => log.plantId === plant.id);
       }
       const response = await fetch(`/api/plants/${plant.id}/soil-top-up-logs`);
       if (!response.ok) throw new Error('Failed to fetch soil top up logs');
@@ -129,7 +133,8 @@ export default function PlantCareHistory({
     queryKey: ['/api/plants', plant.id, 'pruning-logs'],
     queryFn: async () => {
       if (isAlphaTestingMode()) {
-        return alphaStorage.get(`pruningLogs_${plant.id}`) || [];
+        const allLogs = alphaStorage.get('pruningLogs') || [];
+        return allLogs.filter((log: any) => log.plantId === plant.id);
       }
       const response = await fetch(`/api/plants/${plant.id}/pruning-logs`);
       if (!response.ok) throw new Error('Failed to fetch pruning logs');

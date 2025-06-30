@@ -113,6 +113,69 @@ function handleAlphaRequest(method: string, url: string, data?: unknown): any {
     }
   }
   
+  if (endpoint.startsWith('plants/') && endpoint.includes('/repotting-logs')) {
+    const plantId = parseInt(urlParts[3]);
+    if (method === 'GET') {
+      const logs = alphaStorage.get('repottingLogs') || [];
+      return logs.filter((log: any) => log.plantId === plantId);
+    }
+    if (method === 'POST') {
+      const logs = alphaStorage.get('repottingLogs') || [];
+      const logData = (data as any) || {};
+      const newLog = {
+        ...logData,
+        id: getNextId(),
+        plantId,
+        createdAt: new Date().toISOString()
+      };
+      logs.push(newLog);
+      alphaStorage.set('repottingLogs', logs);
+      return newLog;
+    }
+  }
+  
+  if (endpoint.startsWith('plants/') && endpoint.includes('/soil-top-up-logs')) {
+    const plantId = parseInt(urlParts[3]);
+    if (method === 'GET') {
+      const logs = alphaStorage.get('soilTopUpLogs') || [];
+      return logs.filter((log: any) => log.plantId === plantId);
+    }
+    if (method === 'POST') {
+      const logs = alphaStorage.get('soilTopUpLogs') || [];
+      const logData = (data as any) || {};
+      const newLog = {
+        ...logData,
+        id: getNextId(),
+        plantId,
+        createdAt: new Date().toISOString()
+      };
+      logs.push(newLog);
+      alphaStorage.set('soilTopUpLogs', logs);
+      return newLog;
+    }
+  }
+  
+  if (endpoint.startsWith('plants/') && endpoint.includes('/pruning-logs')) {
+    const plantId = parseInt(urlParts[3]);
+    if (method === 'GET') {
+      const logs = alphaStorage.get('pruningLogs') || [];
+      return logs.filter((log: any) => log.plantId === plantId);
+    }
+    if (method === 'POST') {
+      const logs = alphaStorage.get('pruningLogs') || [];
+      const logData = (data as any) || {};
+      const newLog = {
+        ...logData,
+        id: getNextId(),
+        plantId,
+        createdAt: new Date().toISOString()
+      };
+      logs.push(newLog);
+      alphaStorage.set('pruningLogs', logs);
+      return newLog;
+    }
+  }
+  
   if (endpoint === 'locations') {
     if (method === 'GET') {
       return alphaStorage.get('customLocations') || [];
