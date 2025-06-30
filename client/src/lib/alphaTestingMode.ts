@@ -94,10 +94,13 @@ export function getNextPlantNumber(): number {
 
 // Initialize alpha testing mode with demo plant from server
 export async function initializeAlphaMode(): Promise<void> {
+  console.log('initializeAlphaMode called, alpha mode enabled:', isAlphaTestingMode());
   if (!isAlphaTestingMode()) return;
   
   const plants = alphaStorage.get('plants') || [];
+  console.log('Current plants in storage:', plants);
   const demoPlantIndex = plants.findIndex((plant: any) => plant.plantNumber === 1);
+  console.log('Demo plant index:', demoPlantIndex);
   
   // If demo plant doesn't exist locally, fetch it from server
   if (demoPlantIndex === -1) {
