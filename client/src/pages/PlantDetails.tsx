@@ -17,6 +17,7 @@ import PruningLogForm from "@/components/PruningLogForm";
 import { Input } from "@/components/ui/input";
 import { ChevronLeft, Droplet, Clock, Package, MapPin, Edit, Trash, Hash, Flower, Shovel, Mountain, Scissors, Check, X } from "lucide-react";
 import PlantCareHistory from "@/components/PlantCareHistory";
+import { isAlphaTestingMode } from "@/lib/alphaTestingMode";
 
 const PlantDetails = () => {
   const { id } = useParams();
@@ -247,30 +248,32 @@ const PlantDetails = () => {
               <Edit className="h-4 w-4" />
             </Button>
 
-            <AlertDialog>
-              <AlertDialogTrigger asChild>
-                <Button variant="outline" size="sm" className="bg-white">
-                  <Trash className="h-4 w-4 text-red-500" />
-                </Button>
-              </AlertDialogTrigger>
-              <AlertDialogContent>
-                <AlertDialogHeader>
-                  <AlertDialogTitle>Delete Plant</AlertDialogTitle>
-                  <AlertDialogDescription>
-                    Are you sure you want to delete {plant.name}? This action cannot be undone.
-                  </AlertDialogDescription>
-                </AlertDialogHeader>
-                <AlertDialogFooter>
-                  <AlertDialogCancel>Cancel</AlertDialogCancel>
-                  <AlertDialogAction 
-                    onClick={() => deleteMutation.mutate()}
-                    className="bg-red-500 hover:bg-red-600"
-                  >
-                    Delete
-                  </AlertDialogAction>
-                </AlertDialogFooter>
-              </AlertDialogContent>
-            </AlertDialog>
+            {!(isAlphaTestingMode() && plant.plantNumber === 1) && (
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <Button variant="outline" size="sm" className="bg-white">
+                    <Trash className="h-4 w-4 text-red-500" />
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Delete Plant</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      Are you sure you want to delete {plant.name}? This action cannot be undone.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                    <AlertDialogAction 
+                      onClick={() => deleteMutation.mutate()}
+                      className="bg-red-500 hover:bg-red-600"
+                    >
+                      Delete
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+                </AlertDialog>
+            )}
           </div>
           {plant.plantNumber && (
             <div className="absolute top-4 left-4 bg-primary text-white rounded-full px-3 py-1.5 shadow text-sm font-bold flex items-center">
