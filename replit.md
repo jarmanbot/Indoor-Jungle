@@ -123,11 +123,15 @@ For isolated user testing, the app includes an Alpha Testing Mode that stores al
 - Uses localStorage to store plants, care logs, and custom locations
 - Maintains same data structure as server for seamless switching
 - Auto-generates IDs and plant numbers locally
+- **Image Compression**: Automatically compresses plant photos to 400px max width with 70% quality for efficient localStorage storage
+- **Individual Plant Photos**: Each plant can have its own compressed photo stored locally
 
 ## Changelog
 
 ```
 Changelog:
+- June 30, 2025. Added image compression for alpha mode with individual plant photos (400px max, 70% quality)
+- June 30, 2025. Added admin password protection for "Clear all data" functionality
 - June 30, 2025. Added Replit Auth integration with OpenID Connect authentication
 - June 27, 2025. Added password-protected Alpha Testing Mode (default on) with admin password digipl@nts
 - June 27, 2025. Added Alpha Testing Mode for isolated user testing

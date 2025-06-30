@@ -242,10 +242,14 @@ const PlantForm = ({ onSuccess, initialValues, plantId }: PlantFormProps) => {
           // Create new plant
           let imageUrl = undefined;
           
-          // Handle image in alpha mode - use placeholder to avoid localStorage quota issues
+          // Handle image in alpha mode - use compressed images to save storage space
           if (selectedImage) {
-            // In alpha mode, we'll use a placeholder image to avoid localStorage quota issues
-            imageUrl = "/demo-plant.gif";
+            // Convert compressed image to base64 for localStorage storage
+            const reader = new FileReader();
+            imageUrl = await new Promise<string>((resolve) => {
+              reader.onload = () => resolve(reader.result as string);
+              reader.readAsDataURL(selectedImage);
+            });
           }
           
           const plantId = getNextId();

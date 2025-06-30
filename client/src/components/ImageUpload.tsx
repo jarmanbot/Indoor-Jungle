@@ -1,5 +1,6 @@
 import { ChangeEvent, useState } from "react";
 import { Camera } from "lucide-react";
+import { isAlphaTestingMode } from "@/lib/alphaTestingMode";
 
 interface ImageUploadProps {
   onImageSelected: (file: File) => void;
@@ -9,19 +10,69 @@ interface ImageUploadProps {
 const ImageUpload = ({ onImageSelected, currentImage }: ImageUploadProps) => {
   const [preview, setPreview] = useState<string | undefined>(currentImage || undefined);
 
-  const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
+  // Compress image for alpha mode to save localStorage space
+  const compressImage = (file: File, maxWidth = 400, quality = 0.7): Promise<File> => {
+    return new Promise((resolve) => {
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
+      const img = new Image();
+      
+      img.onload = () => {
+        // Calculate new dimensions while maintaining aspect ratio
+        const { width, height } = img;
+        const aspectRatio = width / height;
+        
+        let newWidth = maxWidth;
+        let newHeight = maxWidth / aspectRatio;
+        
+        if (newHeight > maxWidth) {
+          newHeight = maxWidth;
+          newWidth = maxWidth * aspectRatio;
+        }
+        
+        canvas.width = newWidth;
+        canvas.height = newHeight;
+        
+        // Draw and compress the image
+        ctx?.drawImage(img, 0, 0, newWidth, newHeight);
+        
+        canvas.toBlob((blob) => {
+          if (blob) {
+            const compressedFile = new File([blob], file.name, {
+              type: 'image/jpeg',
+              lastModified: Date.now(),
+            });
+            resolve(compressedFile);
+          } else {
+            resolve(file);
+          }
+        }, 'image/jpeg', quality);
+      };
+      
+      img.src = URL.createObjectURL(file);
+    });
+  };
+
+  const handleFileChange = async (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
+
+    let processedFile = file;
+    
+    // Compress image for alpha mode to save localStorage space
+    if (isAlphaTestingMode()) {
+      processedFile = await compressImage(file);
+    }
 
     // Create preview
     const reader = new FileReader();
     reader.onload = () => {
       setPreview(reader.result as string);
     };
-    reader.readAsDataURL(file);
+    reader.readAsDataURL(processedFile);
 
-    // Pass the file up to parent component
-    onImageSelected(file);
+    // Pass the processed file up to parent component
+    onImageSelected(processedFile);
   };
 
   return (
