@@ -188,7 +188,8 @@ const PlantDetails = () => {
   };
 
   // Format location for display
-  const formatLocation = (location: string) => {
+  const formatLocation = (location: string | null | undefined) => {
+    if (!location) return "Unknown location";
     return location
       .split("_")
       .map(word => word.charAt(0).toUpperCase() + word.slice(1))
