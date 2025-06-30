@@ -162,7 +162,12 @@ export default function PlantCareHistory({
     },
     onSuccess: () => {
       console.log('Watering log deleted successfully, invalidating cache');
+      // Force immediate refetch for alpha mode
       queryClient.invalidateQueries({ queryKey: ['/api/plants', plant.id, 'watering-logs'] });
+      queryClient.refetchQueries({ queryKey: ['/api/plants', plant.id, 'watering-logs'] });
+      // Also refresh the plants list to update lastWatered timestamp
+      queryClient.invalidateQueries({ queryKey: ['/api/plants'] });
+      queryClient.invalidateQueries({ queryKey: [`/api/plants/${plant.id}`] });
       toast({ title: "Watering log deleted", description: "The log entry has been removed" });
     },
     onError: (error) => {
@@ -184,7 +189,12 @@ export default function PlantCareHistory({
     },
     onSuccess: () => {
       console.log('Feeding log deleted successfully, invalidating cache');
+      // Force immediate refetch for alpha mode
       queryClient.invalidateQueries({ queryKey: ['/api/plants', plant.id, 'feeding-logs'] });
+      queryClient.refetchQueries({ queryKey: ['/api/plants', plant.id, 'feeding-logs'] });
+      // Also refresh the plants list to update lastFed timestamp
+      queryClient.invalidateQueries({ queryKey: ['/api/plants'] });
+      queryClient.invalidateQueries({ queryKey: [`/api/plants/${plant.id}`] });
       toast({ title: "Feeding log deleted", description: "The log entry has been removed" });
     },
     onError: (error) => {
