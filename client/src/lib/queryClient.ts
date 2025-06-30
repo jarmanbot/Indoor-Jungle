@@ -303,9 +303,11 @@ export const getQueryFn: <T>(options: {
   ({ on401: unauthorizedBehavior }) =>
   async ({ queryKey }) => {
     const url = queryKey[0] as string;
+    console.log('Query function called for URL:', url, 'Alpha mode:', isAlphaTestingMode());
     
     // Intercept queries in alpha testing mode
     if (isAlphaTestingMode()) {
+      console.log('Intercepting query in alpha mode for:', url);
       const result = await handleAlphaRequest('GET', url);
       return result;
     }
