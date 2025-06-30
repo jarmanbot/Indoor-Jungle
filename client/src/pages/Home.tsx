@@ -147,9 +147,6 @@ const Home = () => {
         ) : (
           // Empty state
           <div className="text-center py-8">
-            <div className="bg-gray-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
-              <Plus className="h-8 w-8 text-gray-500" />
-            </div>
             <h3 className="text-lg font-medium text-gray-800 mb-2">No plants yet</h3>
             <p className="text-gray-600 mb-4">Start adding plants to your collection</p>
             <Link href="/add" className="bg-green-700 text-white px-4 py-2 rounded-md font-medium inline-block">
