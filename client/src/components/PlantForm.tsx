@@ -214,7 +214,7 @@ const PlantForm = ({ onSuccess, initialValues, plantId }: PlantFormProps) => {
         const jsonData = {
           ...data,
           name: data.babyName, // Ensure name field is set from babyName
-          imageUrl: selectedImage ? "/alpha-placeholder-image.jpg" : undefined // Placeholder for alpha mode
+          imageUrl: selectedImage ? "/demo-plant.gif" : undefined // Placeholder for alpha mode
         };
         
         // Make the API request

@@ -83,35 +83,45 @@ export function initializeAlphaMode(): void {
   if (!isAlphaTestingMode()) return;
   
   const plants = alphaStorage.get('plants') || [];
-  const hasPlantNumber1 = plants.some((plant: any) => plant.plantNumber === 1);
+  const demoPlantIndex = plants.findIndex((plant: any) => plant.plantNumber === 1);
   
-  if (!hasPlantNumber1) {
-    const demoPlant = {
-      id: 1,
-      plantNumber: 1,
-      babyName: "Demo Plant",
-      commonName: "Sample Houseplant",
-      latinName: "Plantus Demonstratus",
-      name: "Demo Plant",
-      location: "living_room",
-      lastWatered: null,
-      nextCheck: null,
-      lastFed: null,
-      wateringFrequencyDays: 7,
-      feedingFrequencyDays: 14,
-      notes: "This is your demo plant to explore the app! This plant cannot be deleted in alpha mode.",
-      imageUrl: "/alpha-placeholder-image.jpg",
-      status: "healthy",
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString()
-    };
-    
-    plants.unshift(demoPlant); // Add to beginning of array
+  const demoPlant = {
+    id: 1,
+    plantNumber: 1,
+    babyName: "Demo Plant",
+    commonName: "Sample Houseplant",
+    latinName: "Plantus Demonstratus",
+    name: "Demo Plant",
+    location: "living_room",
+    lastWatered: null,
+    nextCheck: null,
+    lastFed: null,
+    wateringFrequencyDays: 7,
+    feedingFrequencyDays: 14,
+    notes: "This is your demo plant to explore the app! This plant cannot be deleted in alpha mode.",
+    imageUrl: "/demo-plant.gif",
+    status: "healthy",
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString()
+  };
+  
+  if (demoPlantIndex === -1) {
+    // Add new demo plant
+    plants.unshift(demoPlant);
     alphaStorage.set('plants', plants);
+  } else {
+    // Update existing demo plant with new image while preserving care data
+    const existingDemoPlant = plants[demoPlantIndex];
+    const updatedDemoPlant = {
+      ...existingDemoPlant,
+      imageUrl: "/demo-plant.gif"
+    };
+    plants[demoPlantIndex] = updatedDemoPlant;
+    alphaStorage.set('plants', plants);
+  }
     
-    // Ensure next plant numbers start from 2
-    if (!alphaStorage.get('nextPlantNumber')) {
-      alphaStorage.set('nextPlantNumber', 2);
-    }
+  // Ensure next plant numbers start from 2
+  if (!alphaStorage.get('nextPlantNumber')) {
+    alphaStorage.set('nextPlantNumber', 2);
   }
 }
