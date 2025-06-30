@@ -252,9 +252,13 @@ const PlantForm = ({ onSuccess, initialValues, plantId }: PlantFormProps) => {
             });
           }
           
+          const plantId = getNextId();
+          const plantNumber = getNextPlantNumber();
+          console.log('Creating plant with ID:', plantId, 'and plant number:', plantNumber);
+          
           const newPlant = {
-            id: getNextId(),
-            plantNumber: getNextPlantNumber(),
+            id: plantId,
+            plantNumber: plantNumber,
             ...data,
             name: data.babyName,
             imageUrl: imageUrl,
@@ -265,6 +269,8 @@ const PlantForm = ({ onSuccess, initialValues, plantId }: PlantFormProps) => {
             createdAt: new Date().toISOString(),
             updatedAt: new Date().toISOString()
           };
+          
+          console.log('Final plant object before saving:', newPlant);
           
           plants.push(newPlant);
           alphaStorage.set('plants', plants);
