@@ -21,7 +21,9 @@ const Settings = () => {
   const [defaultFeedingFreq, setDefaultFeedingFreq] = useState("14");
   const [alphaTestingEnabled, setAlphaTestingEnabled] = useState(true);
   const [showPasswordDialog, setShowPasswordDialog] = useState(false);
+  const [showClearDataDialog, setShowClearDataDialog] = useState(false);
   const [password, setPassword] = useState("");
+  const [clearDataPassword, setClearDataPassword] = useState("");
 
   // Load default frequencies and alpha testing mode from localStorage on mount
   useEffect(() => {
@@ -121,11 +123,29 @@ const Settings = () => {
   };
 
   const handleClearAlphaData = () => {
-    alphaStorage.clear();
-    toast({
-      title: "Local data cleared",
-      description: "All alpha testing data has been removed from this device",
-    });
+    // Show password dialog for clearing data
+    setShowClearDataDialog(true);
+  };
+
+  const handleClearDataPasswordSubmit = () => {
+    const success = disableAlphaTestingMode(clearDataPassword); // Reuse the same password validation
+    if (success) {
+      alphaStorage.clear();
+      setShowClearDataDialog(false);
+      setClearDataPassword("");
+      toast({
+        title: "Local data cleared",
+        description: "All alpha testing data has been removed from this device",
+      });
+      // Re-enable alpha mode since clearing data doesn't disable it
+      enableAlphaTestingMode();
+    } else {
+      toast({
+        title: "Incorrect password",
+        description: "Please enter the correct admin password to clear data",
+        variant: "destructive",
+      });
+    }
   };
 
   return (
@@ -397,6 +417,64 @@ const Settings = () => {
           </Button>
         </div>
       </div>
+
+      {/* Password dialog for disabling alpha mode */}
+      <Dialog open={showPasswordDialog} onOpenChange={setShowPasswordDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Admin Password Required</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <p className="text-sm text-muted-foreground">
+              Enter the admin password to disable alpha testing mode and access the shared database.
+            </p>
+            <Input
+              type="password"
+              placeholder="Enter admin password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              onKeyDown={(e) => e.key === 'Enter' && handlePasswordSubmit()}
+            />
+            <div className="flex justify-end gap-2">
+              <Button variant="outline" onClick={() => setShowPasswordDialog(false)}>
+                Cancel
+              </Button>
+              <Button onClick={handlePasswordSubmit}>
+                Confirm
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Password dialog for clearing alpha data */}
+      <Dialog open={showClearDataDialog} onOpenChange={setShowClearDataDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Admin Password Required</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <p className="text-sm text-muted-foreground">
+              Enter the admin password to clear all local alpha testing data. This action cannot be undone.
+            </p>
+            <Input
+              type="password"
+              placeholder="Enter admin password"
+              value={clearDataPassword}
+              onChange={(e) => setClearDataPassword(e.target.value)}
+              onKeyDown={(e) => e.key === 'Enter' && handleClearDataPasswordSubmit()}
+            />
+            <div className="flex justify-end gap-2">
+              <Button variant="outline" onClick={() => setShowClearDataDialog(false)}>
+                Cancel
+              </Button>
+              <Button onClick={handleClearDataPasswordSubmit} variant="destructive">
+                Clear All Data
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
