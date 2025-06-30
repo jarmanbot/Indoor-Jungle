@@ -160,11 +160,13 @@ export default function PlantCareHistory({
       console.log('Delete result:', result);
       return result;
     },
-    onSuccess: () => {
-      console.log('Watering log deleted successfully, invalidating cache');
-      // Force immediate refetch for alpha mode
-      queryClient.invalidateQueries({ queryKey: ['/api/plants', plant.id, 'watering-logs'] });
-      queryClient.refetchQueries({ queryKey: ['/api/plants', plant.id, 'watering-logs'] });
+    onSuccess: (_, logId) => {
+      console.log('Watering log deleted successfully, updating cache directly');
+      // Update query data directly for immediate UI refresh
+      queryClient.setQueryData(['/api/plants', plant.id, 'watering-logs'], (oldData: any) => {
+        if (!oldData) return oldData;
+        return oldData.filter((log: any) => log.id !== logId);
+      });
       // Also refresh the plants list to update lastWatered timestamp
       queryClient.invalidateQueries({ queryKey: ['/api/plants'] });
       queryClient.invalidateQueries({ queryKey: [`/api/plants/${plant.id}`] });
@@ -187,11 +189,13 @@ export default function PlantCareHistory({
       console.log('Delete result:', result);
       return result;
     },
-    onSuccess: () => {
-      console.log('Feeding log deleted successfully, invalidating cache');
-      // Force immediate refetch for alpha mode
-      queryClient.invalidateQueries({ queryKey: ['/api/plants', plant.id, 'feeding-logs'] });
-      queryClient.refetchQueries({ queryKey: ['/api/plants', plant.id, 'feeding-logs'] });
+    onSuccess: (_, logId) => {
+      console.log('Feeding log deleted successfully, updating cache directly');
+      // Update query data directly for immediate UI refresh
+      queryClient.setQueryData(['/api/plants', plant.id, 'feeding-logs'], (oldData: any) => {
+        if (!oldData) return oldData;
+        return oldData.filter((log: any) => log.id !== logId);
+      });
       // Also refresh the plants list to update lastFed timestamp
       queryClient.invalidateQueries({ queryKey: ['/api/plants'] });
       queryClient.invalidateQueries({ queryKey: [`/api/plants/${plant.id}`] });
