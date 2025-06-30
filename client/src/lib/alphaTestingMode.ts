@@ -108,7 +108,8 @@ export async function initializeAlphaMode(): Promise<void> {
       const originalMode = window.localStorage.getItem(ALPHA_MODE_KEY);
       window.localStorage.setItem(ALPHA_MODE_KEY, 'disabled');
       
-      const response = await fetch('/api/plants/1');
+      // Fetch all plants and find the one with plantNumber = 1
+      const response = await fetch('/api/plants');
       
       // Restore alpha mode
       if (originalMode) {
@@ -118,20 +119,51 @@ export async function initializeAlphaMode(): Promise<void> {
       }
       
       if (response.ok) {
-        const serverPlant = await response.json();
-        console.log('Alpha mode: Successfully fetched demo plant from server:', serverPlant);
+        const serverPlants = await response.json();
+        console.log('Alpha mode: Fetched plants from server:', serverPlants);
         
-        // Add server plant to local storage with some alpha mode modifications
-        const demoPlant = {
-          ...serverPlant,
-          id: 1, // Ensure ID is 1 for consistency
-          plantNumber: 1, // Ensure plant number is 1
-          notes: (serverPlant.notes || '') + '\n\nThis demo plant is shared across all alpha testers and cannot be deleted in alpha mode.'
-        };
+        // Find the plant with plantNumber = 1
+        const serverPlant = serverPlants.find((plant: any) => plant.plantNumber === 1);
         
-        plants.unshift(demoPlant);
-        alphaStorage.set('plants', plants);
-        console.log('Alpha mode: Demo plant added to local storage');
+        if (serverPlant) {
+          console.log('Alpha mode: Found demo plant #1 from server:', serverPlant);
+          
+          // Add server plant to local storage with some alpha mode modifications
+          const demoPlant = {
+            ...serverPlant,
+            id: 1, // Ensure ID is 1 for consistency in alpha mode
+            plantNumber: 1, // Ensure plant number is 1
+            notes: (serverPlant.notes || '') + '\n\nThis demo plant is shared across all alpha testers and cannot be deleted in alpha mode.'
+          };
+          
+          plants.unshift(demoPlant);
+          alphaStorage.set('plants', plants);
+          console.log('Alpha mode: Demo plant added to local storage');
+        } else {
+          console.log('Alpha mode: No plant with plantNumber = 1 found on server, using fallback');
+          // Use fallback demo plant if no plant #1 found
+          const fallbackDemoPlant = {
+            id: 1,
+            plantNumber: 1,
+            babyName: "Demo Plant",
+            commonName: "Sample Houseplant",
+            latinName: "Plantus Demonstratus",
+            name: "Demo Plant",
+            location: "living_room",
+            lastWatered: null,
+            nextCheck: null,
+            lastFed: null,
+            wateringFrequencyDays: 7,
+            feedingFrequencyDays: 14,
+            notes: "This is your demo plant to explore the app! This plant cannot be deleted in alpha mode.",
+            imageUrl: "/demo-plant.gif",
+            status: "healthy",
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString()
+          };
+          plants.unshift(fallbackDemoPlant);
+          alphaStorage.set('plants', plants);
+        }
       } else {
         console.log('Alpha mode: Could not fetch demo plant from server, using fallback');
         // Use fallback demo plant if server fetch fails
