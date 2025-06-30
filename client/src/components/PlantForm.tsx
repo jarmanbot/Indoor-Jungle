@@ -217,11 +217,22 @@ const PlantForm = ({ onSuccess, initialValues, plantId }: PlantFormProps) => {
           // Update existing plant
           const plantIndex = plants.findIndex((p: any) => p.id === plantId);
           if (plantIndex !== -1) {
+            let imageUrl = plants[plantIndex].imageUrl;
+            
+            // Handle image update in alpha mode
+            if (selectedImage) {
+              const reader = new FileReader();
+              imageUrl = await new Promise<string>((resolve) => {
+                reader.onload = () => resolve(reader.result as string);
+                reader.readAsDataURL(selectedImage);
+              });
+            }
+            
             plants[plantIndex] = {
               ...plants[plantIndex],
               ...data,
               name: data.babyName,
-              imageUrl: selectedImage ? "/demo-plant.gif" : plants[plantIndex].imageUrl,
+              imageUrl: imageUrl,
               updatedAt: new Date().toISOString()
             };
             alphaStorage.set('plants', plants);
@@ -229,12 +240,24 @@ const PlantForm = ({ onSuccess, initialValues, plantId }: PlantFormProps) => {
           }
         } else {
           // Create new plant
+          let imageUrl = undefined;
+          
+          // Handle image in alpha mode
+          if (selectedImage) {
+            // Convert image to data URL for storage in alpha mode
+            const reader = new FileReader();
+            imageUrl = await new Promise<string>((resolve) => {
+              reader.onload = () => resolve(reader.result as string);
+              reader.readAsDataURL(selectedImage);
+            });
+          }
+          
           const newPlant = {
             id: getNextId(),
             plantNumber: getNextPlantNumber(),
             ...data,
             name: data.babyName,
-            imageUrl: selectedImage ? "/demo-plant.gif" : undefined,
+            imageUrl: imageUrl,
             lastWatered: null,
             nextCheck: null,
             lastFed: null,
