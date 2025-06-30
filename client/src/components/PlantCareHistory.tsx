@@ -69,6 +69,7 @@ export default function PlantCareHistory({
   setShowPruningForm = () => {}
 }: PlantCareHistoryProps) {
   const [activeTab, setActiveTab] = useState("watering");
+  const [deletedLogIds, setDeletedLogIds] = useState<Set<number>>(new Set());
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
@@ -163,10 +164,8 @@ export default function PlantCareHistory({
     onSuccess: (_, logId) => {
       console.log('Watering log deleted successfully, logId:', logId);
       
-      // Force complete cache refresh and refetch
-      queryClient.removeQueries({ queryKey: ['/api/plants', plant.id, 'watering-logs'] });
-      queryClient.invalidateQueries({ queryKey: ['/api/plants', plant.id, 'watering-logs'] });
-      queryClient.refetchQueries({ queryKey: ['/api/plants', plant.id, 'watering-logs'] });
+      // Add to deleted set for immediate UI update
+      setDeletedLogIds(prev => new Set(prev).add(logId));
       
       // Also refresh the plants list to update lastWatered timestamp
       queryClient.invalidateQueries({ queryKey: ['/api/plants'] });
@@ -194,10 +193,8 @@ export default function PlantCareHistory({
     onSuccess: (_, logId) => {
       console.log('Feeding log deleted successfully, logId:', logId);
       
-      // Force complete cache refresh and refetch
-      queryClient.removeQueries({ queryKey: ['/api/plants', plant.id, 'feeding-logs'] });
-      queryClient.invalidateQueries({ queryKey: ['/api/plants', plant.id, 'feeding-logs'] });
-      queryClient.refetchQueries({ queryKey: ['/api/plants', plant.id, 'feeding-logs'] });
+      // Add to deleted set for immediate UI update
+      setDeletedLogIds(prev => new Set(prev).add(logId));
       
       // Also refresh the plants list to update lastFed timestamp
       queryClient.invalidateQueries({ queryKey: ['/api/plants'] });
@@ -293,7 +290,7 @@ export default function PlantCareHistory({
       );
     }
 
-    return wateringLogs.map((log) => (
+    return wateringLogs.filter((log: any) => !deletedLogIds.has(log.id)).map((log) => (
       <Card key={log.id} className="mb-3">
         <CardHeader className="py-3 px-4">
           <div className="flex justify-between items-start">
@@ -361,7 +358,7 @@ export default function PlantCareHistory({
       );
     }
 
-    return feedingLogs.map((log) => (
+    return feedingLogs.filter((log: any) => !deletedLogIds.has(log.id)).map((log) => (
       <Card key={log.id} className="mb-3">
         <CardHeader className="py-3 px-4">
           <div className="flex justify-between items-start">
