@@ -15,9 +15,12 @@ async function handleAlphaRequest(method: string, url: string, data?: unknown): 
   
   if (endpoint === 'plants') {
     if (method === 'GET') {
+      console.log('Alpha mode: GET /api/plants called');
       // Initialize alpha mode with demo plant if needed
       await initializeAlphaMode();
-      return alphaStorage.get('plants') || [];
+      const plants = alphaStorage.get('plants') || [];
+      console.log('Alpha mode: Returning plants:', plants);
+      return plants;
     }
     // Handle FormData plant creation (with images)
     if (method === 'POST') {
