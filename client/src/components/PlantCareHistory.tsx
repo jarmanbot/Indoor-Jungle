@@ -214,7 +214,10 @@ export default function PlantCareHistory({
 
   const deleteRepottingLogMutation = useMutation({
     mutationFn: (logId: number) => apiRequest('DELETE', `/api/repotting-logs/${logId}`),
-    onSuccess: () => {
+    onSuccess: (_, logId) => {
+      // Add to deleted set for immediate UI update
+      setDeletedLogIds(prev => new Set(prev).add(logId));
+      
       queryClient.invalidateQueries({ queryKey: ['/api/plants', plant.id, 'repotting-logs'] });
       toast({ title: "Repotting log deleted", description: "The log entry has been removed" });
     }
@@ -222,7 +225,10 @@ export default function PlantCareHistory({
 
   const deleteSoilTopUpLogMutation = useMutation({
     mutationFn: (logId: number) => apiRequest('DELETE', `/api/soil-top-up-logs/${logId}`),
-    onSuccess: () => {
+    onSuccess: (_, logId) => {
+      // Add to deleted set for immediate UI update
+      setDeletedLogIds(prev => new Set(prev).add(logId));
+      
       queryClient.invalidateQueries({ queryKey: ['/api/plants', plant.id, 'soil-top-up-logs'] });
       toast({ title: "Soil top up log deleted", description: "The log entry has been removed" });
     }
@@ -230,7 +236,10 @@ export default function PlantCareHistory({
 
   const deletePruningLogMutation = useMutation({
     mutationFn: (logId: number) => apiRequest('DELETE', `/api/pruning-logs/${logId}`),
-    onSuccess: () => {
+    onSuccess: (_, logId) => {
+      // Add to deleted set for immediate UI update
+      setDeletedLogIds(prev => new Set(prev).add(logId));
+      
       queryClient.invalidateQueries({ queryKey: ['/api/plants', plant.id, 'pruning-logs'] });
       toast({ title: "Pruning log deleted", description: "The log entry has been removed" });
     }
@@ -428,7 +437,7 @@ export default function PlantCareHistory({
       );
     }
 
-    return repottingLogs.map((log) => (
+    return repottingLogs.filter((log: any) => !deletedLogIds.has(log.id)).map((log) => (
       <Card key={log.id} className="mb-3">
         <CardHeader className="py-3 px-4">
           <div className="flex justify-between items-start">
@@ -498,7 +507,7 @@ export default function PlantCareHistory({
       );
     }
 
-    return soilTopUpLogs.map((log) => (
+    return soilTopUpLogs.filter((log: any) => !deletedLogIds.has(log.id)).map((log) => (
       <Card key={log.id} className="mb-3">
         <CardHeader className="py-3 px-4">
           <div className="flex justify-between items-start">
@@ -568,7 +577,7 @@ export default function PlantCareHistory({
       );
     }
 
-    return pruningLogs.map((log) => (
+    return pruningLogs.filter((log: any) => !deletedLogIds.has(log.id)).map((log) => (
       <Card key={log.id} className="mb-3">
         <CardHeader className="py-3 px-4">
           <div className="flex justify-between items-start">
