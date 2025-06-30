@@ -9,7 +9,7 @@ import {
   pruningLogs,
   PlantStatus,
   type User, 
-  type InsertUser, 
+  type UpsertUser, 
   type Plant, 
   type InsertPlant,
   type CustomLocation,
