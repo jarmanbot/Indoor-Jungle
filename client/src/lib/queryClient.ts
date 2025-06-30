@@ -198,12 +198,6 @@ function handleAlphaRequest(method: string, url: string, data?: unknown): any {
   if (endpoint.startsWith('plants/') && method === 'DELETE' && urlParts.length === 4) {
     const plantId = parseInt(urlParts[3]);
     const plants = alphaStorage.get('plants') || [];
-    const plant = plants.find((p: any) => p.id === plantId);
-    
-    // Prevent deletion of plant #1 in alpha mode
-    if (plant?.plantNumber === 1) {
-      throw new Error('Cannot delete the demo plant in alpha testing mode');
-    }
     
     const updatedPlants = plants.filter((p: any) => p.id !== plantId);
     alphaStorage.set('plants', updatedPlants);

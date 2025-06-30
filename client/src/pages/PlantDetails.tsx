@@ -269,13 +269,12 @@ const PlantDetails = () => {
               <Edit className="h-4 w-4" />
             </Button>
 
-            {!(isAlphaTestingMode() && plant.plantNumber === 1) && (
-              <AlertDialog>
-                <AlertDialogTrigger asChild>
-                  <Button variant="outline" size="sm" className="bg-white">
-                    <Trash className="h-4 w-4 text-red-500" />
-                  </Button>
-                </AlertDialogTrigger>
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button variant="outline" size="sm" className="bg-white">
+                  <Trash className="h-4 w-4 text-red-500" />
+                </Button>
+              </AlertDialogTrigger>
                 <AlertDialogContent>
                   <AlertDialogHeader>
                     <AlertDialogTitle>Delete Plant</AlertDialogTitle>
@@ -293,8 +292,7 @@ const PlantDetails = () => {
                     </AlertDialogAction>
                   </AlertDialogFooter>
                 </AlertDialogContent>
-                </AlertDialog>
-            )}
+            </AlertDialog>
           </div>
           {plant.plantNumber && (
             <div className="absolute top-4 left-4 bg-primary text-white rounded-full px-3 py-1.5 shadow text-sm font-bold flex items-center">
