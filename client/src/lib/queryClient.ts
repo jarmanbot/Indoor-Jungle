@@ -9,14 +9,14 @@ async function throwIfResNotOk(res: Response) {
 }
 
 // Alpha testing localStorage handlers
-function handleAlphaRequest(method: string, url: string, data?: unknown): any {
+async function handleAlphaRequest(method: string, url: string, data?: unknown): Promise<any> {
   const urlParts = url.split('/');
   const endpoint = urlParts.slice(2).join('/'); // Remove /api prefix
   
   if (endpoint === 'plants') {
     if (method === 'GET') {
       // Initialize alpha mode with demo plant if needed
-      initializeAlphaMode();
+      await initializeAlphaMode();
       return alphaStorage.get('plants') || [];
     }
     // Handle FormData plant creation (with images)
@@ -275,7 +275,7 @@ export async function apiRequest(
 ): Promise<Response> {
   // Intercept API calls in alpha testing mode
   if (isAlphaTestingMode()) {
-    const result = handleAlphaRequest(method, url, data);
+    const result = await handleAlphaRequest(method, url, data);
     return new Response(JSON.stringify(result), {
       status: 200,
       headers: { 'Content-Type': 'application/json' }
@@ -303,7 +303,7 @@ export const getQueryFn: <T>(options: {
     
     // Intercept queries in alpha testing mode
     if (isAlphaTestingMode()) {
-      const result = handleAlphaRequest('GET', url);
+      const result = await handleAlphaRequest('GET', url);
       return result;
     }
 
