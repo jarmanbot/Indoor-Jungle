@@ -209,6 +209,47 @@ function handleAlphaRequest(method: string, url: string, data?: unknown): any {
     alphaStorage.set('plants', updatedPlants);
     return {}; // Empty response for successful deletion
   }
+  
+  // Handle log deletions in alpha mode
+  if (endpoint.startsWith('watering-logs/') && method === 'DELETE') {
+    const logId = parseInt(urlParts[1]);
+    const logs = alphaStorage.get('wateringLogs') || [];
+    const updatedLogs = logs.filter((log: any) => log.id !== logId);
+    alphaStorage.set('wateringLogs', updatedLogs);
+    return {}; // Empty response for successful deletion
+  }
+  
+  if (endpoint.startsWith('feeding-logs/') && method === 'DELETE') {
+    const logId = parseInt(urlParts[1]);
+    const logs = alphaStorage.get('feedingLogs') || [];
+    const updatedLogs = logs.filter((log: any) => log.id !== logId);
+    alphaStorage.set('feedingLogs', updatedLogs);
+    return {}; // Empty response for successful deletion
+  }
+  
+  if (endpoint.startsWith('repotting-logs/') && method === 'DELETE') {
+    const logId = parseInt(urlParts[1]);
+    const logs = alphaStorage.get('repottingLogs') || [];
+    const updatedLogs = logs.filter((log: any) => log.id !== logId);
+    alphaStorage.set('repottingLogs', updatedLogs);
+    return {}; // Empty response for successful deletion
+  }
+  
+  if (endpoint.startsWith('soil-top-up-logs/') && method === 'DELETE') {
+    const logId = parseInt(urlParts[1]);
+    const logs = alphaStorage.get('soilTopUpLogs') || [];
+    const updatedLogs = logs.filter((log: any) => log.id !== logId);
+    alphaStorage.set('soilTopUpLogs', updatedLogs);
+    return {}; // Empty response for successful deletion
+  }
+  
+  if (endpoint.startsWith('pruning-logs/') && method === 'DELETE') {
+    const logId = parseInt(urlParts[1]);
+    const logs = alphaStorage.get('pruningLogs') || [];
+    const updatedLogs = logs.filter((log: any) => log.id !== logId);
+    alphaStorage.set('pruningLogs', updatedLogs);
+    return {}; // Empty response for successful deletion
+  }
 
   // Handle authentication in alpha mode
   if (endpoint === 'auth/user') {
