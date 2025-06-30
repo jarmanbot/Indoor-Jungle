@@ -154,18 +154,46 @@ export default function PlantCareHistory({
 
   // Delete mutations
   const deleteWateringLogMutation = useMutation({
-    mutationFn: (logId: number) => apiRequest('DELETE', `/api/watering-logs/${logId}`),
+    mutationFn: async (logId: number) => {
+      console.log('Deleting watering log:', logId);
+      const result = await apiRequest('DELETE', `/api/watering-logs/${logId}`);
+      console.log('Delete result:', result);
+      return result;
+    },
     onSuccess: () => {
+      console.log('Watering log deleted successfully, invalidating cache');
       queryClient.invalidateQueries({ queryKey: ['/api/plants', plant.id, 'watering-logs'] });
       toast({ title: "Watering log deleted", description: "The log entry has been removed" });
+    },
+    onError: (error) => {
+      console.error('Failed to delete watering log:', error);
+      toast({ 
+        title: "Error", 
+        description: "Failed to delete the watering log", 
+        variant: "destructive" 
+      });
     }
   });
 
   const deleteFeedingLogMutation = useMutation({
-    mutationFn: (logId: number) => apiRequest('DELETE', `/api/feeding-logs/${logId}`),
+    mutationFn: async (logId: number) => {
+      console.log('Deleting feeding log:', logId);
+      const result = await apiRequest('DELETE', `/api/feeding-logs/${logId}`);
+      console.log('Delete result:', result);
+      return result;
+    },
     onSuccess: () => {
+      console.log('Feeding log deleted successfully, invalidating cache');
       queryClient.invalidateQueries({ queryKey: ['/api/plants', plant.id, 'feeding-logs'] });
       toast({ title: "Feeding log deleted", description: "The log entry has been removed" });
+    },
+    onError: (error) => {
+      console.error('Failed to delete feeding log:', error);
+      toast({ 
+        title: "Error", 
+        description: "Failed to delete the feeding log", 
+        variant: "destructive" 
+      });
     }
   });
 
