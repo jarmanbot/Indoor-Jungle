@@ -34,7 +34,7 @@ const ImageUpload = ({ onImageSelected, currentImage }: ImageUploadProps) => {
               <img 
                 src={preview} 
                 alt="Plant preview" 
-                className="h-48 w-full object-cover rounded" 
+                className="aspect-square w-full object-cover rounded" 
               />
               <div className="absolute inset-0 bg-black bg-opacity-40 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity duration-200 rounded">
                 <span className="text-white text-sm">Click to change image</span>
