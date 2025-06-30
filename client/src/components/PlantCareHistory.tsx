@@ -163,29 +163,15 @@ export default function PlantCareHistory({
     onSuccess: (_, logId) => {
       console.log('Watering log deleted successfully, logId:', logId);
       
-      // Check current cache data
-      const currentData = queryClient.getQueryData(['/api/plants', plant.id, 'watering-logs']);
-      console.log('Current cache data before update:', currentData);
-      
-      // Update query data directly for immediate UI refresh
-      queryClient.setQueryData(['/api/plants', plant.id, 'watering-logs'], (oldData: any) => {
-        if (!oldData) {
-          console.log('No old data found');
-          return oldData;
-        }
-        console.log('Filtering out log with ID:', logId, 'from', oldData);
-        const newData = oldData.filter((log: any) => log.id !== logId);
-        console.log('New data after filter:', newData);
-        return newData;
-      });
-      
-      // Check updated cache data
-      const updatedData = queryClient.getQueryData(['/api/plants', plant.id, 'watering-logs']);
-      console.log('Updated cache data after update:', updatedData);
+      // Force complete cache refresh and refetch
+      queryClient.removeQueries({ queryKey: ['/api/plants', plant.id, 'watering-logs'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/plants', plant.id, 'watering-logs'] });
+      queryClient.refetchQueries({ queryKey: ['/api/plants', plant.id, 'watering-logs'] });
       
       // Also refresh the plants list to update lastWatered timestamp
       queryClient.invalidateQueries({ queryKey: ['/api/plants'] });
       queryClient.invalidateQueries({ queryKey: [`/api/plants/${plant.id}`] });
+      
       toast({ title: "Watering log deleted", description: "The log entry has been removed" });
     },
     onError: (error) => {
@@ -206,15 +192,17 @@ export default function PlantCareHistory({
       return result;
     },
     onSuccess: (_, logId) => {
-      console.log('Feeding log deleted successfully, updating cache directly');
-      // Update query data directly for immediate UI refresh
-      queryClient.setQueryData(['/api/plants', plant.id, 'feeding-logs'], (oldData: any) => {
-        if (!oldData) return oldData;
-        return oldData.filter((log: any) => log.id !== logId);
-      });
+      console.log('Feeding log deleted successfully, logId:', logId);
+      
+      // Force complete cache refresh and refetch
+      queryClient.removeQueries({ queryKey: ['/api/plants', plant.id, 'feeding-logs'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/plants', plant.id, 'feeding-logs'] });
+      queryClient.refetchQueries({ queryKey: ['/api/plants', plant.id, 'feeding-logs'] });
+      
       // Also refresh the plants list to update lastFed timestamp
       queryClient.invalidateQueries({ queryKey: ['/api/plants'] });
       queryClient.invalidateQueries({ queryKey: [`/api/plants/${plant.id}`] });
+      
       toast({ title: "Feeding log deleted", description: "The log entry has been removed" });
     },
     onError: (error) => {
