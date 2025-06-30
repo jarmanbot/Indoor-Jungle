@@ -129,6 +129,19 @@ function handleAlphaRequest(method: string, url: string, data?: unknown): any {
     }
   }
   
+  // Handle authentication in alpha mode
+  if (endpoint === 'auth/user') {
+    if (method === 'GET') {
+      // Return a mock authenticated user for alpha testing
+      return {
+        id: 'alpha-user',
+        name: 'Alpha Tester',
+        email: 'alpha@test.local',
+        image: null
+      };
+    }
+  }
+  
   // Default: return empty response for unhandled endpoints
   return {};
 }
