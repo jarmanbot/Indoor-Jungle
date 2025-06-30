@@ -161,12 +161,28 @@ export default function PlantCareHistory({
       return result;
     },
     onSuccess: (_, logId) => {
-      console.log('Watering log deleted successfully, updating cache directly');
+      console.log('Watering log deleted successfully, logId:', logId);
+      
+      // Check current cache data
+      const currentData = queryClient.getQueryData(['/api/plants', plant.id, 'watering-logs']);
+      console.log('Current cache data before update:', currentData);
+      
       // Update query data directly for immediate UI refresh
       queryClient.setQueryData(['/api/plants', plant.id, 'watering-logs'], (oldData: any) => {
-        if (!oldData) return oldData;
-        return oldData.filter((log: any) => log.id !== logId);
+        if (!oldData) {
+          console.log('No old data found');
+          return oldData;
+        }
+        console.log('Filtering out log with ID:', logId, 'from', oldData);
+        const newData = oldData.filter((log: any) => log.id !== logId);
+        console.log('New data after filter:', newData);
+        return newData;
       });
+      
+      // Check updated cache data
+      const updatedData = queryClient.getQueryData(['/api/plants', plant.id, 'watering-logs']);
+      console.log('Updated cache data after update:', updatedData);
+      
       // Also refresh the plants list to update lastWatered timestamp
       queryClient.invalidateQueries({ queryKey: ['/api/plants'] });
       queryClient.invalidateQueries({ queryKey: [`/api/plants/${plant.id}`] });
