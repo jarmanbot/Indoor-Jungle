@@ -7,14 +7,15 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Plus, Leaf, Droplet, Package, ImageIcon, Thermometer, Zap, Search, Brain, BarChart3, Award, CalendarRange } from "lucide-react";
-import { isAlphaTestingMode, alphaStorage } from "@/lib/alphaTestingMode";
+import { isAlphaTestingMode, alphaStorage, initializeAlphaMode } from "@/lib/alphaTestingMode";
 
 const Home = () => {
   const { data: plants, isLoading, error, refetch } = useQuery<Plant[]>({
     queryKey: ['/api/plants'],
     queryFn: async () => {
       if (isAlphaTestingMode()) {
-        // In alpha mode, get plants from localStorage
+        // In alpha mode, initialize with demo plant from server, then get plants from localStorage
+        await initializeAlphaMode();
         return alphaStorage.get('plants') || [];
       } else {
         // Normal API call
