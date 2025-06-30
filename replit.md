@@ -55,9 +55,11 @@ Indoor Jungle is a Web3 plant care application that combines a traditional plant
 4. NFT plants can be traded on the marketplace
 
 ### Authentication Flow
-- Traditional username/password for plant care features
-- Web3 wallet connection for game features
-- Seamless integration between both systems
+- **Replit Auth Integration**: Secure OpenID Connect authentication
+- **Landing Page**: Beautiful welcome screen for unauthenticated users
+- **Automatic Redirects**: Users redirected to appropriate pages after login
+- **Session Management**: Secure session storage with PostgreSQL backend
+- **User Profile**: Integration with Replit user data (name, email, profile image)
 
 ## External Dependencies
 
