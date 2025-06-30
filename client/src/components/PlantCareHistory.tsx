@@ -39,6 +39,7 @@ import RepottingLogForm from "./RepottingLogForm";
 import SoilTopUpLogForm from "./SoilTopUpLogForm";
 import PruningLogForm from "./PruningLogForm";
 import type { Plant, WateringLog, FeedingLog, RepottingLog, SoilTopUpLog, PruningLog } from "@shared/schema";
+import { isAlphaTestingMode, alphaStorage } from "@/lib/alphaTestingMode";
 
 interface PlantCareHistoryProps {
   plant: Plant;
@@ -74,31 +75,66 @@ export default function PlantCareHistory({
   // Fetch watering logs
   const { data: wateringLogs, isLoading: wateringLogsLoading, error: wateringLogsError } = useQuery({
     queryKey: ['/api/plants', plant.id, 'watering-logs'],
-    queryFn: () => fetch(`/api/plants/${plant.id}/watering-logs`).then(res => res.json()) as Promise<WateringLog[]>
+    queryFn: async () => {
+      if (isAlphaTestingMode()) {
+        return alphaStorage.get(`wateringLogs_${plant.id}`) || [];
+      }
+      const response = await fetch(`/api/plants/${plant.id}/watering-logs`);
+      if (!response.ok) throw new Error('Failed to fetch watering logs');
+      return response.json();
+    }
   });
 
   // Fetch feeding logs
   const { data: feedingLogs, isLoading: feedingLogsLoading, error: feedingLogsError } = useQuery({
     queryKey: ['/api/plants', plant.id, 'feeding-logs'],
-    queryFn: () => fetch(`/api/plants/${plant.id}/feeding-logs`).then(res => res.json()) as Promise<FeedingLog[]>
+    queryFn: async () => {
+      if (isAlphaTestingMode()) {
+        return alphaStorage.get(`feedingLogs_${plant.id}`) || [];
+      }
+      const response = await fetch(`/api/plants/${plant.id}/feeding-logs`);
+      if (!response.ok) throw new Error('Failed to fetch feeding logs');
+      return response.json();
+    }
   });
 
   // Fetch repotting logs
   const { data: repottingLogs, isLoading: repottingLogsLoading, error: repottingLogsError } = useQuery({
     queryKey: ['/api/plants', plant.id, 'repotting-logs'],
-    queryFn: () => fetch(`/api/plants/${plant.id}/repotting-logs`).then(res => res.json()) as Promise<RepottingLog[]>
+    queryFn: async () => {
+      if (isAlphaTestingMode()) {
+        return alphaStorage.get(`repottingLogs_${plant.id}`) || [];
+      }
+      const response = await fetch(`/api/plants/${plant.id}/repotting-logs`);
+      if (!response.ok) throw new Error('Failed to fetch repotting logs');
+      return response.json();
+    }
   });
 
   // Fetch soil top up logs
   const { data: soilTopUpLogs, isLoading: soilTopUpLogsLoading, error: soilTopUpLogsError } = useQuery({
     queryKey: ['/api/plants', plant.id, 'soil-top-up-logs'],
-    queryFn: () => fetch(`/api/plants/${plant.id}/soil-top-up-logs`).then(res => res.json()) as Promise<SoilTopUpLog[]>
+    queryFn: async () => {
+      if (isAlphaTestingMode()) {
+        return alphaStorage.get(`soilTopUpLogs_${plant.id}`) || [];
+      }
+      const response = await fetch(`/api/plants/${plant.id}/soil-top-up-logs`);
+      if (!response.ok) throw new Error('Failed to fetch soil top up logs');
+      return response.json();
+    }
   });
 
   // Fetch pruning logs
   const { data: pruningLogs, isLoading: pruningLogsLoading, error: pruningLogsError } = useQuery({
     queryKey: ['/api/plants', plant.id, 'pruning-logs'],
-    queryFn: () => fetch(`/api/plants/${plant.id}/pruning-logs`).then(res => res.json()) as Promise<PruningLog[]>
+    queryFn: async () => {
+      if (isAlphaTestingMode()) {
+        return alphaStorage.get(`pruningLogs_${plant.id}`) || [];
+      }
+      const response = await fetch(`/api/plants/${plant.id}/pruning-logs`);
+      if (!response.ok) throw new Error('Failed to fetch pruning logs');
+      return response.json();
+    }
   });
 
   // Delete mutations
