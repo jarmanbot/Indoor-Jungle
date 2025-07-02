@@ -25,7 +25,7 @@ import {
   type PruningLog,
   type InsertPruningLog
 } from "@shared/schema";
-import { db, runMigrations } from "./db";
+import { db, testConnection } from "./db";
 import { eq, max, desc, sql, and, like, asc } from "drizzle-orm";
 
 // Helper function for OR conditions in SQL queries
@@ -76,10 +76,10 @@ export interface IStorage {
 }
 
 export class DatabaseStorage implements IStorage {
-  // Initialize database and run migrations
+  // Initialize database and test connection
   async initialize(): Promise<void> {
     try {
-      await runMigrations();
+      await testConnection();
       console.log("Database initialized successfully");
     } catch (error) {
       console.error("Failed to initialize database:", error);
