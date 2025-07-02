@@ -142,9 +142,9 @@ export default function GameDashboard() {
       {!walletConnected ? (
         <Card className="mb-8">
           <CardHeader>
-            <CardTitle>Welcome to Virtual Plant World</CardTitle>
+            <CardTitle>Welcome to your virtual plant world</CardTitle>
             <CardDescription>
-              Connect your wallet to start your plant adventure
+              Connect your wallet and enter your virtual indoor jungle. Play the game while learning about your real plants and start earning LVS tokens.
             </CardDescription>
           </CardHeader>
           <CardContent>
