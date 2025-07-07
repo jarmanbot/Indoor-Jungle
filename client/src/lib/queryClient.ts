@@ -360,6 +360,7 @@ export const getQueryFn: <T>(options: {
     if (isAlphaTestingMode()) {
       console.log('Intercepting query in alpha mode for:', url);
       const result = await handleAlphaRequest('GET', url);
+      console.log('Alpha mode query result for', url, ':', result);
       return result;
     }
 
