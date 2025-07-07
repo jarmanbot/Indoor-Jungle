@@ -58,6 +58,54 @@ export const alphaStorage = {
   }
 };
 
+// Clean up unnecessary data - removes orphaned logs and unnecessary assets
+export function cleanupAlphaData(): void {
+  if (!isAlphaTestingMode()) return;
+  
+  const plants = alphaStorage.get('plants') || [];
+  const plantIds = plants.map((p: any) => p.id);
+  
+  // Clean up orphaned watering logs
+  const wateringLogs = alphaStorage.get('wateringLogs') || [];
+  const validWateringLogs = wateringLogs.filter((log: any) => plantIds.includes(log.plantId));
+  if (validWateringLogs.length !== wateringLogs.length) {
+    alphaStorage.set('wateringLogs', validWateringLogs);
+    console.log(`Cleaned up ${wateringLogs.length - validWateringLogs.length} orphaned watering logs`);
+  }
+  
+  // Clean up orphaned feeding logs
+  const feedingLogs = alphaStorage.get('feedingLogs') || [];
+  const validFeedingLogs = feedingLogs.filter((log: any) => plantIds.includes(log.plantId));
+  if (validFeedingLogs.length !== feedingLogs.length) {
+    alphaStorage.set('feedingLogs', validFeedingLogs);
+    console.log(`Cleaned up ${feedingLogs.length - validFeedingLogs.length} orphaned feeding logs`);
+  }
+  
+  // Clean up orphaned repotting logs
+  const repottingLogs = alphaStorage.get('repottingLogs') || [];
+  const validRepottingLogs = repottingLogs.filter((log: any) => plantIds.includes(log.plantId));
+  if (validRepottingLogs.length !== repottingLogs.length) {
+    alphaStorage.set('repottingLogs', validRepottingLogs);
+    console.log(`Cleaned up ${repottingLogs.length - validRepottingLogs.length} orphaned repotting logs`);
+  }
+  
+  // Clean up orphaned soil top-up logs
+  const soilTopUpLogs = alphaStorage.get('soilTopUpLogs') || [];
+  const validSoilTopUpLogs = soilTopUpLogs.filter((log: any) => plantIds.includes(log.plantId));
+  if (validSoilTopUpLogs.length !== soilTopUpLogs.length) {
+    alphaStorage.set('soilTopUpLogs', validSoilTopUpLogs);
+    console.log(`Cleaned up ${soilTopUpLogs.length - validSoilTopUpLogs.length} orphaned soil top-up logs`);
+  }
+  
+  // Clean up orphaned pruning logs
+  const pruningLogs = alphaStorage.get('pruningLogs') || [];
+  const validPruningLogs = pruningLogs.filter((log: any) => plantIds.includes(log.plantId));
+  if (validPruningLogs.length !== pruningLogs.length) {
+    alphaStorage.set('pruningLogs', validPruningLogs);
+    console.log(`Cleaned up ${pruningLogs.length - validPruningLogs.length} orphaned pruning logs`);
+  }
+};
+
 // Helper to generate IDs for localStorage
 let nextId = 2; // Start from 2 since demo plant uses ID 1
 export function getNextId(): number {
@@ -136,8 +184,9 @@ export async function initializeAlphaMode(): Promise<void> {
   console.log('initializeAlphaMode called, alpha mode enabled:', isAlphaTestingMode());
   if (!isAlphaTestingMode()) return;
   
-  // First fix any existing duplicate IDs
+  // First fix any existing duplicate IDs and clean up orphaned data
   fixDuplicateIds();
+  cleanupAlphaData();
   
   const plants = alphaStorage.get('plants') || [];
   console.log('Current plants in storage:', plants);

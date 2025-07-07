@@ -208,8 +208,32 @@ async function handleAlphaRequest(method: string, url: string, data?: unknown): 
       throw new Error('Cannot delete the demo plant in alpha testing mode');
     }
     
+    // Remove plant
     const updatedPlants = plants.filter((p: any) => p.id !== plantId);
     alphaStorage.set('plants', updatedPlants);
+    
+    // Remove all associated care logs for this plant
+    const wateringLogs = alphaStorage.get('wateringLogs') || [];
+    const updatedWateringLogs = wateringLogs.filter((log: any) => log.plantId !== plantId);
+    alphaStorage.set('wateringLogs', updatedWateringLogs);
+    
+    const feedingLogs = alphaStorage.get('feedingLogs') || [];
+    const updatedFeedingLogs = feedingLogs.filter((log: any) => log.plantId !== plantId);
+    alphaStorage.set('feedingLogs', updatedFeedingLogs);
+    
+    const repottingLogs = alphaStorage.get('repottingLogs') || [];
+    const updatedRepottingLogs = repottingLogs.filter((log: any) => log.plantId !== plantId);
+    alphaStorage.set('repottingLogs', updatedRepottingLogs);
+    
+    const soilTopUpLogs = alphaStorage.get('soilTopUpLogs') || [];
+    const updatedSoilTopUpLogs = soilTopUpLogs.filter((log: any) => log.plantId !== plantId);
+    alphaStorage.set('soilTopUpLogs', updatedSoilTopUpLogs);
+    
+    const pruningLogs = alphaStorage.get('pruningLogs') || [];
+    const updatedPruningLogs = pruningLogs.filter((log: any) => log.plantId !== plantId);
+    alphaStorage.set('pruningLogs', updatedPruningLogs);
+    
+    console.log(`Alpha mode: Deleted plant ID ${plantId} and all associated care logs`);
     return {}; // Empty response for successful deletion
   }
   

@@ -10,7 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import { Bell, Moon, Info, HelpCircle, Palette, Database, Shield, Download, Upload, Clock, ArrowLeft, TestTube, Lock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
-import { isAlphaTestingMode, enableAlphaTestingMode, disableAlphaTestingMode, alphaStorage } from "@/lib/alphaTestingMode";
+import { isAlphaTestingMode, enableAlphaTestingMode, disableAlphaTestingMode, alphaStorage, cleanupAlphaData } from "@/lib/alphaTestingMode";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 
 const Settings = () => {
@@ -87,6 +87,22 @@ const Settings = () => {
       description: "This feature will be available soon",
       variant: "destructive",
     });
+  };
+
+  const handleCleanupData = () => {
+    if (isAlphaTestingMode()) {
+      cleanupAlphaData();
+      toast({
+        title: "Data cleanup completed",
+        description: "Removed orphaned logs and unnecessary data",
+      });
+    } else {
+      toast({
+        title: "Cleanup not needed",
+        description: "Data cleanup is only available in alpha testing mode",
+        variant: "destructive",
+      });
+    }
   };
 
   const handleAlphaTestingToggle = (checked: boolean) => {
@@ -368,6 +384,12 @@ const Settings = () => {
                 <Upload className="h-4 w-4 mr-2" />
                 Import Plant Data
               </Button>
+              {isAlphaTestingMode() && (
+                <Button onClick={handleCleanupData} className="w-full" variant="outline">
+                  <Database className="h-4 w-4 mr-2" />
+                  Cleanup Orphaned Data
+                </Button>
+              )}
             </div>
           </CardContent>
         </Card>

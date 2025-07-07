@@ -276,14 +276,20 @@ export class DatabaseStorage implements IStorage {
   }
 
   async deletePlant(id: number): Promise<boolean> {
-    // Delete the plant without renumbering others
+    // First delete all associated care logs for this plant
+    await db.delete(wateringLogs).where(eq(wateringLogs.plantId, id));
+    await db.delete(feedingLogs).where(eq(feedingLogs.plantId, id));
+    await db.delete(repottingLogs).where(eq(repottingLogs.plantId, id));
+    await db.delete(soilTopUpLogs).where(eq(soilTopUpLogs.plantId, id));
+    await db.delete(pruningLogs).where(eq(pruningLogs.plantId, id));
+    
+    // Then delete the plant itself
     const [deletedPlant] = await db
       .delete(plants)
       .where(eq(plants.id, id))
       .returning({ id: plants.id });
     
-    // Plant numbers stay as they were - no renumbering
-    
+    console.log(`Deleted plant ID ${id} and all associated care logs`);
     return !!deletedPlant;
   }
 

@@ -130,6 +130,11 @@ For isolated user testing, the app includes an Alpha Testing Mode that stores al
 
 ```
 Changelog:
+- July 7, 2025. Enhanced plant deletion with complete data cleanup - removes all associated care logs automatically
+- July 7, 2025. Fixed alpha mode duplicate ID issues - IDs now properly increment starting from 2 (demo plant uses ID 1)
+- July 7, 2025. Added automatic orphaned data cleanup in alpha mode with manual cleanup button in Settings
+- July 7, 2025. Cleaned up all uploaded assets and unnecessary server-side files
+- July 7, 2025. Implemented comprehensive cascading deletion for both alpha mode and server database
 - June 30, 2025. Added image compression for alpha mode with individual plant photos (400px max, 70% quality)
 - June 30, 2025. Added admin password protection for "Clear all data" functionality
 - June 30, 2025. Added Replit Auth integration with OpenID Connect authentication
