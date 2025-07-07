@@ -19,8 +19,10 @@ async function handleAlphaRequest(method: string, url: string, data?: unknown): 
       // Initialize alpha mode with demo plant if needed
       await initializeAlphaMode();
       const plants = alphaStorage.get('plants') || [];
-      console.log('Alpha mode: Returning plants:', plants);
-      return plants;
+      // Sort plants by plant number for proper display order
+      const sortedPlants = plants.sort((a: any, b: any) => a.plantNumber - b.plantNumber);
+      console.log('Alpha mode: Returning sorted plants:', sortedPlants);
+      return sortedPlants;
     }
     // Handle FormData plant creation (with images)
     if (method === 'POST') {
