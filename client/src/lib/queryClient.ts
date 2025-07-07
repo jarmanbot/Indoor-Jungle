@@ -26,16 +26,19 @@ async function handleAlphaRequest(method: string, url: string, data?: unknown): 
     if (method === 'POST') {
       const plants = alphaStorage.get('plants') || [];
       const plantData = data as any;
+      const nextPlantNumber = getNextPlantNumber();
+      console.log('Alpha mode: Creating plant with number:', nextPlantNumber);
       const newPlant = {
         ...plantData,
         id: getNextId(),
-        plantNumber: getNextPlantNumber(),
+        plantNumber: nextPlantNumber,
         name: plantData?.babyName || plantData?.name,
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString()
       };
       plants.push(newPlant);
       alphaStorage.set('plants', plants);
+      console.log('Alpha mode: Created plant:', newPlant);
       return newPlant;
     }
   }
@@ -43,16 +46,19 @@ async function handleAlphaRequest(method: string, url: string, data?: unknown): 
   if (endpoint === 'plants/json' && method === 'POST') {
     const plants = alphaStorage.get('plants') || [];
     const plantData = data as any;
+    const nextPlantNumber = getNextPlantNumber();
+    console.log('Alpha mode: Creating JSON plant with number:', nextPlantNumber);
     const newPlant = {
       ...plantData,
       id: getNextId(),
-      plantNumber: getNextPlantNumber(),
+      plantNumber: nextPlantNumber,
       name: plantData?.babyName || plantData?.name,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString()
     };
     plants.push(newPlant);
     alphaStorage.set('plants', plants);
+    console.log('Alpha mode: Created JSON plant:', newPlant);
     return newPlant;
   }
   

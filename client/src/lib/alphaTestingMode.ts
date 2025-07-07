@@ -126,6 +126,9 @@ export function getNextPlantNumber(): number {
     .filter((num: number) => typeof num === 'number')
     .sort((a: number, b: number) => a - b);
   
+  console.log('Alpha mode: getNextPlantNumber - existing plants:', plants.length);
+  console.log('Alpha mode: getNextPlantNumber - existing numbers:', existingNumbers);
+  
   // Find the first gap in the sequence, starting from 1
   let nextNumber = 1;
   for (const existingNumber of existingNumbers) {
@@ -137,6 +140,7 @@ export function getNextPlantNumber(): number {
     }
   }
   
+  console.log('Alpha mode: getNextPlantNumber - returning:', nextNumber);
   return nextNumber;
 }
 
