@@ -20,8 +20,12 @@ async function handleAlphaRequest(method: string, url: string, data?: unknown): 
       await initializeAlphaMode();
       const plants = alphaStorage.get('plants') || [];
       // Sort plants by plant number for proper display order
-      const sortedPlants = plants.sort((a: any, b: any) => a.plantNumber - b.plantNumber);
-      console.log('Alpha mode: Returning sorted plants:', sortedPlants);
+      const sortedPlants = plants.sort((a: any, b: any) => {
+        const numA = Number(a.plantNumber) || 0;
+        const numB = Number(b.plantNumber) || 0;
+        return numA - numB;
+      });
+      console.log('Alpha mode: Returning sorted plants:', sortedPlants.map((p: any) => `#${p.plantNumber} ${p.babyName || p.name}`));
       return sortedPlants;
     }
     // Handle FormData plant creation (with images)
