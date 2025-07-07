@@ -283,3 +283,168 @@ export async function initializeAlphaMode(): Promise<void> {
     alphaStorage.set('nextPlantNumber', 2);
   }
 }
+
+// Check if demo plant is enabled
+export function isDemoPlantEnabled(): boolean {
+  if (!isAlphaTestingMode()) return false;
+  const plants = alphaStorage.get('plants') || [];
+  return plants.some((plant: any) => plant.plantNumber === 1);
+}
+
+// Remove demo plant and its care logs
+export function removeDemoPlant(): void {
+  if (!isAlphaTestingMode()) return;
+  
+  const plants = alphaStorage.get('plants') || [];
+  const updatedPlants = plants.filter((plant: any) => plant.plantNumber !== 1);
+  alphaStorage.set('plants', updatedPlants);
+  
+  // Remove all care logs for demo plant (ID 1)
+  const wateringLogs = alphaStorage.get('wateringLogs') || [];
+  const updatedWateringLogs = wateringLogs.filter((log: any) => log.plantId !== 1);
+  alphaStorage.set('wateringLogs', updatedWateringLogs);
+  
+  const feedingLogs = alphaStorage.get('feedingLogs') || [];
+  const updatedFeedingLogs = feedingLogs.filter((log: any) => log.plantId !== 1);
+  alphaStorage.set('feedingLogs', updatedFeedingLogs);
+  
+  const repottingLogs = alphaStorage.get('repottingLogs') || [];
+  const updatedRepottingLogs = repottingLogs.filter((log: any) => log.plantId !== 1);
+  alphaStorage.set('repottingLogs', updatedRepottingLogs);
+  
+  const soilTopUpLogs = alphaStorage.get('soilTopUpLogs') || [];
+  const updatedSoilTopUpLogs = soilTopUpLogs.filter((log: any) => log.plantId !== 1);
+  alphaStorage.set('soilTopUpLogs', updatedSoilTopUpLogs);
+  
+  const pruningLogs = alphaStorage.get('pruningLogs') || [];
+  const updatedPruningLogs = pruningLogs.filter((log: any) => log.plantId !== 1);
+  alphaStorage.set('pruningLogs', updatedPruningLogs);
+  
+  console.log('Demo plant and all its care logs have been removed');
+}
+
+// Remove user's plant #1 and add demo plant back
+export async function restoreDemoPlant(): Promise<void> {
+  if (!isAlphaTestingMode()) return;
+  
+  // Remove any existing plant with plant number 1
+  const plants = alphaStorage.get('plants') || [];
+  const userPlantWithNumber1 = plants.find((plant: any) => plant.plantNumber === 1);
+  
+  if (userPlantWithNumber1) {
+    // Remove user's plant #1 and all its care logs
+    const updatedPlants = plants.filter((plant: any) => plant.id !== userPlantWithNumber1.id);
+    alphaStorage.set('plants', updatedPlants);
+    
+    // Remove all care logs for the user's plant
+    const plantId = userPlantWithNumber1.id;
+    
+    const wateringLogs = alphaStorage.get('wateringLogs') || [];
+    const updatedWateringLogs = wateringLogs.filter((log: any) => log.plantId !== plantId);
+    alphaStorage.set('wateringLogs', updatedWateringLogs);
+    
+    const feedingLogs = alphaStorage.get('feedingLogs') || [];
+    const updatedFeedingLogs = feedingLogs.filter((log: any) => log.plantId !== plantId);
+    alphaStorage.set('feedingLogs', updatedFeedingLogs);
+    
+    const repottingLogs = alphaStorage.get('repottingLogs') || [];
+    const updatedRepottingLogs = repottingLogs.filter((log: any) => log.plantId !== plantId);
+    alphaStorage.set('repottingLogs', updatedRepottingLogs);
+    
+    const soilTopUpLogs = alphaStorage.get('soilTopUpLogs') || [];
+    const updatedSoilTopUpLogs = soilTopUpLogs.filter((log: any) => log.plantId !== plantId);
+    alphaStorage.set('soilTopUpLogs', updatedSoilTopUpLogs);
+    
+    const pruningLogs = alphaStorage.get('pruningLogs') || [];
+    const updatedPruningLogs = pruningLogs.filter((log: any) => log.plantId !== plantId);
+    alphaStorage.set('pruningLogs', updatedPruningLogs);
+    
+    console.log(`Removed user plant "${userPlantWithNumber1.babyName || userPlantWithNumber1.name}" and all its care logs`);
+  }
+  
+  // Add demo plant back
+  try {
+    console.log('Restoring demo plant from server...');
+    
+    // Temporarily disable alpha mode to fetch from server
+    const originalMode = window.localStorage.getItem(ALPHA_MODE_KEY);
+    window.localStorage.setItem(ALPHA_MODE_KEY, 'disabled');
+    
+    const response = await fetch('/api/plants/1');
+    
+    // Restore alpha mode
+    if (originalMode) {
+      window.localStorage.setItem(ALPHA_MODE_KEY, originalMode);
+    } else {
+      window.localStorage.removeItem(ALPHA_MODE_KEY);
+    }
+    
+    if (response.ok) {
+      const serverPlant = await response.json();
+      console.log('Successfully fetched demo plant from server:', serverPlant);
+      
+      // Add server plant to local storage with alpha mode modifications
+      const demoPlant = {
+        ...serverPlant,
+        id: 1, // Ensure ID is 1 for consistency
+        plantNumber: 1, // Ensure plant number is 1
+        notes: (serverPlant.notes || '') + '\n\nThis demo plant is shared across all alpha testers and cannot be deleted in alpha mode.'
+      };
+      
+      const currentPlants = alphaStorage.get('plants') || [];
+      currentPlants.unshift(demoPlant);
+      alphaStorage.set('plants', currentPlants);
+      console.log('Demo plant restored to local storage');
+    } else {
+      console.log('Could not fetch demo plant from server, using fallback');
+      // Use fallback demo plant if server fetch fails
+      const fallbackDemoPlant = {
+        id: 1,
+        plantNumber: 1,
+        babyName: "Demo Plant",
+        commonName: "Sample Houseplant",
+        latinName: "Plantus Demonstratus",
+        name: "Demo Plant",
+        location: "living_room",
+        lastWatered: null,
+        nextCheck: null,
+        lastFed: null,
+        wateringFrequencyDays: 7,
+        feedingFrequencyDays: 14,
+        notes: "This is your demo plant to explore the app! This plant cannot be deleted in alpha mode.",
+        imageUrl: "/demo-plant.gif",
+        status: "healthy",
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
+      };
+      const currentPlants = alphaStorage.get('plants') || [];
+      currentPlants.unshift(fallbackDemoPlant);
+      alphaStorage.set('plants', currentPlants);
+    }
+  } catch (error) {
+    console.error('Error restoring demo plant:', error);
+    // Use fallback demo plant on error
+    const fallbackDemoPlant = {
+      id: 1,
+      plantNumber: 1,
+      babyName: "Demo Plant",
+      commonName: "Sample Houseplant",
+      latinName: "Plantus Demonstratus",
+      name: "Demo Plant",
+      location: "living_room",
+      lastWatered: null,
+      nextCheck: null,
+      lastFed: null,
+      wateringFrequencyDays: 7,
+      feedingFrequencyDays: 14,
+      notes: "This is your demo plant to explore the app! This plant cannot be deleted in alpha mode.",
+      imageUrl: "/demo-plant.gif",
+      status: "healthy",
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
+    };
+    const currentPlants = alphaStorage.get('plants') || [];
+    currentPlants.unshift(fallbackDemoPlant);
+    alphaStorage.set('plants', currentPlants);
+  }
+}

@@ -10,7 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import { Bell, Moon, Info, HelpCircle, Palette, Database, Shield, Download, Upload, Clock, ArrowLeft, TestTube, Lock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
-import { isAlphaTestingMode, enableAlphaTestingMode, disableAlphaTestingMode, alphaStorage, cleanupAlphaData } from "@/lib/alphaTestingMode";
+import { isAlphaTestingMode, enableAlphaTestingMode, disableAlphaTestingMode, alphaStorage, cleanupAlphaData, isDemoPlantEnabled, removeDemoPlant, restoreDemoPlant } from "@/lib/alphaTestingMode";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 
 const Settings = () => {
@@ -22,8 +22,10 @@ const Settings = () => {
   const [alphaTestingEnabled, setAlphaTestingEnabled] = useState(true);
   const [showPasswordDialog, setShowPasswordDialog] = useState(false);
   const [showClearDataDialog, setShowClearDataDialog] = useState(false);
+  const [showDemoPlantWarningDialog, setShowDemoPlantWarningDialog] = useState(false);
   const [password, setPassword] = useState("");
   const [clearDataPassword, setClearDataPassword] = useState("");
+  const [demoPlantEnabled, setDemoPlantEnabled] = useState(false);
 
   // Load default frequencies and alpha testing mode from localStorage on mount
   useEffect(() => {
@@ -38,8 +40,9 @@ const Settings = () => {
         setDefaultFeedingFreq(savedFeedingFreq);
       }
       
-      // Check alpha testing mode
+      // Check alpha testing mode and demo plant status
       setAlphaTestingEnabled(isAlphaTestingMode());
+      setDemoPlantEnabled(isDemoPlantEnabled());
     } catch (error) {
       console.error("Failed to load settings:", error);
     }
@@ -159,6 +162,49 @@ const Settings = () => {
       toast({
         title: "Incorrect password",
         description: "Please enter the correct admin password to clear data",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleDemoPlantToggle = (checked: boolean) => {
+    if (checked) {
+      // Turning demo plant ON - check if there's a user plant with #1
+      const plants = alphaStorage.get('plants') || [];
+      const userPlantWithNumber1 = plants.find((plant: any) => plant.plantNumber === 1 && !plant.notes?.includes('demo plant'));
+      
+      if (userPlantWithNumber1) {
+        // Show warning dialog
+        setShowDemoPlantWarningDialog(true);
+      } else {
+        // No conflict, restore demo plant directly
+        handleRestoreDemoPlant();
+      }
+    } else {
+      // Turning demo plant OFF
+      removeDemoPlant();
+      setDemoPlantEnabled(false);
+      toast({
+        title: "Demo plant removed",
+        description: "You can now use plant #1 for your own plant",
+      });
+    }
+  };
+
+  const handleRestoreDemoPlant = async () => {
+    try {
+      await restoreDemoPlant();
+      setDemoPlantEnabled(true);
+      setShowDemoPlantWarningDialog(false);
+      toast({
+        title: "Demo plant restored",
+        description: "The demo plant is now available as plant #1",
+      });
+    } catch (error) {
+      console.error('Error restoring demo plant:', error);
+      toast({
+        title: "Error",
+        description: "Failed to restore demo plant. Please try again.",
         variant: "destructive",
       });
     }
@@ -300,11 +346,26 @@ const Settings = () => {
             {alphaTestingEnabled && (
               <>
                 <Separator />
-                <div className="space-y-3">
+                <div className="space-y-4">
                   <div className="text-xs text-muted-foreground">
                     Alpha testing mode is active. All plant data is stored locally on this device only. 
                     Users can't access the shared database without the admin password.
                   </div>
+                  
+                  {/* Demo Plant Toggle */}
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <Label className="text-sm font-medium">Demo Plant</Label>
+                      <p className="text-xs text-muted-foreground">
+                        Show demo plant as plant #1 for exploring the app
+                      </p>
+                    </div>
+                    <Switch 
+                      checked={demoPlantEnabled} 
+                      onCheckedChange={handleDemoPlantToggle} 
+                    />
+                  </div>
+                  
                   <Button 
                     onClick={handleClearAlphaData} 
                     className="w-full" 
@@ -346,6 +407,39 @@ const Settings = () => {
                     setShowPasswordDialog(false);
                     setPassword("");
                   }}
+                  className="flex-1"
+                >
+                  Cancel
+                </Button>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
+
+        {/* Demo Plant Warning Dialog */}
+        <Dialog open={showDemoPlantWarningDialog} onOpenChange={setShowDemoPlantWarningDialog}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Replace Plant #1?</DialogTitle>
+            </DialogHeader>
+            <div className="space-y-4">
+              <p className="text-sm text-muted-foreground">
+                You currently have a plant using #1. Turning on the demo plant will permanently delete your plant #1 and all its care history. This cannot be undone.
+              </p>
+              <p className="text-sm font-medium text-destructive">
+                Are you sure you want to replace your plant with the demo plant?
+              </p>
+              <div className="flex gap-2">
+                <Button 
+                  onClick={handleRestoreDemoPlant} 
+                  variant="destructive"
+                  className="flex-1"
+                >
+                  Yes, Replace Plant #1
+                </Button>
+                <Button 
+                  variant="outline" 
+                  onClick={() => setShowDemoPlantWarningDialog(false)}
                   className="flex-1"
                 >
                   Cancel
