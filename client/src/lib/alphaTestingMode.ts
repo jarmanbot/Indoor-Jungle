@@ -193,6 +193,13 @@ export async function initializeAlphaMode(): Promise<void> {
   const demoPlantIndex = plants.findIndex((plant: any) => plant.plantNumber === 1);
   console.log('Demo plant index:', demoPlantIndex);
   
+  // Check if demo plant was intentionally disabled
+  const demoPlantDisabled = alphaStorage.get('demoPlantDisabled');
+  if (demoPlantDisabled) {
+    console.log('Demo plant was intentionally disabled, skipping auto-restoration');
+    return;
+  }
+  
   // If demo plant doesn't exist locally, fetch it from server
   if (demoPlantIndex === -1) {
     try {
@@ -287,6 +294,8 @@ export async function initializeAlphaMode(): Promise<void> {
 // Check if demo plant is enabled
 export function isDemoPlantEnabled(): boolean {
   if (!isAlphaTestingMode()) return false;
+  const demoPlantDisabled = alphaStorage.get('demoPlantDisabled');
+  if (demoPlantDisabled) return false;
   const plants = alphaStorage.get('plants') || [];
   return plants.some((plant: any) => plant.plantNumber === 1);
 }
@@ -298,6 +307,9 @@ export function removeDemoPlant(): void {
   const plants = alphaStorage.get('plants') || [];
   const updatedPlants = plants.filter((plant: any) => plant.plantNumber !== 1);
   alphaStorage.set('plants', updatedPlants);
+  
+  // Set flag to prevent auto-restoration
+  alphaStorage.set('demoPlantDisabled', true);
   
   // Remove all care logs for demo plant (ID 1)
   const wateringLogs = alphaStorage.get('wateringLogs') || [];
@@ -365,6 +377,9 @@ export async function restoreDemoPlant(): Promise<void> {
     
     console.log(`Removed user plant "${userPlantWithNumber1.babyName || userPlantWithNumber1.name}" and all its care logs`);
   }
+  
+  // Clear the disabled flag
+  alphaStorage.remove('demoPlantDisabled');
   
   // Add demo plant back
   try {
