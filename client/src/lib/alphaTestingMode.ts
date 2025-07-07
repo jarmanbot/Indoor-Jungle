@@ -192,7 +192,19 @@ export async function initializeAlphaMode(): Promise<void> {
   fixDuplicateIds();
   cleanupAlphaData();
   
-  const plants = alphaStorage.get('plants') || [];
+  // Ensure plants are sorted by plant number
+  let plants = alphaStorage.get('plants') || [];
+  const sortedPlants = plants.sort((a: any, b: any) => {
+    const numA = Number(a.plantNumber) || 0;
+    const numB = Number(b.plantNumber) || 0;
+    return numA - numB;
+  });
+  if (JSON.stringify(plants) !== JSON.stringify(sortedPlants)) {
+    alphaStorage.set('plants', sortedPlants);
+    plants = sortedPlants; // Update the local variable
+    console.log('Alpha mode: Sorted and saved plants in correct order');
+  }
+  
   console.log('Current plants in storage:', plants);
   const demoPlantIndex = plants.findIndex((plant: any) => plant.plantNumber === 1);
   console.log('Demo plant index:', demoPlantIndex);
