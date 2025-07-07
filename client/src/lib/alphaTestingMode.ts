@@ -59,9 +59,9 @@ export const alphaStorage = {
 };
 
 // Helper to generate IDs for localStorage
-let nextId = 1;
+let nextId = 2; // Start from 2 since demo plant uses ID 1
 export function getNextId(): number {
-  const stored = alphaStorage.get('nextId') || 1;
+  const stored = alphaStorage.get('nextId') || 2; // Start from 2 to avoid collision with demo plant
   const id = Math.max(nextId, stored);
   nextId = id + 1;
   alphaStorage.set('nextId', nextId);
@@ -92,10 +92,52 @@ export function getNextPlantNumber(): number {
   return nextNumber;
 }
 
+// Fix existing plants with duplicate IDs
+function fixDuplicateIds(): void {
+  const plants = alphaStorage.get('plants') || [];
+  let hasChanges = false;
+  
+  // Find plants with duplicate IDs
+  const idMap = new Map<number, any[]>();
+  plants.forEach((plant: any, index: number) => {
+    if (!idMap.has(plant.id)) {
+      idMap.set(plant.id, []);
+    }
+    idMap.get(plant.id)!.push({ plant, index });
+  });
+  
+  // Fix duplicates by reassigning IDs to non-demo plants
+  idMap.forEach((plantsWithSameId, id) => {
+    if (plantsWithSameId.length > 1) {
+      console.log(`Found ${plantsWithSameId.length} plants with duplicate ID ${id}`);
+      
+      // Keep the demo plant (plantNumber 1) with its original ID
+      const demoPlant = plantsWithSameId.find(p => p.plant.plantNumber === 1);
+      const otherPlants = plantsWithSameId.filter(p => p.plant.plantNumber !== 1);
+      
+      // Reassign IDs to other plants
+      otherPlants.forEach(({ plant, index }) => {
+        const newId = getNextId();
+        console.log(`Reassigning plant "${plant.babyName || plant.name}" from ID ${plant.id} to ID ${newId}`);
+        plants[index].id = newId;
+        hasChanges = true;
+      });
+    }
+  });
+  
+  if (hasChanges) {
+    alphaStorage.set('plants', plants);
+    console.log('Fixed duplicate plant IDs');
+  }
+}
+
 // Initialize alpha testing mode with demo plant from server
 export async function initializeAlphaMode(): Promise<void> {
   console.log('initializeAlphaMode called, alpha mode enabled:', isAlphaTestingMode());
   if (!isAlphaTestingMode()) return;
+  
+  // First fix any existing duplicate IDs
+  fixDuplicateIds();
   
   const plants = alphaStorage.get('plants') || [];
   console.log('Current plants in storage:', plants);

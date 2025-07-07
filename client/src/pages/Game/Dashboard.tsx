@@ -144,13 +144,13 @@ export default function GameDashboard() {
           <CardHeader>
             <CardTitle>Welcome to your virtual plant world</CardTitle>
             <CardDescription>
-              Connect your wallet and enter your virtual indoor jungle. Play the game while learning about your real plants and start earning LVS tokens.
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <p className="mb-4">
-              In Virtual Plant World, you'll start with a small apartment and work your way 
-              up to a luxury mansion while collecting, growing, and trading plants.
+                  Connect your wallet and enter your virtual indoor jungle. Play the game and start earning LVS tokens while learning how to care for your real plants.
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <p className="mb-4">
+                  In Indoor Jungle the game, you'll start off with one pot plant in small rundown rented apartment and work your way 
+                  up to owning luxury mansions and apartment towers while collecting, growing, and trading plants. Once you've conquered the game on earth you'll be ready to take on the challenge of exploring the galaxies in search for plant species that are out of this world.
             </p>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
               <Card>
