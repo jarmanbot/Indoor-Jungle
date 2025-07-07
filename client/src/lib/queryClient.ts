@@ -19,13 +19,15 @@ async function handleAlphaRequest(method: string, url: string, data?: unknown): 
       // Initialize alpha mode with demo plant if needed
       await initializeAlphaMode();
       const plants = alphaStorage.get('plants') || [];
+      console.log('Alpha mode: Raw plants from storage:', plants.map((p: any) => `#${p.plantNumber} ${p.babyName || p.name}`));
+      
       // Sort plants by plant number for proper display order
-      const sortedPlants = plants.sort((a: any, b: any) => {
+      const sortedPlants = [...plants].sort((a: any, b: any) => {
         const numA = Number(a.plantNumber) || 0;
         const numB = Number(b.plantNumber) || 0;
         return numA - numB;
       });
-      console.log('Alpha mode: Returning sorted plants:', sortedPlants.map((p: any) => `#${p.plantNumber} ${p.babyName || p.name}`));
+      console.log('Alpha mode: After sorting:', sortedPlants.map((p: any) => `#${p.plantNumber} ${p.babyName || p.name}`));
       
       // Update storage with sorted order for consistency
       alphaStorage.set('plants', sortedPlants);
