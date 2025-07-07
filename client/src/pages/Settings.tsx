@@ -11,6 +11,7 @@ import { Bell, Moon, Info, HelpCircle, Palette, Database, Shield, Download, Uplo
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { isAlphaTestingMode, enableAlphaTestingMode, disableAlphaTestingMode, alphaStorage, cleanupAlphaData, isDemoPlantEnabled, removeDemoPlant, restoreDemoPlant } from "@/lib/alphaTestingMode";
+import { queryClient } from "@/lib/queryClient";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 
 const Settings = () => {
@@ -171,7 +172,11 @@ const Settings = () => {
     if (checked) {
       // Turning demo plant ON - check if there's a user plant with #1
       const plants = alphaStorage.get('plants') || [];
-      const userPlantWithNumber1 = plants.find((plant: any) => plant.plantNumber === 1 && !plant.notes?.includes('demo plant'));
+      const userPlantWithNumber1 = plants.find((plant: any) => 
+        plant.plantNumber === 1 && 
+        !plant.notes?.includes('cannot be deleted in alpha mode') &&
+        plant.babyName !== 'Demo Plant'
+      );
       
       if (userPlantWithNumber1) {
         // Show warning dialog
@@ -184,6 +189,8 @@ const Settings = () => {
       // Turning demo plant OFF
       removeDemoPlant();
       setDemoPlantEnabled(false);
+      // Invalidate plants cache to refresh the UI
+      queryClient.invalidateQueries({ queryKey: ['/api/plants'] });
       toast({
         title: "Demo plant removed",
         description: "You can now use plant #1 for your own plant",
@@ -196,6 +203,8 @@ const Settings = () => {
       await restoreDemoPlant();
       setDemoPlantEnabled(true);
       setShowDemoPlantWarningDialog(false);
+      // Invalidate plants cache to refresh the UI
+      queryClient.invalidateQueries({ queryKey: ['/api/plants'] });
       toast({
         title: "Demo plant restored",
         description: "The demo plant is now available as plant #1",

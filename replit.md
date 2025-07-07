@@ -130,6 +130,7 @@ For isolated user testing, the app includes an Alpha Testing Mode that stores al
 
 ```
 Changelog:
+- July 7, 2025. Added demo plant toggle in Settings - users can remove demo plant to use plant #1 for their own plant, with warning dialog when restoring demo plant over existing user plant
 - July 7, 2025. Enhanced plant deletion with complete data cleanup - removes all associated care logs automatically
 - July 7, 2025. Fixed alpha mode duplicate ID issues - IDs now properly increment starting from 2 (demo plant uses ID 1)
 - July 7, 2025. Added automatic orphaned data cleanup in alpha mode with manual cleanup button in Settings

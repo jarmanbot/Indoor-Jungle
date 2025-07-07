@@ -327,9 +327,13 @@ export function removeDemoPlant(): void {
 export async function restoreDemoPlant(): Promise<void> {
   if (!isAlphaTestingMode()) return;
   
-  // Remove any existing plant with plant number 1
+  // Remove any existing plant with plant number 1 (that's not already the demo plant)
   const plants = alphaStorage.get('plants') || [];
-  const userPlantWithNumber1 = plants.find((plant: any) => plant.plantNumber === 1);
+  const userPlantWithNumber1 = plants.find((plant: any) => 
+    plant.plantNumber === 1 && 
+    !plant.notes?.includes('cannot be deleted in alpha mode') &&
+    plant.babyName !== 'Demo Plant'
+  );
   
   if (userPlantWithNumber1) {
     // Remove user's plant #1 and all its care logs
