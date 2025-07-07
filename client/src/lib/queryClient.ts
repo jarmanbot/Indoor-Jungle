@@ -26,6 +26,9 @@ async function handleAlphaRequest(method: string, url: string, data?: unknown): 
         return numA - numB;
       });
       console.log('Alpha mode: Returning sorted plants:', sortedPlants.map((p: any) => `#${p.plantNumber} ${p.babyName || p.name}`));
+      
+      // Update storage with sorted order for consistency
+      alphaStorage.set('plants', sortedPlants);
       return sortedPlants;
     }
     // Handle FormData plant creation (with images)
@@ -33,7 +36,6 @@ async function handleAlphaRequest(method: string, url: string, data?: unknown): 
       const plants = alphaStorage.get('plants') || [];
       const plantData = data as any;
       const nextPlantNumber = getNextPlantNumber();
-      console.log('Alpha mode: Creating plant with number:', nextPlantNumber);
       const newPlant = {
         ...plantData,
         id: getNextId(),
@@ -43,8 +45,14 @@ async function handleAlphaRequest(method: string, url: string, data?: unknown): 
         updatedAt: new Date().toISOString()
       };
       plants.push(newPlant);
-      alphaStorage.set('plants', plants);
-      console.log('Alpha mode: Created plant:', newPlant);
+      
+      // Sort plants by plant number before saving
+      const sortedPlants = plants.sort((a: any, b: any) => {
+        const numA = Number(a.plantNumber) || 0;
+        const numB = Number(b.plantNumber) || 0;
+        return numA - numB;
+      });
+      alphaStorage.set('plants', sortedPlants);
       return newPlant;
     }
   }
@@ -53,7 +61,6 @@ async function handleAlphaRequest(method: string, url: string, data?: unknown): 
     const plants = alphaStorage.get('plants') || [];
     const plantData = data as any;
     const nextPlantNumber = getNextPlantNumber();
-    console.log('Alpha mode: Creating JSON plant with number:', nextPlantNumber);
     const newPlant = {
       ...plantData,
       id: getNextId(),
@@ -63,8 +70,14 @@ async function handleAlphaRequest(method: string, url: string, data?: unknown): 
       updatedAt: new Date().toISOString()
     };
     plants.push(newPlant);
-    alphaStorage.set('plants', plants);
-    console.log('Alpha mode: Created JSON plant:', newPlant);
+    
+    // Sort plants by plant number before saving
+    const sortedPlants = plants.sort((a: any, b: any) => {
+      const numA = Number(a.plantNumber) || 0;
+      const numB = Number(b.plantNumber) || 0;
+      return numA - numB;
+    });
+    alphaStorage.set('plants', sortedPlants);
     return newPlant;
   }
   
