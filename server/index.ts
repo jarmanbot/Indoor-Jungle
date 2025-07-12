@@ -43,12 +43,13 @@ app.use((req, res, next) => {
 
 (async () => {
   try {
-    // Initialize database before setting up routes
+    // Try to initialize database, but don't fail if it's not available
+    // (Alpha testing mode uses local storage instead)
     await storage.initialize();
     console.log("Database initialized successfully");
   } catch (error) {
-    console.error("Database initialization failed:", error);
-    process.exit(1);
+    console.warn("Database initialization failed - app will run in alpha testing mode:", error.message);
+    console.log("Note: Alpha testing mode uses local storage and doesn't require a database connection");
   }
 
   const server = await registerRoutes(app);
