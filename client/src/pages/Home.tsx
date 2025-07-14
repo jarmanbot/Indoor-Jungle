@@ -15,7 +15,9 @@ const Home = () => {
     queryFn: async () => {
       // Always use local storage mode now
       initializeLocalStorage();
-      return localData.get('plants') || [];
+      const plants = localData.get('plants') || [];
+      // Sort plants by plant number to ensure proper display order
+      return plants.sort((a: any, b: any) => (a.plantNumber || 0) - (b.plantNumber || 0));
     },
     staleTime: 0, // Always refetch on mount
     refetchOnMount: true,
