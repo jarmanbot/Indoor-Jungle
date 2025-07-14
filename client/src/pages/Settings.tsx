@@ -30,14 +30,22 @@ const Settings = () => {
   // Load default frequencies and check demo plant status on mount
   useEffect(() => {
     try {
-      const savedWateringFreq = localStorage.getItem('defaultWateringFreq');
-      const savedFeedingFreq = localStorage.getItem('defaultFeedingFreq');
+      const savedWateringFreq = window.localStorage.getItem('defaultWateringFreq');
+      const savedFeedingFreq = window.localStorage.getItem('defaultFeedingFreq');
+      const savedDarkMode = window.localStorage.getItem('darkMode');
       
       if (savedWateringFreq) {
         setDefaultWateringFreq(savedWateringFreq);
       }
       if (savedFeedingFreq) {
         setDefaultFeedingFreq(savedFeedingFreq);
+      }
+      if (savedDarkMode) {
+        setDarkModeEnabled(savedDarkMode === 'true');
+        // Apply dark mode class to document
+        if (savedDarkMode === 'true') {
+          document.documentElement.classList.add('dark');
+        }
       }
       
       // Check if demo plant exists
@@ -55,8 +63,16 @@ const Settings = () => {
   const handleSave = () => {
     try {
       // Save default care frequencies to localStorage
-      localStorage.setItem('defaultWateringFreq', defaultWateringFreq);
-      localStorage.setItem('defaultFeedingFreq', defaultFeedingFreq);
+      window.localStorage.setItem('defaultWateringFreq', defaultWateringFreq);
+      window.localStorage.setItem('defaultFeedingFreq', defaultFeedingFreq);
+      window.localStorage.setItem('darkMode', darkModeEnabled.toString());
+      
+      // Apply dark mode immediately
+      if (darkModeEnabled) {
+        document.documentElement.classList.add('dark');
+      } else {
+        document.documentElement.classList.remove('dark');
+      }
       
       toast({
         title: "Settings saved",
@@ -235,60 +251,7 @@ const Settings = () => {
       </div>
       
       <div className="space-y-6">
-        {/* General Settings */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Bell className="h-4 w-4" />
-              Notifications
-            </CardTitle>
-            <CardDescription>Configure how you receive plant care reminders</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="flex items-center justify-between">
-              <Label htmlFor="notifications" className="text-sm">Enable notifications</Label>
-              <Switch
-                id="notifications"
-                checked={notificationsEnabled}
-                onCheckedChange={setNotificationsEnabled}
-              />
-            </div>
-            
-            <div className="flex items-center justify-between opacity-75">
-              <Label htmlFor="email-notifications" className="text-sm">Email notifications</Label>
-              <Switch id="email-notifications" disabled />
-            </div>
-            
-            <div className="flex items-center justify-between opacity-75">
-              <Label htmlFor="watering-reminders" className="text-sm">Watering reminders</Label>
-              <Switch id="watering-reminders" disabled />
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Appearance */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Moon className="h-4 w-4" />
-              Appearance
-            </CardTitle>
-            <CardDescription>Customize the app's look and feel</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="flex items-center justify-between opacity-75">
-              <Label htmlFor="dark-mode" className="text-sm">Dark mode</Label>
-              <Switch 
-                id="dark-mode" 
-                checked={darkModeEnabled}
-                onCheckedChange={setDarkModeEnabled}
-                disabled
-              />
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Care Settings */}
+        {/* 1. Default Care Frequencies */}
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
@@ -321,7 +284,7 @@ const Settings = () => {
           </CardContent>
         </Card>
 
-        {/* Data Management */}
+        {/* 2. Data Management */}
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
@@ -394,7 +357,59 @@ const Settings = () => {
           </CardContent>
         </Card>
 
-        {/* About */}
+        {/* 3. Notifications */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Bell className="h-4 w-4" />
+              Notifications
+            </CardTitle>
+            <CardDescription>Configure how you receive plant care reminders</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="flex items-center justify-between">
+              <Label htmlFor="notifications" className="text-sm">Enable notifications</Label>
+              <Switch
+                id="notifications"
+                checked={notificationsEnabled}
+                onCheckedChange={setNotificationsEnabled}
+              />
+            </div>
+            
+            <div className="flex items-center justify-between opacity-75">
+              <Label htmlFor="email-notifications" className="text-sm">Email notifications</Label>
+              <Switch id="email-notifications" disabled />
+            </div>
+            
+            <div className="flex items-center justify-between opacity-75">
+              <Label htmlFor="watering-reminders" className="text-sm">Watering reminders</Label>
+              <Switch id="watering-reminders" disabled />
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* 4. Appearance */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Moon className="h-4 w-4" />
+              Appearance
+            </CardTitle>
+            <CardDescription>Customize the app's look and feel</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="flex items-center justify-between">
+              <Label htmlFor="dark-mode" className="text-sm">Dark mode</Label>
+              <Switch 
+                id="dark-mode" 
+                checked={darkModeEnabled}
+                onCheckedChange={setDarkModeEnabled}
+              />
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* 5. About Indoor Jungle */}
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">

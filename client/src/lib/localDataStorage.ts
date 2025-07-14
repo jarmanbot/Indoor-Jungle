@@ -63,8 +63,8 @@ export function exportUserData(): void {
     soilTopUpLogs: localStorage.get('soilTopUpLogs') || [],
     pruningLogs: localStorage.get('pruningLogs') || [],
     settings: {
-      defaultWateringFreq: parseInt(localStorage.getItem('defaultWateringFreq') || '7'),
-      defaultFeedingFreq: parseInt(localStorage.getItem('defaultFeedingFreq') || '14'),
+      defaultWateringFreq: parseInt(window.localStorage.getItem('defaultWateringFreq') || '7'),
+      defaultFeedingFreq: parseInt(window.localStorage.getItem('defaultFeedingFreq') || '14'),
     },
     exportDate: new Date().toISOString(),
     version: '1.0'
@@ -112,8 +112,8 @@ export function importUserData(file: File): Promise<void> {
         
         // Import settings
         if (data.settings) {
-          localStorage.setItem('defaultWateringFreq', data.settings.defaultWateringFreq.toString());
-          localStorage.setItem('defaultFeedingFreq', data.settings.defaultFeedingFreq.toString());
+          window.localStorage.setItem('defaultWateringFreq', data.settings.defaultWateringFreq.toString());
+          window.localStorage.setItem('defaultFeedingFreq', data.settings.defaultFeedingFreq.toString());
         }
         
         console.log('Plant data imported successfully');
