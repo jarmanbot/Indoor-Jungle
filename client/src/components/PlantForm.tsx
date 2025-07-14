@@ -33,7 +33,7 @@ import {
   insertPlantSchema, 
   type InsertCustomLocation 
 } from "@shared/schema";
-import { isAlphaTestingMode, alphaStorage, getNextId, getNextPlantNumber } from "@/lib/alphaTestingMode";
+import { localStorage as localData, getNextId, getNextPlantNumber, isUsingLocalStorage } from "@/lib/localDataStorage";
 import ImageUpload from "./ImageUpload";
 import { PlusCircle, Shuffle } from "lucide-react";
 
@@ -119,30 +119,10 @@ const PlantForm = ({ onSuccess, initialValues, plantId }: PlantFormProps) => {
       console.error("Failed to load default care frequencies from localStorage:", error);
     }
     
-    // Fetch custom locations from server for up-to-date data (only if not in alpha mode)
-    const fetchLocations = async () => {
-      if (!isAlphaTestingMode()) {
-        try {
-          const response = await fetch('/api/locations');
-          if (response.ok) {
-            const locationData = await response.json();
-            // Extract names from the location objects
-            const locationNames = locationData.map((loc: any) => loc.name);
-            setCustomLocations(locationNames);
-            
-            // Update localStorage with the latest data
-            localStorage.setItem('customLocations', JSON.stringify(locationNames));
-          }
-        } catch (error) {
-          console.error("Failed to fetch custom locations from server:", error);
-          // We still continue with any localStorage data we have
-        }
-      } else {
-        console.log("Alpha mode: Using custom locations from localStorage only");
-      }
-    };
+    // For local storage mode, we only use localStorage data
+    console.log("Using custom locations from localStorage only");
     
-    fetchLocations();
+
   }, []);
 
   // Initialize form with default values
@@ -206,23 +186,14 @@ const PlantForm = ({ onSuccess, initialValues, plantId }: PlantFormProps) => {
       setCustomLocation("");
       setShowCustomLocationDialog(false);
       
-      // Only save to database if not in alpha mode
-      if (!isAlphaTestingMode()) {
-        try {
-          await saveCustomLocationToDb(customLocation.trim());
-          console.log("Custom location saved to database");
-        } catch (error) {
-          console.error("Failed to save custom location to database:", error);
-          // Show user a toast about the error but continue
-          toast({
-            title: "Warning",
-            description: "Location saved locally but couldn't sync to server",
-            variant: "destructive",
-          });
-        }
-      } else {
-        console.log("Alpha mode: Custom location saved locally only");
-      }
+      // For local storage mode, only save locally (no server sync needed)
+      console.log("Custom location saved locally");
+      
+      // Show success toast
+      toast({
+        title: "Custom location added",
+        description: `"${customLocation.trim()}" has been added to your locations`,
+      });
     }
   };
   
@@ -264,11 +235,11 @@ const PlantForm = ({ onSuccess, initialValues, plantId }: PlantFormProps) => {
         latinName: data.latinName || ""
       };
       
-      // In alpha testing mode, save directly to localStorage
-      if (isAlphaTestingMode()) {
-        console.log("Alpha mode: Saving to localStorage...");
+      // In local storage mode, save directly to localStorage
+      if (isUsingLocalStorage()) {
+        console.log("Local storage mode: Saving to localStorage...");
         
-        const plants = alphaStorage.get('plants') || [];
+        const plants = localData.get('plants') || [];
         
         if (plantId) {
           // Update existing plant
@@ -292,7 +263,7 @@ const PlantForm = ({ onSuccess, initialValues, plantId }: PlantFormProps) => {
               imageUrl: imageUrl,
               updatedAt: new Date().toISOString()
             };
-            alphaStorage.set('plants', plants);
+            localData.set('plants', plants);
             console.log("Plant updated in localStorage");
           }
         } else {
@@ -330,7 +301,7 @@ const PlantForm = ({ onSuccess, initialValues, plantId }: PlantFormProps) => {
           console.log('Final plant object before saving:', newPlant);
           
           plants.push(newPlant);
-          alphaStorage.set('plants', plants);
+          localData.set('plants', plants);
           console.log("New plant saved to localStorage:", newPlant);
         }
       } else if (selectedImage) {

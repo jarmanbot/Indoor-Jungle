@@ -100,36 +100,38 @@ Indoor Jungle is a Web3 plant care application that combines a traditional plant
 - Public folder for static assets and uploads
 - Environment variables for database and API keys
 
-## Alpha Testing Mode
+## Local Storage System
 
-For isolated user testing, the app includes an Alpha Testing Mode that stores all data locally on each device:
+The app uses a robust local storage system that stores all data on each device:
 
 ### Features
 - **Local Data Storage**: All plant data, care logs, and settings stored in browser localStorage
-- **Complete Isolation**: Each tester's data remains separate and private
-- **Visual Indicator**: Orange "ALPHA" badge in header when enabled
-- **Easy Toggle**: Enable/disable in Settings with one click
-- **Data Management**: Clear local data option for fresh starts
+- **Complete Device Isolation**: Each device's data remains separate and private
+- **Export/Import**: JSON backup and restore functionality for data portability
+- **Data Management**: Cleanup and clear data options in Settings
+- **Automatic Initialization**: Includes demo plant on first use
 
-### Usage Instructions for Alpha Testers
-1. Alpha Testing Mode is enabled by default
-2. Orange "ALPHA" badge shows testing mode is active
-3. All plant data is stored locally on each device
-4. Each tester's data remains completely isolated
-5. Admin password (`digipl@nts`) required to access shared database
+### Usage Instructions
+1. All data is stored locally on each device by default
+2. Regular backups are recommended using the export feature
+3. Data can be imported from backup files
+4. Admin password (`digipl@nts`) required to clear all data
 
 ### Technical Implementation
-- Intercepts all API calls when alpha mode is enabled
 - Uses localStorage to store plants, care logs, and custom locations
-- Maintains same data structure as server for seamless switching
 - Auto-generates IDs and plant numbers locally
 - **Image Compression**: Automatically compresses plant photos to 400px max width with 70% quality for efficient localStorage storage
 - **Individual Plant Photos**: Each plant can have its own compressed photo stored locally
+- **Export/Import System**: JSON-based backup and restore functionality
 
 ## Changelog
 
 ```
 Changelog:
+- July 14, 2025. Completely removed alpha mode and replaced with robust local storage system
+- July 14, 2025. Added comprehensive export/import functionality for data backup and recovery
+- July 14, 2025. Updated Settings page with local storage management features
+- July 14, 2025. Implemented clean local storage architecture with demo plant initialization
 - July 7, 2025. Added demo plant toggle in Settings - users can remove demo plant to use plant #1 for their own plant, with warning dialog when restoring demo plant over existing user plant
 - July 7, 2025. Enhanced plant deletion with complete data cleanup - removes all associated care logs automatically
 - July 7, 2025. Fixed alpha mode duplicate ID issues - IDs now properly increment starting from 2 (demo plant uses ID 1)

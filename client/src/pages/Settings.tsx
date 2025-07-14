@@ -4,15 +4,14 @@ import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { Bell, Moon, Info, HelpCircle, Palette, Database, Shield, Download, Upload, Clock, ArrowLeft, TestTube, Lock } from "lucide-react";
+import { Bell, Moon, Info, HelpCircle, Database, Shield, Download, Upload, Clock, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
-import { isAlphaTestingMode, enableAlphaTestingMode, disableAlphaTestingMode, alphaStorage, cleanupAlphaData, isDemoPlantEnabled, removeDemoPlant, restoreDemoPlant } from "@/lib/alphaTestingMode";
+import { localStorage as localData, exportUserData, importUserData, cleanupLocalData } from "@/lib/localDataStorage";
 import { queryClient } from "@/lib/queryClient";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 
 const Settings = () => {
   const [, setLocation] = useLocation();
@@ -20,15 +19,13 @@ const Settings = () => {
   const [darkModeEnabled, setDarkModeEnabled] = useState(false);
   const [defaultWateringFreq, setDefaultWateringFreq] = useState("7");
   const [defaultFeedingFreq, setDefaultFeedingFreq] = useState("14");
-  const [alphaTestingEnabled, setAlphaTestingEnabled] = useState(true);
-  const [showPasswordDialog, setShowPasswordDialog] = useState(false);
   const [showClearDataDialog, setShowClearDataDialog] = useState(false);
-  const [showDemoPlantWarningDialog, setShowDemoPlantWarningDialog] = useState(false);
-  const [password, setPassword] = useState("");
   const [clearDataPassword, setClearDataPassword] = useState("");
-  const [demoPlantEnabled, setDemoPlantEnabled] = useState(false);
+  const [temperatureUnit, setTemperatureUnit] = useState("celsius");
+  const [autoBackup, setAutoBackup] = useState(true);
+  const { toast } = useToast();
 
-  // Load default frequencies and alpha testing mode from localStorage on mount
+  // Load default frequencies from localStorage on mount
   useEffect(() => {
     try {
       const savedWateringFreq = localStorage.getItem('defaultWateringFreq');
@@ -40,17 +37,10 @@ const Settings = () => {
       if (savedFeedingFreq) {
         setDefaultFeedingFreq(savedFeedingFreq);
       }
-      
-      // Check alpha testing mode and demo plant status
-      setAlphaTestingEnabled(isAlphaTestingMode());
-      setDemoPlantEnabled(isDemoPlantEnabled());
     } catch (error) {
       console.error("Failed to load settings:", error);
     }
   }, []);
-  const [temperatureUnit, setTemperatureUnit] = useState("celsius");
-  const [autoBackup, setAutoBackup] = useState(true);
-  const { toast } = useToast();
 
   const handleSave = () => {
     try {
@@ -79,141 +69,77 @@ const Settings = () => {
   };
 
   const handleExport = () => {
-    toast({
-      title: "Export started",
-      description: "Your plant data will be downloaded shortly",
-    });
+    try {
+      exportUserData();
+      toast({
+        title: "Export successful",
+        description: "Your plant data has been downloaded",
+      });
+    } catch (error) {
+      console.error("Export failed:", error);
+      toast({
+        title: "Export failed",
+        description: "Failed to export your data. Please try again.",
+        variant: "destructive",
+      });
+    }
   };
 
-  const handleImport = () => {
-    toast({
-      title: "Import feature",
-      description: "This feature will be available soon",
-      variant: "destructive",
-    });
+  const handleImportFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      handleImport(file);
+    }
+  };
+
+  const handleImport = async (file: File) => {
+    try {
+      await importUserData(file);
+      toast({
+        title: "Import successful",
+        description: "Your plant data has been imported successfully",
+      });
+      // Refresh the page to show updated data
+      queryClient.invalidateQueries({ queryKey: ['/api/plants'] });
+    } catch (error) {
+      console.error("Import failed:", error);
+      toast({
+        title: "Import failed",
+        description: error instanceof Error ? error.message : "Failed to import data",
+        variant: "destructive",
+      });
+    }
   };
 
   const handleCleanupData = () => {
-    if (isAlphaTestingMode()) {
-      cleanupAlphaData();
-      toast({
-        title: "Data cleanup completed",
-        description: "Removed orphaned logs and unnecessary data",
-      });
-    } else {
-      toast({
-        title: "Cleanup not needed",
-        description: "Data cleanup is only available in alpha testing mode",
-        variant: "destructive",
-      });
-    }
+    cleanupLocalData();
+    toast({
+      title: "Data cleanup completed",
+      description: "Removed orphaned logs and unnecessary data",
+    });
   };
 
-  const handleAlphaTestingToggle = (checked: boolean) => {
-    if (checked) {
-      enableAlphaTestingMode();
-      setAlphaTestingEnabled(true);
-      toast({
-        title: "Alpha testing mode enabled",
-        description: "Your data will now be stored locally on this device only",
-      });
-    } else {
-      // Show password dialog to disable alpha mode
-      setShowPasswordDialog(true);
-    }
-  };
-
-  const handlePasswordSubmit = () => {
-    const success = disableAlphaTestingMode(password);
-    if (success) {
-      setAlphaTestingEnabled(false);
-      setShowPasswordDialog(false);
-      setPassword("");
-      toast({
-        title: "Alpha testing mode disabled",
-        description: "Your data will now use the server database",
-      });
-    } else {
-      toast({
-        title: "Incorrect password",
-        description: "Please enter the correct admin password",
-        variant: "destructive",
-      });
-    }
-  };
-
-  const handleClearAlphaData = () => {
+  const handleClearAllData = () => {
     // Show password dialog for clearing data
     setShowClearDataDialog(true);
   };
 
   const handleClearDataPasswordSubmit = () => {
-    const success = disableAlphaTestingMode(clearDataPassword); // Reuse the same password validation
-    if (success) {
-      alphaStorage.clear();
+    const adminPassword = 'digipl@nts'; // Keep same admin password for data protection
+    if (clearDataPassword === adminPassword) {
+      localData.clear();
       setShowClearDataDialog(false);
       setClearDataPassword("");
       toast({
-        title: "Local data cleared",
-        description: "All alpha testing data has been removed from this device",
+        title: "All data cleared",
+        description: "All plant data has been removed from this device",
       });
-      // Re-enable alpha mode since clearing data doesn't disable it
-      enableAlphaTestingMode();
+      // Refresh the page to show cleared data
+      queryClient.invalidateQueries({ queryKey: ['/api/plants'] });
     } else {
       toast({
         title: "Incorrect password",
         description: "Please enter the correct admin password to clear data",
-        variant: "destructive",
-      });
-    }
-  };
-
-  const handleDemoPlantToggle = (checked: boolean) => {
-    if (checked) {
-      // Turning demo plant ON - check if there's a user plant with #1
-      const plants = alphaStorage.get('plants') || [];
-      const userPlantWithNumber1 = plants.find((plant: any) => 
-        plant.plantNumber === 1 && 
-        !plant.notes?.includes('cannot be deleted in alpha mode') &&
-        plant.babyName !== 'Demo Plant'
-      );
-      
-      if (userPlantWithNumber1) {
-        // Show warning dialog
-        setShowDemoPlantWarningDialog(true);
-      } else {
-        // No conflict, restore demo plant directly
-        handleRestoreDemoPlant();
-      }
-    } else {
-      // Turning demo plant OFF
-      removeDemoPlant();
-      setDemoPlantEnabled(false);
-      // Invalidate plants cache to refresh the UI
-      queryClient.invalidateQueries({ queryKey: ['/api/plants'] });
-      toast({
-        title: "Demo plant removed",
-        description: "You can now use plant #1 for your own plant",
-      });
-    }
-  };
-
-  const handleRestoreDemoPlant = async () => {
-    try {
-      await restoreDemoPlant();
-      setDemoPlantEnabled(true);
-      setShowDemoPlantWarningDialog(false);
-      // Invalidate plants cache to refresh the UI
-      queryClient.invalidateQueries({ queryKey: ['/api/plants'] });
-      toast({
-        title: "Demo plant restored",
-        description: "The demo plant is now available as plant #1",
-      });
-    } catch (error) {
-      console.error('Error restoring demo plant:', error);
-      toast({
-        title: "Error",
-        description: "Failed to restore demo plant. Please try again.",
         variant: "destructive",
       });
     }
@@ -262,35 +188,25 @@ const Settings = () => {
             </div>
           </CardContent>
         </Card>
-        
+
+        {/* Appearance */}
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Palette className="h-4 w-4" />
+              <Moon className="h-4 w-4" />
               Appearance
             </CardTitle>
             <CardDescription>Customize the app's look and feel</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="flex items-center justify-between">
+            <div className="flex items-center justify-between opacity-75">
               <Label htmlFor="dark-mode" className="text-sm">Dark mode</Label>
-              <Switch
-                id="dark-mode"
+              <Switch 
+                id="dark-mode" 
                 checked={darkModeEnabled}
                 onCheckedChange={setDarkModeEnabled}
+                disabled
               />
-            </div>
-            <div className="space-y-2">
-              <Label className="text-sm">Temperature Unit</Label>
-              <Select value={temperatureUnit} onValueChange={setTemperatureUnit}>
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="celsius">Celsius (°C)</SelectItem>
-                  <SelectItem value="fahrenheit">Fahrenheit (°F)</SelectItem>
-                </SelectContent>
-              </Select>
             </div>
           </CardContent>
         </Card>
@@ -328,136 +244,6 @@ const Settings = () => {
           </CardContent>
         </Card>
 
-        {/* Alpha Testing */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <TestTube className="h-4 w-4" />
-              Alpha Testing Mode
-            </CardTitle>
-            <CardDescription>Store data locally for isolated testing (Password protected)</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <Label className="text-sm font-medium">Alpha Testing Active</Label>
-                <p className="text-xs text-muted-foreground">Data isolated on this device - Admin password required to disable</p>
-              </div>
-              <div className="flex items-center gap-2">
-                <Switch 
-                  checked={alphaTestingEnabled} 
-                  onCheckedChange={handleAlphaTestingToggle} 
-                />
-                <Lock className="h-4 w-4 text-muted-foreground" />
-              </div>
-            </div>
-            
-            {alphaTestingEnabled && (
-              <>
-                <Separator />
-                <div className="space-y-4">
-                  <div className="text-xs text-muted-foreground">
-                    Alpha testing mode is active. All plant data is stored locally on this device only. 
-                    Users can't access the shared database without the admin password.
-                  </div>
-                  
-                  {/* Demo Plant Toggle */}
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <Label className="text-sm font-medium">Demo Plant</Label>
-                      <p className="text-xs text-muted-foreground">
-                        Show demo plant as plant #1 for exploring the app
-                      </p>
-                    </div>
-                    <Switch 
-                      checked={demoPlantEnabled} 
-                      onCheckedChange={handleDemoPlantToggle} 
-                    />
-                  </div>
-                  
-                  <Button 
-                    onClick={handleClearAlphaData} 
-                    className="w-full" 
-                    variant="outline"
-                    size="sm"
-                  >
-                    Clear All Local Data
-                  </Button>
-                </div>
-              </>
-            )}
-          </CardContent>
-        </Card>
-
-        {/* Password Dialog */}
-        <Dialog open={showPasswordDialog} onOpenChange={setShowPasswordDialog}>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Admin Password Required</DialogTitle>
-            </DialogHeader>
-            <div className="space-y-4">
-              <p className="text-sm text-muted-foreground">
-                Enter the admin password to disable alpha testing mode and access the shared database:
-              </p>
-              <Input
-                type="password"
-                placeholder="Enter admin password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                onKeyDown={(e) => e.key === 'Enter' && handlePasswordSubmit()}
-              />
-              <div className="flex gap-2">
-                <Button onClick={handlePasswordSubmit} className="flex-1">
-                  Disable Alpha Mode
-                </Button>
-                <Button 
-                  variant="outline" 
-                  onClick={() => {
-                    setShowPasswordDialog(false);
-                    setPassword("");
-                  }}
-                  className="flex-1"
-                >
-                  Cancel
-                </Button>
-              </div>
-            </div>
-          </DialogContent>
-        </Dialog>
-
-        {/* Demo Plant Warning Dialog */}
-        <Dialog open={showDemoPlantWarningDialog} onOpenChange={setShowDemoPlantWarningDialog}>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Replace Plant #1?</DialogTitle>
-            </DialogHeader>
-            <div className="space-y-4">
-              <p className="text-sm text-muted-foreground">
-                You currently have a plant using #1. Turning on the demo plant will permanently delete your plant #1 and all its care history. This cannot be undone.
-              </p>
-              <p className="text-sm font-medium text-destructive">
-                Are you sure you want to replace your plant with the demo plant?
-              </p>
-              <div className="flex gap-2">
-                <Button 
-                  onClick={handleRestoreDemoPlant} 
-                  variant="destructive"
-                  className="flex-1"
-                >
-                  Yes, Replace Plant #1
-                </Button>
-                <Button 
-                  variant="outline" 
-                  onClick={() => setShowDemoPlantWarningDialog(false)}
-                  className="flex-1"
-                >
-                  Cancel
-                </Button>
-              </div>
-            </div>
-          </DialogContent>
-        </Dialog>
-
         {/* Data Management */}
         <Card>
           <CardHeader>
@@ -465,34 +251,53 @@ const Settings = () => {
               <Database className="h-4 w-4" />
               Data Management
             </CardTitle>
-            <CardDescription>Export, import, and backup your plant data</CardDescription>
+            <CardDescription>Backup, export, and import your plant data</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <Label className="text-sm font-medium">Automatic backup</Label>
-                <p className="text-xs text-muted-foreground">Daily backup to cloud storage</p>
-              </div>
-              <Switch checked={autoBackup} onCheckedChange={setAutoBackup} />
-            </div>
-            
-            <Separator />
-            
             <div className="space-y-3">
+              <div className="text-sm text-muted-foreground mb-4">
+                Your plant data is stored locally on this device. Regular backups are recommended.
+              </div>
+              
               <Button onClick={handleExport} className="w-full" variant="outline">
                 <Download className="h-4 w-4 mr-2" />
                 Export Plant Data
               </Button>
-              <Button onClick={handleImport} className="w-full" variant="outline">
-                <Upload className="h-4 w-4 mr-2" />
-                Import Plant Data
-              </Button>
-              {isAlphaTestingMode() && (
-                <Button onClick={handleCleanupData} className="w-full" variant="outline">
-                  <Database className="h-4 w-4 mr-2" />
-                  Cleanup Orphaned Data
+              
+              <div className="space-y-2">
+                <input
+                  type="file"
+                  accept=".json"
+                  onChange={handleImportFileSelect}
+                  style={{ display: 'none' }}
+                  id="import-input"
+                />
+                <Button 
+                  onClick={() => document.getElementById('import-input')?.click()}
+                  className="w-full" 
+                  variant="outline"
+                >
+                  <Upload className="h-4 w-4 mr-2" />
+                  Import Plant Data
                 </Button>
-              )}
+              </div>
+              
+              <Button onClick={handleCleanupData} className="w-full" variant="outline">
+                <Database className="h-4 w-4 mr-2" />
+                Cleanup Orphaned Data
+              </Button>
+              
+              <Separator />
+              
+              <Button 
+                onClick={handleClearAllData} 
+                className="w-full" 
+                variant="destructive"
+                size="sm"
+              >
+                <Shield className="h-4 w-4 mr-2" />
+                Clear All Data (Password Protected)
+              </Button>
             </div>
           </CardContent>
         </Card>
@@ -543,36 +348,7 @@ const Settings = () => {
         </div>
       </div>
 
-      {/* Password dialog for disabling alpha mode */}
-      <Dialog open={showPasswordDialog} onOpenChange={setShowPasswordDialog}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Admin Password Required</DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4">
-            <p className="text-sm text-muted-foreground">
-              Enter the admin password to disable alpha testing mode and access the shared database.
-            </p>
-            <Input
-              type="password"
-              placeholder="Enter admin password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              onKeyDown={(e) => e.key === 'Enter' && handlePasswordSubmit()}
-            />
-            <div className="flex justify-end gap-2">
-              <Button variant="outline" onClick={() => setShowPasswordDialog(false)}>
-                Cancel
-              </Button>
-              <Button onClick={handlePasswordSubmit}>
-                Confirm
-              </Button>
-            </div>
-          </div>
-        </DialogContent>
-      </Dialog>
-
-      {/* Password dialog for clearing alpha data */}
+      {/* Clear Data Password Dialog */}
       <Dialog open={showClearDataDialog} onOpenChange={setShowClearDataDialog}>
         <DialogContent>
           <DialogHeader>
@@ -580,7 +356,10 @@ const Settings = () => {
           </DialogHeader>
           <div className="space-y-4">
             <p className="text-sm text-muted-foreground">
-              Enter the admin password to clear all local alpha testing data. This action cannot be undone.
+              Enter the admin password to permanently clear all plant data from this device:
+            </p>
+            <p className="text-sm font-medium text-destructive">
+              ⚠️ This action cannot be undone. All plants and care history will be lost.
             </p>
             <Input
               type="password"
@@ -589,12 +368,19 @@ const Settings = () => {
               onChange={(e) => setClearDataPassword(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && handleClearDataPasswordSubmit()}
             />
-            <div className="flex justify-end gap-2">
-              <Button variant="outline" onClick={() => setShowClearDataDialog(false)}>
-                Cancel
-              </Button>
-              <Button onClick={handleClearDataPasswordSubmit} variant="destructive">
+            <div className="flex gap-2">
+              <Button onClick={handleClearDataPasswordSubmit} variant="destructive" className="flex-1">
                 Clear All Data
+              </Button>
+              <Button 
+                variant="outline" 
+                onClick={() => {
+                  setShowClearDataDialog(false);
+                  setClearDataPassword("");
+                }}
+                className="flex-1"
+              >
+                Cancel
               </Button>
             </div>
           </div>
