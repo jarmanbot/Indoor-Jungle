@@ -78,11 +78,56 @@ export function exportUserData(): void {
   const link = document.createElement('a');
   link.href = url;
   link.download = `plant-data-backup-${new Date().toISOString().split('T')[0]}.json`;
+  link.style.display = 'none';
   document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
   
-  URL.revokeObjectURL(url);
+  // Add more debugging and try different approaches
+  console.log('Creating download with filename:', link.download);
+  console.log('Blob size:', dataBlob.size, 'bytes');
+  console.log('URL created:', url);
+  
+  // Try to trigger download with multiple approaches
+  try {
+    // First try the standard approach
+    link.click();
+    console.log('Download link clicked successfully');
+  } catch (error) {
+    console.error('Error clicking download link:', error);
+    
+    // Fallback: try using a different approach
+    try {
+      const event = new MouseEvent('click', {
+        view: window,
+        bubbles: true,
+        cancelable: true
+      });
+      link.dispatchEvent(event);
+      console.log('Fallback download method attempted');
+    } catch (fallbackError) {
+      console.error('Fallback download method failed:', fallbackError);
+      
+      // Last resort: try opening as data URL
+      try {
+        const dataUrl = 'data:application/json;charset=utf-8,' + encodeURIComponent(dataStr);
+        const newWindow = window.open(dataUrl, '_blank');
+        if (newWindow) {
+          console.log('Opened data in new window - you may need to save manually');
+        } else {
+          console.error('Failed to open new window - popup blocked?');
+        }
+      } catch (dataUrlError) {
+        console.error('Data URL method failed:', dataUrlError);
+      }
+    }
+  }
+  
+  // Clean up
+  setTimeout(() => {
+    if (document.body.contains(link)) {
+      document.body.removeChild(link);
+    }
+    URL.revokeObjectURL(url);
+  }, 2000);
   
   console.log('Plant data exported successfully');
 }
