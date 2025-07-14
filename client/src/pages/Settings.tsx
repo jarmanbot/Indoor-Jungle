@@ -42,10 +42,12 @@ const Settings = () => {
       
       // Check if demo plant exists
       const plants = localData.get('plants') || [];
+      console.log('Settings - loaded plants:', plants);
       const hasDemo = plants.some((plant: any) => 
         plant.babyName === 'Demo Plant' && 
         plant.notes?.includes('This is your demo plant to explore the app!')
       );
+      console.log('Settings - hasDemo:', hasDemo);
       setDemoPlantEnabled(hasDemo);
     } catch (error) {
       console.error("Failed to load settings:", error);
@@ -156,13 +158,21 @@ const Settings = () => {
   };
 
   const handleDemoPlantToggle = () => {
+    console.log('Demo plant toggle clicked, current state:', demoPlantEnabled);
+    
     if (demoPlantEnabled) {
       // Remove demo plant
       const plants = localData.get('plants') || [];
-      const filteredPlants = plants.filter((plant: any) => 
-        !(plant.babyName === 'Demo Plant' && 
-          plant.notes?.includes('This is your demo plant to explore the app!'))
-      );
+      console.log('Current plants before filtering:', plants);
+      
+      const filteredPlants = plants.filter((plant: any) => {
+        const isDemo = plant.babyName === 'Demo Plant' && 
+                      plant.notes?.includes('This is your demo plant to explore the app!');
+        console.log(`Plant ${plant.name} is demo:`, isDemo);
+        return !isDemo;
+      });
+      
+      console.log('Filtered plants after removing demo:', filteredPlants);
       localData.set('plants', filteredPlants);
       setDemoPlantEnabled(false);
       
@@ -176,6 +186,8 @@ const Settings = () => {
       // Check if there's already a plant #1
       const plants = localData.get('plants') || [];
       const hasPlantNumber1 = plants.some((plant: any) => plant.plantNumber === 1);
+      
+      console.log('Adding demo plant, hasPlantNumber1:', hasPlantNumber1);
       
       if (hasPlantNumber1) {
         setShowDemoPlantDialog(true);
