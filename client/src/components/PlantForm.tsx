@@ -35,15 +35,25 @@ import {
 } from "@shared/schema";
 import { isAlphaTestingMode, alphaStorage, getNextId, getNextPlantNumber } from "@/lib/alphaTestingMode";
 import ImageUpload from "./ImageUpload";
-import { PlusCircle } from "lucide-react";
+import { PlusCircle, Shuffle } from "lucide-react";
+
+// Plant name suggestions for random generation
+const plantNameSuggestions = [
+  "Sunny", "Leafy", "Buddy", "Sprout", "Olive", "Basil", "Rosie", "Ivy", "Fern", "Sage",
+  "Mint", "Daisy", "Lily", "Jade", "Ruby", "Emerald", "Forest", "Meadow", "Willow", "Cedar",
+  "Aurora", "Luna", "Star", "Bloom", "Petal", "Blossom", "Garden", "Verde", "Flora", "Herb",
+  "Clover", "Poppy", "Iris", "Violet", "Rose", "Jasmine", "Lavender", "Honey", "Peach", "Berry",
+  "Sunshine", "Rainbow", "Breeze", "Dew", "River", "Ocean", "Sky", "Cloud", "Rain", "Snow"
+];
 
 // Create a more robust form schema with validation
-// First, extend the schema with required fields
+// Only make babyName (plant name) required, all other fields optional
 const formSchema = insertPlantSchema.extend({
-  babyName: z.string().min(1, "Baby name is required"),
-  commonName: z.string().min(1, "Common name is required"),
-  location: z.string().min(1, "Location is required"),
-  wateringFrequencyDays: z.number().min(1, "Watering frequency must be at least 1 day").max(365, "Watering frequency cannot exceed 365 days"),
+  babyName: z.string().min(1, "Plant name is required"),
+  commonName: z.string().optional(),
+  location: z.string().optional(),
+  wateringFrequencyDays: z.number().min(1, "Watering frequency must be at least 1 day").max(365, "Watering frequency cannot exceed 365 days").optional(),
+  feedingFrequencyDays: z.number().min(1, "Feeding frequency must be at least 1 day").max(365, "Feeding frequency cannot exceed 365 days").optional(),
 })
 // Then explicitly make plantNumber and name optional since they're auto-generated
 .omit({ plantNumber: true, name: true })
@@ -150,6 +160,13 @@ const PlantForm = ({ onSuccess, initialValues, plantId }: PlantFormProps) => {
   const handleImageSelected = (file: File) => {
     setSelectedImage(file);
   };
+
+  // Generate a random plant name
+  const generateRandomName = () => {
+    const randomIndex = Math.floor(Math.random() * plantNameSuggestions.length);
+    const randomName = plantNameSuggestions[randomIndex];
+    form.setValue('babyName', randomName);
+  };
   
   const handleAddCustomLocation = () => {
     if (customLocation.trim()) {
@@ -207,6 +224,17 @@ const PlantForm = ({ onSuccess, initialValues, plantId }: PlantFormProps) => {
       console.log("Form submitted with data:", data);
       setIsSubmitting(true);
       
+      // Ensure we have default values for optional fields
+      const processedData = {
+        ...data,
+        wateringFrequencyDays: data.wateringFrequencyDays || defaultWateringFreq,
+        feedingFrequencyDays: data.feedingFrequencyDays || defaultFeedingFreq,
+        commonName: data.commonName || "",
+        location: data.location || "",
+        notes: data.notes || "",
+        latinName: data.latinName || ""
+      };
+      
       // In alpha testing mode, save directly to localStorage
       if (isAlphaTestingMode()) {
         console.log("Alpha mode: Saving to localStorage...");
@@ -230,8 +258,8 @@ const PlantForm = ({ onSuccess, initialValues, plantId }: PlantFormProps) => {
             
             plants[plantIndex] = {
               ...plants[plantIndex],
-              ...data,
-              name: data.babyName,
+              ...processedData,
+              name: processedData.babyName,
               imageUrl: imageUrl,
               updatedAt: new Date().toISOString()
             };
@@ -257,10 +285,10 @@ const PlantForm = ({ onSuccess, initialValues, plantId }: PlantFormProps) => {
           console.log('Creating plant with ID:', plantId, 'and plant number:', plantNumber);
           
           const newPlant = {
-            ...data,
+            ...processedData,
             id: plantId,
             plantNumber: plantNumber,
-            name: data.babyName,
+            name: processedData.babyName,
             imageUrl: imageUrl,
             lastWatered: null,
             nextCheck: null,
@@ -285,14 +313,14 @@ const PlantForm = ({ onSuccess, initialValues, plantId }: PlantFormProps) => {
         formData.append("image", selectedImage);
         
         // Add all other form fields
-        Object.entries(data).forEach(([key, value]) => {
+        Object.entries(processedData).forEach(([key, value]) => {
           if (value !== null && value !== undefined) {
             formData.append(key, String(value));
           }
         });
         
         // Add name field (for backward compatibility)
-        formData.append("name", data.babyName);
+        formData.append("name", processedData.babyName);
         
         // Make the API request
         const url = plantId ? `/api/plants/${plantId}` : '/api/plants';
@@ -316,8 +344,8 @@ const PlantForm = ({ onSuccess, initialValues, plantId }: PlantFormProps) => {
         // Using JSON for submissions without image
         // Prepare data with backwards compatibility
         const jsonData = {
-          ...data,
-          name: data.babyName // Ensure name field is set from babyName
+          ...processedData,
+          name: processedData.babyName // Ensure name field is set from babyName
         };
         
         // Make the API request
@@ -396,14 +424,26 @@ const PlantForm = ({ onSuccess, initialValues, plantId }: PlantFormProps) => {
               name="babyName"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel> Plant Baby Name</FormLabel>
-                  <FormControl>
-                    <Input 
-                      placeholder="e.g., Alex Yolobo" 
-                      {...field} 
-                      className="bg-background"
-                    />
-                  </FormControl>
+                  <FormLabel>Plant Name</FormLabel>
+                  <div className="space-y-2">
+                    <FormControl>
+                      <Input 
+                        placeholder="e.g., Alex Yolobo" 
+                        {...field} 
+                        className="bg-background"
+                      />
+                    </FormControl>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={generateRandomName}
+                      className="w-full text-xs h-8"
+                    >
+                      <Shuffle className="mr-2 h-3 w-3" />
+                      Generate Random Name
+                    </Button>
+                  </div>
                   <FormMessage />
                 </FormItem>
               )}
@@ -414,7 +454,7 @@ const PlantForm = ({ onSuccess, initialValues, plantId }: PlantFormProps) => {
               name="commonName"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Common Name</FormLabel>
+                  <FormLabel>Common Name (Optional)</FormLabel>
                   <FormControl>
                     <Input 
                       placeholder="e.g., Swiss Cheese Plant" 
@@ -451,7 +491,7 @@ const PlantForm = ({ onSuccess, initialValues, plantId }: PlantFormProps) => {
             name="location"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Location</FormLabel>
+                <FormLabel>Location (Optional)</FormLabel>
                 <div className="flex gap-2">
                   <Select onValueChange={field.onChange} value={field.value}>
                     <FormControl>
@@ -513,7 +553,7 @@ const PlantForm = ({ onSuccess, initialValues, plantId }: PlantFormProps) => {
               name="wateringFrequencyDays"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Watering Frequency (days)</FormLabel>
+                  <FormLabel>Watering Frequency (days) - Optional</FormLabel>
                   <FormControl>
                     <Input 
                       type="number"
@@ -536,7 +576,7 @@ const PlantForm = ({ onSuccess, initialValues, plantId }: PlantFormProps) => {
               name="feedingFrequencyDays"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Feeding Frequency (days)</FormLabel>
+                  <FormLabel>Feeding Frequency (days) - Optional</FormLabel>
                   <FormControl>
                     <Input 
                       type="number"
@@ -560,7 +600,7 @@ const PlantForm = ({ onSuccess, initialValues, plantId }: PlantFormProps) => {
             name="notes"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Notes</FormLabel>
+                <FormLabel>Notes (Optional)</FormLabel>
                 <FormControl>
                   <Textarea 
                     placeholder="Any special care instructions or notes about this plant..." 

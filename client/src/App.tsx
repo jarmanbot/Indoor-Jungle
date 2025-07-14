@@ -6,6 +6,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import NotFound from "@/pages/not-found";
 import Home from "@/pages/Home";
 import AddPlant from "@/pages/AddPlant";
+import EditPlant from "@/pages/EditPlant";
 import PlantDetails from "@/pages/PlantDetails";
 import Calendar from "@/pages/Calendar";
 import Tasks from "@/pages/Tasks";
@@ -39,6 +40,7 @@ function Router() {
   const getPageTitle = () => {
     if (location === "/" || location === "/home") return "my plants";
     if (location === "/add") return "add plant";
+    if (location.startsWith("/edit/")) return "edit plant";
     if (location === "/calendar") return "calendar";
     if (location === "/tasks") return "tasks";
     if (location === "/settings") return "settings";
@@ -58,6 +60,7 @@ function Router() {
         <Route path="/" component={Home} />
         <Route path="/home" component={Home} />
         <Route path="/add" component={AddPlant} />
+        <Route path="/edit/:id" component={EditPlant} />
         <Route path="/plant/:id" component={PlantDetails} />
         <Route path="/calendar" component={Calendar} />
         <Route path="/tasks" component={Tasks} />
@@ -78,7 +81,7 @@ function Router() {
       </Switch>
       
       {/* Show navigation on all pages except add and edit */}
-      {!location.includes("/add") && !location.includes("/landing") && <Navigation />}
+      {!location.includes("/add") && !location.includes("/edit") && !location.includes("/landing") && <Navigation />}
       
       {/* Floating Action Button on main pages */}
       {!hideHeader && !location.includes("/add") && !location.includes("/settings") && !location.includes("/landing") && <FloatingActionButton />}
