@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import { queryClient } from "@/lib/queryClient";
+import { localStorage as localData, isUsingLocalStorage } from "@/lib/localDataStorage";
 
 interface PlantCardProps {
   plant: Plant;
@@ -36,11 +37,27 @@ const PlantCard = ({ plant, index = 0 }: PlantCardProps) => {
     e.preventDefault();
     
     try {
-      await apiRequest('POST', `/api/plants/${plant.id}/watering-logs`, { 
+      // Use local storage for watering logs
+      const wateringLog = {
+        id: Date.now(), // Simple ID generation
+        plantId: plant.id,
         wateredAt: new Date().toISOString(),
         amount: "normal",
-        notes: "Quick watering from home screen"
-      });
+        notes: "Quick watering from home screen",
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
+      };
+      
+      // Add to local storage
+      const existingLogs = localData.get('wateringLogs') || [];
+      localData.set('wateringLogs', [...existingLogs, wateringLog]);
+      
+      // Update plant's lastWatered date
+      const plants = localData.get('plants') || [];
+      const updatedPlants = plants.map((p: any) => 
+        p.id === plant.id ? { ...p, lastWatered: new Date().toISOString() } : p
+      );
+      localData.set('plants', updatedPlants);
       
       queryClient.invalidateQueries({ queryKey: ['/api/plants'] });
       queryClient.invalidateQueries({ queryKey: [`/api/plants/${plant.id}`] });
@@ -66,12 +83,28 @@ const PlantCard = ({ plant, index = 0 }: PlantCardProps) => {
     e.preventDefault();
     
     try {
-      await apiRequest('POST', `/api/plants/${plant.id}/feeding-logs`, { 
+      // Use local storage for feeding logs
+      const feedingLog = {
+        id: Date.now() + 1, // Simple ID generation with offset
+        plantId: plant.id,
         fedAt: new Date().toISOString(),
         fertilizerType: "general",
         amount: "normal",
-        notes: "Quick feeding from home screen"
-      });
+        notes: "Quick feeding from home screen",
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
+      };
+      
+      // Add to local storage
+      const existingLogs = localData.get('feedingLogs') || [];
+      localData.set('feedingLogs', [...existingLogs, feedingLog]);
+      
+      // Update plant's lastFed date
+      const plants = localData.get('plants') || [];
+      const updatedPlants = plants.map((p: any) => 
+        p.id === plant.id ? { ...p, lastFed: new Date().toISOString() } : p
+      );
+      localData.set('plants', updatedPlants);
       
       queryClient.invalidateQueries({ queryKey: ['/api/plants'] });
       queryClient.invalidateQueries({ queryKey: [`/api/plants/${plant.id}`] });

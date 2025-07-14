@@ -17,7 +17,7 @@ import PruningLogForm from "@/components/PruningLogForm";
 import { Input } from "@/components/ui/input";
 import { ChevronLeft, Droplet, Clock, Package, MapPin, Edit, Trash, Hash, Flower, Shovel, Mountain, Scissors, Check, X } from "lucide-react";
 import PlantCareHistory from "@/components/PlantCareHistory";
-import { isAlphaTestingMode, alphaStorage } from "@/lib/alphaTestingMode";
+import { localStorage as localData, isUsingLocalStorage } from "@/lib/localDataStorage";
 
 const PlantDetails = () => {
   const { id } = useParams();
@@ -34,26 +34,17 @@ const PlantDetails = () => {
   const [feedingFrequencyValue, setFeedingFrequencyValue] = useState("");
   const numericId = id ? parseInt(id) : 0;
 
-  // Custom data fetching that handles alpha mode
+  // Custom data fetching that uses local storage
   const { data: plant, isLoading, error } = useQuery<Plant>({
     queryKey: [`/api/plants/${id}`],
     queryFn: async () => {
-      if (isAlphaTestingMode()) {
-        // In alpha mode, get plant from localStorage
-        const plants = alphaStorage.get('plants') || [];
-        const plant = plants.find((p: any) => p.id === parseInt(id || '0'));
-        if (!plant) {
-          throw new Error('Plant not found in alpha storage');
-        }
-        return plant;
-      } else {
-        // Normal API call
-        const response = await fetch(`/api/plants/${id}`);
-        if (!response.ok) {
-          throw new Error('Failed to fetch plant');
-        }
-        return response.json();
+      // Always use local storage mode now
+      const plants = localData.get('plants') || [];
+      const plant = plants.find((p: any) => p.id === parseInt(id || '0'));
+      if (!plant) {
+        throw new Error('Plant not found in local storage');
       }
+      return plant;
     },
     enabled: !!id,
   });

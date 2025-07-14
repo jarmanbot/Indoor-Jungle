@@ -29,6 +29,8 @@ import { format } from "date-fns";
 import { CalendarIcon, Droplets } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
+import { localStorage as localData, getNextId } from "@/lib/localDataStorage";
+import { queryClient } from "@/lib/queryClient";
 
 const formSchema = z.object({
   wateredAt: z.date({
@@ -68,11 +70,32 @@ export default function WateringLogForm({ plantId, onSuccess, onCancel }: Wateri
   const onSubmit = async (data: FormValues) => {
     setIsSubmitting(true);
     try {
-      await apiRequest(
-        "POST", 
-        `/api/plants/${plantId}/watering-logs`,
-        data
+      // Use local storage for watering logs
+      const wateringLog = {
+        id: getNextId(),
+        plantId: plantId,
+        wateredAt: data.wateredAt.toISOString(),
+        amount: data.amount || "moderate",
+        notes: data.notes || "",
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
+      };
+      
+      // Add to local storage
+      const existingLogs = localData.get('wateringLogs') || [];
+      localData.set('wateringLogs', [...existingLogs, wateringLog]);
+      
+      // Update plant's lastWatered date
+      const plants = localData.get('plants') || [];
+      const updatedPlants = plants.map((p: any) => 
+        p.id === plantId ? { ...p, lastWatered: data.wateredAt.toISOString() } : p
       );
+      localData.set('plants', updatedPlants);
+      
+      // Invalidate queries to refresh UI
+      queryClient.invalidateQueries({ queryKey: ['/api/plants'] });
+      queryClient.invalidateQueries({ queryKey: [`/api/plants/${plantId}`] });
+      queryClient.invalidateQueries({ queryKey: [`/api/plants/${plantId}/watering-logs`] });
       toast({
         title: "Watering logged",
         description: "The watering has been successfully recorded",

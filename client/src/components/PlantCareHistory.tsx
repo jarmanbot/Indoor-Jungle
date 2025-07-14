@@ -39,7 +39,7 @@ import RepottingLogForm from "./RepottingLogForm";
 import SoilTopUpLogForm from "./SoilTopUpLogForm";
 import PruningLogForm from "./PruningLogForm";
 import type { Plant, WateringLog, FeedingLog, RepottingLog, SoilTopUpLog, PruningLog } from "@shared/schema";
-import { isAlphaTestingMode, alphaStorage } from "@/lib/alphaTestingMode";
+import { localStorage as localData, isUsingLocalStorage } from "@/lib/localDataStorage";
 
 interface PlantCareHistoryProps {
   plant: Plant;

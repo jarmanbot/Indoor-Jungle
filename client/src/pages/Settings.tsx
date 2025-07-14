@@ -21,11 +21,13 @@ const Settings = () => {
   const [defaultFeedingFreq, setDefaultFeedingFreq] = useState("14");
   const [showClearDataDialog, setShowClearDataDialog] = useState(false);
   const [clearDataPassword, setClearDataPassword] = useState("");
+  const [showDemoPlantDialog, setShowDemoPlantDialog] = useState(false);
+  const [demoPlantEnabled, setDemoPlantEnabled] = useState(true);
   const [temperatureUnit, setTemperatureUnit] = useState("celsius");
   const [autoBackup, setAutoBackup] = useState(true);
   const { toast } = useToast();
 
-  // Load default frequencies from localStorage on mount
+  // Load default frequencies and check demo plant status on mount
   useEffect(() => {
     try {
       const savedWateringFreq = localStorage.getItem('defaultWateringFreq');
@@ -37,6 +39,14 @@ const Settings = () => {
       if (savedFeedingFreq) {
         setDefaultFeedingFreq(savedFeedingFreq);
       }
+      
+      // Check if demo plant exists
+      const plants = localData.get('plants') || [];
+      const hasDemo = plants.some((plant: any) => 
+        plant.babyName === 'Demo Plant' && 
+        plant.notes?.includes('This is your demo plant to explore the app!')
+      );
+      setDemoPlantEnabled(hasDemo);
     } catch (error) {
       console.error("Failed to load settings:", error);
     }
@@ -143,6 +153,71 @@ const Settings = () => {
         variant: "destructive",
       });
     }
+  };
+
+  const handleDemoPlantToggle = () => {
+    if (demoPlantEnabled) {
+      // Remove demo plant
+      const plants = localData.get('plants') || [];
+      const filteredPlants = plants.filter((plant: any) => 
+        !(plant.babyName === 'Demo Plant' && 
+          plant.notes?.includes('This is your demo plant to explore the app!'))
+      );
+      localData.set('plants', filteredPlants);
+      setDemoPlantEnabled(false);
+      
+      toast({
+        title: "Demo plant removed",
+        description: "You can now use plant #1 for your own plant",
+      });
+      
+      queryClient.invalidateQueries({ queryKey: ['/api/plants'] });
+    } else {
+      // Check if there's already a plant #1
+      const plants = localData.get('plants') || [];
+      const hasPlantNumber1 = plants.some((plant: any) => plant.plantNumber === 1);
+      
+      if (hasPlantNumber1) {
+        setShowDemoPlantDialog(true);
+      } else {
+        addDemoPlant();
+      }
+    }
+  };
+
+  const addDemoPlant = () => {
+    const demoPlant = {
+      id: 1,
+      plantNumber: 1,
+      babyName: "Demo Plant",
+      commonName: "Sample Houseplant",
+      latinName: "Plantus Demonstratus",
+      name: "Demo Plant",
+      location: "living_room",
+      lastWatered: null,
+      nextCheck: null,
+      lastFed: null,
+      wateringFrequencyDays: 7,
+      feedingFrequencyDays: 14,
+      notes: "This is your demo plant to explore the app! You can delete it and add your own plants.",
+      imageUrl: "/demo-plant.gif",
+      status: "healthy",
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
+    };
+    
+    const plants = localData.get('plants') || [];
+    const updatedPlants = [demoPlant, ...plants.filter((p: any) => p.plantNumber !== 1)];
+    localData.set('plants', updatedPlants);
+    setDemoPlantEnabled(true);
+    setShowDemoPlantDialog(false);
+    
+    toast({
+      title: "Demo plant added",
+      description: "The demo plant is now available as plant #1",
+    });
+    
+    queryClient.invalidateQueries({ queryKey: ['/api/plants'] });
   };
 
   return (
@@ -289,6 +364,21 @@ const Settings = () => {
               
               <Separator />
               
+              <div className="flex items-center justify-between">
+                <div>
+                  <Label className="text-sm font-medium">Demo Plant</Label>
+                  <p className="text-xs text-muted-foreground">
+                    Show demo plant as plant #1 for exploring the app
+                  </p>
+                </div>
+                <Switch 
+                  checked={demoPlantEnabled} 
+                  onCheckedChange={handleDemoPlantToggle} 
+                />
+              </div>
+              
+              <Separator />
+              
               <Button 
                 onClick={handleClearAllData} 
                 className="w-full" 
@@ -378,6 +468,39 @@ const Settings = () => {
                   setShowClearDataDialog(false);
                   setClearDataPassword("");
                 }}
+                className="flex-1"
+              >
+                Cancel
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Demo Plant Warning Dialog */}
+      <Dialog open={showDemoPlantDialog} onOpenChange={setShowDemoPlantDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Replace Plant #1?</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <p className="text-sm text-muted-foreground">
+              You currently have a plant using #1. Adding the demo plant will permanently delete your plant #1 and all its care history. This cannot be undone.
+            </p>
+            <p className="text-sm font-medium text-destructive">
+              Are you sure you want to replace your plant with the demo plant?
+            </p>
+            <div className="flex gap-2">
+              <Button 
+                onClick={addDemoPlant} 
+                variant="destructive"
+                className="flex-1"
+              >
+                Yes, Replace Plant #1
+              </Button>
+              <Button 
+                variant="outline" 
+                onClick={() => setShowDemoPlantDialog(false)}
                 className="flex-1"
               >
                 Cancel
