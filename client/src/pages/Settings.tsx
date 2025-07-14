@@ -304,6 +304,38 @@ const Settings = () => {
                 Export Plant Data
               </Button>
               
+              <Button 
+                onClick={() => {
+                  const exportData = sessionStorage.getItem('plantDataExport');
+                  const filename = sessionStorage.getItem('plantDataExportFilename');
+                  if (exportData && filename) {
+                    navigator.clipboard.writeText(exportData).then(() => {
+                      toast({
+                        title: "Export data copied",
+                        description: `Data copied to clipboard. Save as ${filename}`,
+                      });
+                    }).catch(() => {
+                      // Fallback: show in alert
+                      const userConfirmed = confirm(`Copy this data and save as ${filename}:\n\nClick OK to see the data.`);
+                      if (userConfirmed) {
+                        alert(exportData);
+                      }
+                    });
+                  } else {
+                    toast({
+                      title: "No export data",
+                      description: "Please export data first",
+                      variant: "destructive",
+                    });
+                  }
+                }}
+                className="w-full" 
+                variant="outline"
+                size="sm"
+              >
+                Copy Last Export Data
+              </Button>
+              
               <div className="space-y-2">
                 <input
                   type="file"

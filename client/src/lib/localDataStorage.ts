@@ -70,64 +70,99 @@ export function exportUserData(): void {
     version: '1.0'
   };
 
-  // Create and download the file
   const dataStr = JSON.stringify(exportData, null, 2);
-  const dataBlob = new Blob([dataStr], { type: 'application/json' });
-  const url = URL.createObjectURL(dataBlob);
+  const filename = `plant-data-backup-${new Date().toISOString().split('T')[0]}.json`;
   
-  const link = document.createElement('a');
-  link.href = url;
-  link.download = `plant-data-backup-${new Date().toISOString().split('T')[0]}.json`;
-  link.style.display = 'none';
-  document.body.appendChild(link);
-  
-  // Add more debugging and try different approaches
-  console.log('Creating download with filename:', link.download);
-  console.log('Blob size:', dataBlob.size, 'bytes');
-  console.log('URL created:', url);
-  
-  // Try to trigger download with multiple approaches
-  try {
-    // First try the standard approach
-    link.click();
-    console.log('Download link clicked successfully');
-  } catch (error) {
-    console.error('Error clicking download link:', error);
-    
-    // Fallback: try using a different approach
+  // Try browser's native file system access API first (if available)
+  if ('showSaveFilePicker' in window) {
     try {
-      const event = new MouseEvent('click', {
-        view: window,
-        bubbles: true,
-        cancelable: true
+      // @ts-ignore - showSaveFilePicker is a new browser API
+      window.showSaveFilePicker({
+        suggestedName: filename,
+        types: [{
+          description: 'JSON files',
+          accept: { 'application/json': ['.json'] }
+        }]
+      }).then((fileHandle: any) => {
+        return fileHandle.createWritable();
+      }).then((writable: any) => {
+        writable.write(dataStr);
+        writable.close();
+        console.log('File saved using File System Access API');
+      }).catch((error: any) => {
+        console.log('File System Access API cancelled or failed:', error);
+        fallbackDownload(dataStr, filename);
       });
-      link.dispatchEvent(event);
-      console.log('Fallback download method attempted');
-    } catch (fallbackError) {
-      console.error('Fallback download method failed:', fallbackError);
-      
-      // Last resort: try opening as data URL
-      try {
-        const dataUrl = 'data:application/json;charset=utf-8,' + encodeURIComponent(dataStr);
-        const newWindow = window.open(dataUrl, '_blank');
-        if (newWindow) {
-          console.log('Opened data in new window - you may need to save manually');
-        } else {
-          console.error('Failed to open new window - popup blocked?');
-        }
-      } catch (dataUrlError) {
-        console.error('Data URL method failed:', dataUrlError);
-      }
+      return;
+    } catch (error) {
+      console.log('File System Access API not supported, using fallback');
     }
   }
   
-  // Clean up
+  // Fallback to traditional download
+  fallbackDownload(dataStr, filename);
+}
+
+function fallbackDownload(dataStr: string, filename: string): void {
+  // Create a data URL that opens in a new tab for manual saving
+  const dataUrl = 'data:application/json;charset=utf-8,' + encodeURIComponent(dataStr);
+  
+  // Try to trigger download first
+  const link = document.createElement('a');
+  link.href = dataUrl;
+  link.download = filename;
+  link.style.display = 'none';
+  document.body.appendChild(link);
+  
+  // Force user interaction by requiring them to click
+  const clickEvent = new MouseEvent('click', {
+    view: window,
+    bubbles: true,
+    cancelable: true
+  });
+  
+  link.dispatchEvent(clickEvent);
+  
+  // If that doesn't work, open in new window
   setTimeout(() => {
+    const newWindow = window.open(dataUrl, '_blank');
+    if (newWindow) {
+      // Add instructions to the new window
+      setTimeout(() => {
+        try {
+          newWindow.document.body.innerHTML = `
+            <div style="font-family: Arial, sans-serif; padding: 20px; max-width: 600px;">
+              <h2>Plant Data Export</h2>
+              <p>Your plant data is ready for download. If the download didn't start automatically:</p>
+              <ol>
+                <li>Right-click on this page</li>
+                <li>Select "Save As..." or "Save Page As..."</li>
+                <li>Save the file as: <strong>${filename}</strong></li>
+              </ol>
+              <p><strong>Or copy the data below and save it manually:</strong></p>
+              <textarea style="width: 100%; height: 300px; font-family: monospace; font-size: 12px;" readonly>${dataStr}</textarea>
+              <br><br>
+              <button onclick="window.close();" style="padding: 10px 20px; background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer;">Close</button>
+            </div>
+          `;
+        } catch (e) {
+          console.log('Could not modify new window content');
+        }
+      }, 500);
+      console.log('Opened export data in new window for manual saving');
+    } else {
+      console.error('Could not open new window - popup blocked');
+      // Store in sessionStorage as last resort
+      sessionStorage.setItem('plantDataExport', dataStr);
+      sessionStorage.setItem('plantDataExportFilename', filename);
+      alert(`Export ready! The download may be blocked. Check your Downloads folder, or if that doesn't work, go to Settings and try the "Copy Export Data" option.`);
+    }
+    
+    // Clean up
     if (document.body.contains(link)) {
       document.body.removeChild(link);
     }
-    URL.revokeObjectURL(url);
-  }, 2000);
+  }, 1000);
   
   console.log('Plant data exported successfully');
 }
