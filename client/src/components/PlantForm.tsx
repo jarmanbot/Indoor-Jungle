@@ -42,14 +42,20 @@ const firstNames = [
   "Alex", "Morgan", "Charlie", "Sam", "Jordan", "Casey", "Riley", "Taylor", "Avery", "Quinn",
   "Blake", "Drew", "Sage", "River", "Sky", "Luna", "Ivy", "Rose", "Lily", "Iris",
   "Jade", "Ruby", "Violet", "Daisy", "Hazel", "Olive", "Jasmine", "Willow", "Fern", "Poppy",
-  "Basil", "Rosie", "Sunny", "Aurora", "Maya", "Leo", "Max", "Zoe", "Emma", "Noah"
+  "Basil", "Rosie", "Sunny", "Aurora", "Maya", "Leo", "Max", "Zoe", "Emma", "Noah",
+  "Ava", "Ethan", "Sophia", "Mason", "Isabella", "William", "Mia", "James", "Charlotte", "Benjamin",
+  "Amelia", "Lucas", "Harper", "Henry", "Evelyn", "Alexander", "Abigail", "Michael", "Emily", "Daniel",
+  "Elizabeth", "Matthew", "Sofia", "Owen", "Avery", "Jackson"
 ];
 
 const lastNames = [
-  "Green", "Bloom", "Leaf", "Garden", "Forest", "Woods", "Branch", "Root", "Stem", "Petal",
-  "Meadow", "Valley", "Hill", "Grove", "Field", "Park", "Stone", "Rivers", "Brooks", "Wells",
-  "Sage", "Cedar", "Maple", "Oak", "Pine", "Birch", "Ash", "Elm", "Fir", "Spruce",
-  "Moss", "Clover", "Thorne", "Berry", "Bush", "Vine", "Reed", "Fern", "Palm", "Ivy"
+  "Anderson", "Johnson", "Williams", "Brown", "Jones", "Garcia", "Miller", "Davis", "Rodriguez", "Martinez",
+  "Hernandez", "Lopez", "Gonzalez", "Wilson", "Anderson", "Thomas", "Taylor", "Moore", "Jackson", "Martin",
+  "Lee", "Perez", "Thompson", "White", "Harris", "Sanchez", "Clark", "Ramirez", "Lewis", "Robinson",
+  "Walker", "Young", "Allen", "King", "Wright", "Scott", "Torres", "Nguyen", "Hill", "Flores",
+  "Green", "Adams", "Nelson", "Baker", "Hall", "Rivera", "Campbell", "Mitchell", "Carter", "Roberts",
+  "Gomez", "Phillips", "Evans", "Turner", "Diaz", "Parker", "Cruz", "Edwards", "Collins", "Reyes",
+  "Stewart", "Morris", "Morales", "Murphy", "Cook", "Rogers"
 ];
 
 // Create a more robust form schema with validation
