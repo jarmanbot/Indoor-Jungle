@@ -1,6 +1,5 @@
 import { ChangeEvent, useState } from "react";
 import { Camera } from "lucide-react";
-import { isAlphaTestingMode } from "@/lib/alphaTestingMode";
 
 interface ImageUploadProps {
   onImageSelected: (file: File) => void;
@@ -59,10 +58,8 @@ const ImageUpload = ({ onImageSelected, currentImage }: ImageUploadProps) => {
 
     let processedFile = file;
     
-    // Compress image for alpha mode to save localStorage space
-    if (isAlphaTestingMode()) {
-      processedFile = await compressImage(file);
-    }
+    // Compress image to save localStorage space
+    processedFile = await compressImage(file);
 
     // Create preview
     const reader = new FileReader();

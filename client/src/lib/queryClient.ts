@@ -1,5 +1,4 @@
 import { QueryClient, QueryFunction } from "@tanstack/react-query";
-import { isAlphaTestingMode, alphaStorage, getNextId, getNextPlantNumber, initializeAlphaMode } from "./alphaTestingMode";
 
 async function throwIfResNotOk(res: Response) {
   if (!res.ok) {
@@ -8,334 +7,11 @@ async function throwIfResNotOk(res: Response) {
   }
 }
 
-// Alpha testing localStorage handlers
-async function handleAlphaRequest(method: string, url: string, data?: unknown): Promise<any> {
-  const urlParts = url.split('/');
-  const endpoint = urlParts.slice(2).join('/'); // Remove /api prefix
-  
-  if (endpoint === 'plants') {
-    if (method === 'GET') {
-      console.log('Alpha mode: GET /api/plants called');
-      // Initialize alpha mode with demo plant if needed
-      await initializeAlphaMode();
-      const plants = alphaStorage.get('plants') || [];
-      console.log('Alpha mode: Raw plants from storage:', plants.map((p: any) => `#${p.plantNumber} ${p.babyName || p.name}`));
-      
-      // Sort plants by plant number for proper display order
-      const sortedPlants = [...plants].sort((a: any, b: any) => {
-        const numA = Number(a.plantNumber) || 0;
-        const numB = Number(b.plantNumber) || 0;
-        return numA - numB;
-      });
-      console.log('Alpha mode: After sorting:', sortedPlants.map((p: any) => `#${p.plantNumber} ${p.babyName || p.name}`));
-      
-      // Update storage with sorted order for consistency
-      alphaStorage.set('plants', sortedPlants);
-      return sortedPlants;
-    }
-    // Handle FormData plant creation (with images)
-    if (method === 'POST') {
-      const plants = alphaStorage.get('plants') || [];
-      const plantData = data as any;
-      const nextPlantNumber = getNextPlantNumber();
-      const newPlant = {
-        ...plantData,
-        id: getNextId(),
-        plantNumber: nextPlantNumber,
-        name: plantData?.babyName || plantData?.name,
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString()
-      };
-      plants.push(newPlant);
-      
-      // Sort plants by plant number before saving
-      const sortedPlants = plants.sort((a: any, b: any) => {
-        const numA = Number(a.plantNumber) || 0;
-        const numB = Number(b.plantNumber) || 0;
-        return numA - numB;
-      });
-      alphaStorage.set('plants', sortedPlants);
-      return newPlant;
-    }
-  }
-  
-  if (endpoint === 'plants/json' && method === 'POST') {
-    const plants = alphaStorage.get('plants') || [];
-    const plantData = data as any;
-    const nextPlantNumber = getNextPlantNumber();
-    const newPlant = {
-      ...plantData,
-      id: getNextId(),
-      plantNumber: nextPlantNumber,
-      name: plantData?.babyName || plantData?.name,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString()
-    };
-    plants.push(newPlant);
-    
-    // Sort plants by plant number before saving
-    const sortedPlants = plants.sort((a: any, b: any) => {
-      const numA = Number(a.plantNumber) || 0;
-      const numB = Number(b.plantNumber) || 0;
-      return numA - numB;
-    });
-    alphaStorage.set('plants', sortedPlants);
-    return newPlant;
-  }
-  
-  if (endpoint.startsWith('plants/') && endpoint.includes('/watering-logs')) {
-    const plantId = parseInt(urlParts[3]);
-    if (method === 'GET') {
-      const logs = alphaStorage.get('wateringLogs') || [];
-      return logs.filter((log: any) => log.plantId === plantId);
-    }
-    if (method === 'POST') {
-      const logs = alphaStorage.get('wateringLogs') || [];
-      const logData = (data as any) || {};
-      const newLog = {
-        ...logData,
-        id: getNextId(),
-        plantId,
-        createdAt: new Date().toISOString()
-      };
-      logs.push(newLog);
-      alphaStorage.set('wateringLogs', logs);
-      
-      // Update plant's lastWatered
-      const plants = alphaStorage.get('plants') || [];
-      const plantIndex = plants.findIndex((p: any) => p.id === plantId);
-      if (plantIndex !== -1) {
-        plants[plantIndex].lastWatered = (data as any).wateredAt;
-        alphaStorage.set('plants', plants);
-      }
-      
-      return newLog;
-    }
-  }
-  
-  if (endpoint.startsWith('plants/') && endpoint.includes('/feeding-logs')) {
-    const plantId = parseInt(urlParts[3]);
-    if (method === 'GET') {
-      const logs = alphaStorage.get('feedingLogs') || [];
-      return logs.filter((log: any) => log.plantId === plantId);
-    }
-    if (method === 'POST') {
-      const logs = alphaStorage.get('feedingLogs') || [];
-      const logData = (data as any) || {};
-      const newLog = {
-        ...logData,
-        id: getNextId(),
-        plantId,
-        createdAt: new Date().toISOString()
-      };
-      logs.push(newLog);
-      alphaStorage.set('feedingLogs', logs);
-      
-      // Update plant's lastFed
-      const plants = alphaStorage.get('plants') || [];
-      const plantIndex = plants.findIndex((p: any) => p.id === plantId);
-      if (plantIndex !== -1) {
-        plants[plantIndex].lastFed = (data as any).fedAt;
-        alphaStorage.set('plants', plants);
-      }
-      
-      return newLog;
-    }
-  }
-  
-  if (endpoint.startsWith('plants/') && endpoint.includes('/repotting-logs')) {
-    const plantId = parseInt(urlParts[3]);
-    if (method === 'GET') {
-      const logs = alphaStorage.get('repottingLogs') || [];
-      return logs.filter((log: any) => log.plantId === plantId);
-    }
-    if (method === 'POST') {
-      const logs = alphaStorage.get('repottingLogs') || [];
-      const logData = (data as any) || {};
-      const newLog = {
-        ...logData,
-        id: getNextId(),
-        plantId,
-        createdAt: new Date().toISOString()
-      };
-      logs.push(newLog);
-      alphaStorage.set('repottingLogs', logs);
-      return newLog;
-    }
-  }
-  
-  if (endpoint.startsWith('plants/') && endpoint.includes('/soil-top-up-logs')) {
-    const plantId = parseInt(urlParts[3]);
-    if (method === 'GET') {
-      const logs = alphaStorage.get('soilTopUpLogs') || [];
-      return logs.filter((log: any) => log.plantId === plantId);
-    }
-    if (method === 'POST') {
-      const logs = alphaStorage.get('soilTopUpLogs') || [];
-      const logData = (data as any) || {};
-      const newLog = {
-        ...logData,
-        id: getNextId(),
-        plantId,
-        createdAt: new Date().toISOString()
-      };
-      logs.push(newLog);
-      alphaStorage.set('soilTopUpLogs', logs);
-      return newLog;
-    }
-  }
-  
-  if (endpoint.startsWith('plants/') && endpoint.includes('/pruning-logs')) {
-    const plantId = parseInt(urlParts[3]);
-    if (method === 'GET') {
-      const logs = alphaStorage.get('pruningLogs') || [];
-      return logs.filter((log: any) => log.plantId === plantId);
-    }
-    if (method === 'POST') {
-      const logs = alphaStorage.get('pruningLogs') || [];
-      const logData = (data as any) || {};
-      const newLog = {
-        ...logData,
-        id: getNextId(),
-        plantId,
-        createdAt: new Date().toISOString()
-      };
-      logs.push(newLog);
-      alphaStorage.set('pruningLogs', logs);
-      return newLog;
-    }
-  }
-  
-  if (endpoint === 'locations') {
-    if (method === 'GET') {
-      return alphaStorage.get('customLocations') || [];
-    }
-    if (method === 'POST') {
-      const locations = alphaStorage.get('customLocations') || [];
-      const locationData = (data as any) || {};
-      const newLocation = {
-        ...locationData,
-        id: getNextId(),
-        createdAt: new Date().toISOString()
-      };
-      locations.push(newLocation);
-      alphaStorage.set('customLocations', locations);
-      return newLocation;
-    }
-  }
-  
-  // Handle plant deletion
-  if (endpoint.startsWith('plants/') && method === 'DELETE' && urlParts.length === 4) {
-    const plantId = parseInt(urlParts[3]);
-    const plants = alphaStorage.get('plants') || [];
-    const plant = plants.find((p: any) => p.id === plantId);
-    
-    // Prevent deletion of plant #1 in alpha mode
-    if (plant?.plantNumber === 1) {
-      throw new Error('Cannot delete the demo plant in alpha testing mode');
-    }
-    
-    // Remove plant
-    const updatedPlants = plants.filter((p: any) => p.id !== plantId);
-    alphaStorage.set('plants', updatedPlants);
-    
-    // Remove all associated care logs for this plant
-    const wateringLogs = alphaStorage.get('wateringLogs') || [];
-    const updatedWateringLogs = wateringLogs.filter((log: any) => log.plantId !== plantId);
-    alphaStorage.set('wateringLogs', updatedWateringLogs);
-    
-    const feedingLogs = alphaStorage.get('feedingLogs') || [];
-    const updatedFeedingLogs = feedingLogs.filter((log: any) => log.plantId !== plantId);
-    alphaStorage.set('feedingLogs', updatedFeedingLogs);
-    
-    const repottingLogs = alphaStorage.get('repottingLogs') || [];
-    const updatedRepottingLogs = repottingLogs.filter((log: any) => log.plantId !== plantId);
-    alphaStorage.set('repottingLogs', updatedRepottingLogs);
-    
-    const soilTopUpLogs = alphaStorage.get('soilTopUpLogs') || [];
-    const updatedSoilTopUpLogs = soilTopUpLogs.filter((log: any) => log.plantId !== plantId);
-    alphaStorage.set('soilTopUpLogs', updatedSoilTopUpLogs);
-    
-    const pruningLogs = alphaStorage.get('pruningLogs') || [];
-    const updatedPruningLogs = pruningLogs.filter((log: any) => log.plantId !== plantId);
-    alphaStorage.set('pruningLogs', updatedPruningLogs);
-    
-    console.log(`Alpha mode: Deleted plant ID ${plantId} and all associated care logs`);
-    return {}; // Empty response for successful deletion
-  }
-  
-  // Handle log deletions in alpha mode
-  if (endpoint.startsWith('watering-logs/') && method === 'DELETE') {
-    const logId = parseInt(urlParts[1]);
-    const logs = alphaStorage.get('wateringLogs') || [];
-    const updatedLogs = logs.filter((log: any) => log.id !== logId);
-    alphaStorage.set('wateringLogs', updatedLogs);
-    return {}; // Empty response for successful deletion
-  }
-  
-  if (endpoint.startsWith('feeding-logs/') && method === 'DELETE') {
-    const logId = parseInt(urlParts[1]);
-    const logs = alphaStorage.get('feedingLogs') || [];
-    const updatedLogs = logs.filter((log: any) => log.id !== logId);
-    alphaStorage.set('feedingLogs', updatedLogs);
-    return {}; // Empty response for successful deletion
-  }
-  
-  if (endpoint.startsWith('repotting-logs/') && method === 'DELETE') {
-    const logId = parseInt(urlParts[1]);
-    const logs = alphaStorage.get('repottingLogs') || [];
-    const updatedLogs = logs.filter((log: any) => log.id !== logId);
-    alphaStorage.set('repottingLogs', updatedLogs);
-    return {}; // Empty response for successful deletion
-  }
-  
-  if (endpoint.startsWith('soil-top-up-logs/') && method === 'DELETE') {
-    const logId = parseInt(urlParts[1]);
-    const logs = alphaStorage.get('soilTopUpLogs') || [];
-    const updatedLogs = logs.filter((log: any) => log.id !== logId);
-    alphaStorage.set('soilTopUpLogs', updatedLogs);
-    return {}; // Empty response for successful deletion
-  }
-  
-  if (endpoint.startsWith('pruning-logs/') && method === 'DELETE') {
-    const logId = parseInt(urlParts[1]);
-    const logs = alphaStorage.get('pruningLogs') || [];
-    const updatedLogs = logs.filter((log: any) => log.id !== logId);
-    alphaStorage.set('pruningLogs', updatedLogs);
-    return {}; // Empty response for successful deletion
-  }
-
-  // Handle authentication in alpha mode
-  if (endpoint === 'auth/user') {
-    if (method === 'GET') {
-      // Return a mock authenticated user for alpha testing
-      return {
-        id: 'alpha-user',
-        name: 'Alpha Tester',
-        email: 'alpha@test.local',
-        image: null
-      };
-    }
-  }
-  
-  // Default: return empty response for unhandled endpoints
-  return {};
-}
-
 export async function apiRequest(
   method: string,
   url: string,
-  data?: unknown | undefined,
-): Promise<Response> {
-  // Intercept API calls in alpha testing mode
-  if (isAlphaTestingMode()) {
-    const result = await handleAlphaRequest(method, url, data);
-    return new Response(JSON.stringify(result), {
-      status: 200,
-      headers: { 'Content-Type': 'application/json' }
-    });
-  }
-
+  data?: unknown
+): Promise<any> {
   const res = await fetch(url, {
     method,
     headers: data ? { "Content-Type": "application/json" } : {},
@@ -344,7 +20,7 @@ export async function apiRequest(
   });
 
   await throwIfResNotOk(res);
-  return res;
+  return res.json();
 }
 
 type UnauthorizedBehavior = "returnNull" | "throw";
@@ -354,16 +30,7 @@ export const getQueryFn: <T>(options: {
   ({ on401: unauthorizedBehavior }) =>
   async ({ queryKey }) => {
     const url = queryKey[0] as string;
-    console.log('Query function called for URL:', url, 'Alpha mode:', isAlphaTestingMode());
     
-    // Intercept queries in alpha testing mode
-    if (isAlphaTestingMode()) {
-      console.log('Intercepting query in alpha mode for:', url);
-      const result = await handleAlphaRequest('GET', url);
-      console.log('Alpha mode query result for', url, ':', result);
-      return result;
-    }
-
     const res = await fetch(url, {
       credentials: "include",
     });
@@ -382,8 +49,8 @@ export const queryClient = new QueryClient({
       queryFn: getQueryFn({ on401: "throw" }),
       refetchInterval: false,
       refetchOnWindowFocus: false,
-      staleTime: 0, // Always fetch fresh data
-      gcTime: 1000 * 60 * 5, // Keep cache for 5 minutes
+      staleTime: 0,
+      gcTime: 1000 * 60 * 5,
       retry: false,
     },
     mutations: {

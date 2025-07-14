@@ -7,7 +7,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Plus, Leaf, Droplet, Package, ImageIcon, Thermometer, Zap, Search, Brain, BarChart3, Award, CalendarRange } from "lucide-react";
-import { localStorage as localData, initializeLocalStorage, isUsingLocalStorage } from "@/lib/localDataStorage";
+import { localStorage as localData, initializeLocalStorage } from "@/lib/localDataStorage";
 
 const Home = () => {
   const { data: plants, isLoading, error, refetch } = useQuery<Plant[]>({

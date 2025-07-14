@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import { queryClient } from "@/lib/queryClient";
-import { localStorage as localData, isUsingLocalStorage } from "@/lib/localDataStorage";
+import { localStorage as localData } from "@/lib/localDataStorage";
 
 interface PlantCardProps {
   plant: Plant;

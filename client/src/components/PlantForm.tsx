@@ -33,7 +33,7 @@ import {
   insertPlantSchema, 
   type InsertCustomLocation 
 } from "@shared/schema";
-import { localStorage as localData, getNextId, getNextPlantNumber, isUsingLocalStorage } from "@/lib/localDataStorage";
+import { localStorage as localData, getNextId, getNextPlantNumber } from "@/lib/localDataStorage";
 import ImageUpload from "./ImageUpload";
 import { PlusCircle, Shuffle } from "lucide-react";
 
@@ -235,8 +235,7 @@ const PlantForm = ({ onSuccess, initialValues, plantId }: PlantFormProps) => {
         latinName: data.latinName || ""
       };
       
-      // In local storage mode, save directly to localStorage
-      if (isUsingLocalStorage()) {
+      // Always use local storage mode - save directly to localStorage
         console.log("Local storage mode: Saving to localStorage...");
         
         const plants = localData.get('plants') || [];
@@ -304,73 +303,6 @@ const PlantForm = ({ onSuccess, initialValues, plantId }: PlantFormProps) => {
           localData.set('plants', plants);
           console.log("New plant saved to localStorage:", newPlant);
         }
-      } else if (selectedImage) {
-        console.log("Uploading with image...");
-        // Using FormData for image upload
-        const formData = new FormData();
-        
-        // Add the image
-        formData.append("image", selectedImage);
-        
-        // Add all other form fields
-        Object.entries(processedData).forEach(([key, value]) => {
-          if (value !== null && value !== undefined) {
-            formData.append(key, String(value));
-          }
-        });
-        
-        // Add name field (for backward compatibility)
-        formData.append("name", processedData.babyName);
-        
-        // Make the API request
-        const url = plantId ? `/api/plants/${plantId}` : '/api/plants';
-        console.log("Sending POST request to:", url);
-        const response = await fetch(url, {
-          method: plantId ? 'PATCH' : 'POST',
-          body: formData,
-        });
-        
-        console.log("Response status:", response.status);
-        if (!response.ok) {
-          const errorData = await response.json();
-          console.error("Error response:", errorData);
-          throw new Error(errorData.message || "Failed to save plant");
-        }
-        
-        const result = await response.json();
-        console.log("Success response:", result);
-      } else {
-        console.log("Uploading without image...");
-        // Using JSON for submissions without image
-        // Prepare data with backwards compatibility
-        const jsonData = {
-          ...processedData,
-          name: processedData.babyName // Ensure name field is set from babyName
-        };
-        
-        // Make the API request
-        const url = plantId ? `/api/plants/${plantId}` : '/api/plants/json';
-        console.log("Sending POST request to:", url);
-        console.log("Request data:", jsonData);
-        
-        const response = await fetch(url, {
-          method: plantId ? 'PATCH' : 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(jsonData),
-        });
-        
-        console.log("Response status:", response.status);
-        if (!response.ok) {
-          const errorData = await response.json();
-          console.error("Error response:", errorData);
-          throw new Error(errorData.message || "Failed to save plant");
-        }
-        
-        const result = await response.json();
-        console.log("Success response:", result);
-      }
       
       // Show success message
       toast({

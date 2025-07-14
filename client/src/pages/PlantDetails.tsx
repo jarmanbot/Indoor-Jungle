@@ -17,7 +17,7 @@ import PruningLogForm from "@/components/PruningLogForm";
 import { Input } from "@/components/ui/input";
 import { ChevronLeft, Droplet, Clock, Package, MapPin, Edit, Trash, Hash, Flower, Shovel, Mountain, Scissors, Check, X } from "lucide-react";
 import PlantCareHistory from "@/components/PlantCareHistory";
-import { localStorage as localData, isUsingLocalStorage } from "@/lib/localDataStorage";
+import { localStorage as localData } from "@/lib/localDataStorage";
 
 const PlantDetails = () => {
   const { id } = useParams();
