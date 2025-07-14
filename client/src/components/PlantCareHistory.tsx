@@ -39,7 +39,7 @@ import RepottingLogForm from "./RepottingLogForm";
 import SoilTopUpLogForm from "./SoilTopUpLogForm";
 import PruningLogForm from "./PruningLogForm";
 import type { Plant, WateringLog, FeedingLog, RepottingLog, SoilTopUpLog, PruningLog } from "@shared/schema";
-import { localStorage as localData, isUsingLocalStorage } from "@/lib/localDataStorage";
+import { localStorage as localData } from "@/lib/localDataStorage";
 
 interface PlantCareHistoryProps {
   plant: Plant;
@@ -77,15 +77,11 @@ export default function PlantCareHistory({
   const { data: wateringLogs, isLoading: wateringLogsLoading, error: wateringLogsError } = useQuery({
     queryKey: ['/api/plants', plant.id, 'watering-logs'],
     queryFn: async () => {
-      if (isAlphaTestingMode()) {
-        const allLogs = alphaStorage.get('wateringLogs') || [];
-        return allLogs
-          .filter((log: any) => log.plantId === plant.id)
-          .sort((a: any, b: any) => new Date(b.wateredAt).getTime() - new Date(a.wateredAt).getTime());
-      }
-      const response = await fetch(`/api/plants/${plant.id}/watering-logs`);
-      if (!response.ok) throw new Error('Failed to fetch watering logs');
-      return response.json();
+      // Always use local storage mode now
+      const allLogs = localData.get('wateringLogs') || [];
+      return allLogs
+        .filter((log: any) => log.plantId === plant.id)
+        .sort((a: any, b: any) => new Date(b.wateredAt).getTime() - new Date(a.wateredAt).getTime());
     }
   });
 
@@ -93,15 +89,11 @@ export default function PlantCareHistory({
   const { data: feedingLogs, isLoading: feedingLogsLoading, error: feedingLogsError } = useQuery({
     queryKey: ['/api/plants', plant.id, 'feeding-logs'],
     queryFn: async () => {
-      if (isAlphaTestingMode()) {
-        const allLogs = alphaStorage.get('feedingLogs') || [];
-        return allLogs
-          .filter((log: any) => log.plantId === plant.id)
-          .sort((a: any, b: any) => new Date(b.fedAt).getTime() - new Date(a.fedAt).getTime());
-      }
-      const response = await fetch(`/api/plants/${plant.id}/feeding-logs`);
-      if (!response.ok) throw new Error('Failed to fetch feeding logs');
-      return response.json();
+      // Always use local storage mode now
+      const allLogs = localData.get('feedingLogs') || [];
+      return allLogs
+        .filter((log: any) => log.plantId === plant.id)
+        .sort((a: any, b: any) => new Date(b.fedAt).getTime() - new Date(a.fedAt).getTime());
     }
   });
 
@@ -109,15 +101,11 @@ export default function PlantCareHistory({
   const { data: repottingLogs, isLoading: repottingLogsLoading, error: repottingLogsError } = useQuery({
     queryKey: ['/api/plants', plant.id, 'repotting-logs'],
     queryFn: async () => {
-      if (isAlphaTestingMode()) {
-        const allLogs = alphaStorage.get('repottingLogs') || [];
-        return allLogs
-          .filter((log: any) => log.plantId === plant.id)
-          .sort((a: any, b: any) => new Date(b.repottedAt).getTime() - new Date(a.repottedAt).getTime());
-      }
-      const response = await fetch(`/api/plants/${plant.id}/repotting-logs`);
-      if (!response.ok) throw new Error('Failed to fetch repotting logs');
-      return response.json();
+      // Always use local storage mode now
+      const allLogs = localData.get('repottingLogs') || [];
+      return allLogs
+        .filter((log: any) => log.plantId === plant.id)
+        .sort((a: any, b: any) => new Date(b.repottedAt).getTime() - new Date(a.repottedAt).getTime());
     }
   });
 
@@ -125,15 +113,11 @@ export default function PlantCareHistory({
   const { data: soilTopUpLogs, isLoading: soilTopUpLogsLoading, error: soilTopUpLogsError } = useQuery({
     queryKey: ['/api/plants', plant.id, 'soil-top-up-logs'],
     queryFn: async () => {
-      if (isAlphaTestingMode()) {
-        const allLogs = alphaStorage.get('soilTopUpLogs') || [];
-        return allLogs
-          .filter((log: any) => log.plantId === plant.id)
-          .sort((a: any, b: any) => new Date(b.toppedUpAt).getTime() - new Date(a.toppedUpAt).getTime());
-      }
-      const response = await fetch(`/api/plants/${plant.id}/soil-top-up-logs`);
-      if (!response.ok) throw new Error('Failed to fetch soil top up logs');
-      return response.json();
+      // Always use local storage mode now
+      const allLogs = localData.get('soilTopUpLogs') || [];
+      return allLogs
+        .filter((log: any) => log.plantId === plant.id)
+        .sort((a: any, b: any) => new Date(b.toppedUpAt).getTime() - new Date(a.toppedUpAt).getTime());
     }
   });
 
@@ -141,25 +125,22 @@ export default function PlantCareHistory({
   const { data: pruningLogs, isLoading: pruningLogsLoading, error: pruningLogsError } = useQuery({
     queryKey: ['/api/plants', plant.id, 'pruning-logs'],
     queryFn: async () => {
-      if (isAlphaTestingMode()) {
-        const allLogs = alphaStorage.get('pruningLogs') || [];
-        return allLogs
-          .filter((log: any) => log.plantId === plant.id)
-          .sort((a: any, b: any) => new Date(b.prunedAt).getTime() - new Date(a.prunedAt).getTime());
-      }
-      const response = await fetch(`/api/plants/${plant.id}/pruning-logs`);
-      if (!response.ok) throw new Error('Failed to fetch pruning logs');
-      return response.json();
+      // Always use local storage mode now
+      const allLogs = localData.get('pruningLogs') || [];
+      return allLogs
+        .filter((log: any) => log.plantId === plant.id)
+        .sort((a: any, b: any) => new Date(b.prunedAt).getTime() - new Date(a.prunedAt).getTime());
     }
   });
 
   // Delete mutations
   const deleteWateringLogMutation = useMutation({
     mutationFn: async (logId: number) => {
-      console.log('Deleting watering log:', logId);
-      const result = await apiRequest('DELETE', `/api/watering-logs/${logId}`);
-      console.log('Delete result:', result);
-      return result;
+      console.log('Deleting watering log from localStorage:', logId);
+      const logs = localData.get('wateringLogs') || [];
+      const filteredLogs = logs.filter((log: any) => log.id !== logId);
+      localData.set('wateringLogs', filteredLogs);
+      return logId;
     },
     onSuccess: (_, logId) => {
       console.log('Watering log deleted successfully, logId:', logId);
@@ -170,6 +151,7 @@ export default function PlantCareHistory({
       // Also refresh the plants list to update lastWatered timestamp
       queryClient.invalidateQueries({ queryKey: ['/api/plants'] });
       queryClient.invalidateQueries({ queryKey: [`/api/plants/${plant.id}`] });
+      queryClient.invalidateQueries({ queryKey: ['/api/plants', plant.id, 'watering-logs'] });
       
       toast({ title: "Watering log deleted", description: "The log entry has been removed" });
     },
@@ -185,10 +167,11 @@ export default function PlantCareHistory({
 
   const deleteFeedingLogMutation = useMutation({
     mutationFn: async (logId: number) => {
-      console.log('Deleting feeding log:', logId);
-      const result = await apiRequest('DELETE', `/api/feeding-logs/${logId}`);
-      console.log('Delete result:', result);
-      return result;
+      console.log('Deleting feeding log from localStorage:', logId);
+      const logs = localData.get('feedingLogs') || [];
+      const filteredLogs = logs.filter((log: any) => log.id !== logId);
+      localData.set('feedingLogs', filteredLogs);
+      return logId;
     },
     onSuccess: (_, logId) => {
       console.log('Feeding log deleted successfully, logId:', logId);
@@ -199,6 +182,7 @@ export default function PlantCareHistory({
       // Also refresh the plants list to update lastFed timestamp
       queryClient.invalidateQueries({ queryKey: ['/api/plants'] });
       queryClient.invalidateQueries({ queryKey: [`/api/plants/${plant.id}`] });
+      queryClient.invalidateQueries({ queryKey: ['/api/plants', plant.id, 'feeding-logs'] });
       
       toast({ title: "Feeding log deleted", description: "The log entry has been removed" });
     },
@@ -213,7 +197,13 @@ export default function PlantCareHistory({
   });
 
   const deleteRepottingLogMutation = useMutation({
-    mutationFn: (logId: number) => apiRequest('DELETE', `/api/repotting-logs/${logId}`),
+    mutationFn: async (logId: number) => {
+      console.log('Deleting repotting log from localStorage:', logId);
+      const logs = localData.get('repottingLogs') || [];
+      const filteredLogs = logs.filter((log: any) => log.id !== logId);
+      localData.set('repottingLogs', filteredLogs);
+      return logId;
+    },
     onSuccess: (_, logId) => {
       // Add to deleted set for immediate UI update
       setDeletedLogIds(prev => new Set(prev).add(logId));
@@ -224,7 +214,13 @@ export default function PlantCareHistory({
   });
 
   const deleteSoilTopUpLogMutation = useMutation({
-    mutationFn: (logId: number) => apiRequest('DELETE', `/api/soil-top-up-logs/${logId}`),
+    mutationFn: async (logId: number) => {
+      console.log('Deleting soil top up log from localStorage:', logId);
+      const logs = localData.get('soilTopUpLogs') || [];
+      const filteredLogs = logs.filter((log: any) => log.id !== logId);
+      localData.set('soilTopUpLogs', filteredLogs);
+      return logId;
+    },
     onSuccess: (_, logId) => {
       // Add to deleted set for immediate UI update
       setDeletedLogIds(prev => new Set(prev).add(logId));
@@ -235,7 +231,13 @@ export default function PlantCareHistory({
   });
 
   const deletePruningLogMutation = useMutation({
-    mutationFn: (logId: number) => apiRequest('DELETE', `/api/pruning-logs/${logId}`),
+    mutationFn: async (logId: number) => {
+      console.log('Deleting pruning log from localStorage:', logId);
+      const logs = localData.get('pruningLogs') || [];
+      const filteredLogs = logs.filter((log: any) => log.id !== logId);
+      localData.set('pruningLogs', filteredLogs);
+      return logId;
+    },
     onSuccess: (_, logId) => {
       // Add to deleted set for immediate UI update
       setDeletedLogIds(prev => new Set(prev).add(logId));
