@@ -116,14 +116,18 @@ const Settings = () => {
     console.log('File selected:', file?.name, 'Type:', file?.type, 'Size:', file?.size);
     
     if (file) {
-      // Validate it's a JSON file
-      if (!file.name.endsWith('.json') && file.type !== 'application/json') {
-        toast({
-          title: "Invalid file type",
-          description: "Please select a JSON file (.json)",
-          variant: "destructive",
-        });
-        return;
+      // More flexible validation - check if filename contains expected pattern or is a JSON-like file
+      const isLikelyPlantData = file.name.includes('plant-data-backup') || 
+                               file.name.endsWith('.json') || 
+                               file.type === 'application/json' ||
+                               file.type === 'text/plain' ||
+                               file.type === '';
+      
+      if (!isLikelyPlantData) {
+        const proceed = confirm(`The selected file "${file.name}" doesn't appear to be a plant data backup file. Do you want to try importing it anyway?`);
+        if (!proceed) {
+          return;
+        }
       }
       
       handleImport(file);
@@ -356,20 +360,31 @@ const Settings = () => {
                 Copy Last Export Data
               </Button>
               
-              <div className="text-xs text-muted-foreground mt-2">
-                <p><strong>Import Instructions:</strong></p>
-                <ol className="list-decimal list-inside space-y-1 mt-1">
-                  <li>Click "Import Plant Data" above</li>
-                  <li>Navigate to your Downloads folder</li>
-                  <li>Select the plant-data-backup-*.json file</li>
-                  <li>Click "Open" to import your data</li>
-                </ol>
+              <div className="text-xs text-muted-foreground mt-2 space-y-2">
+                <div>
+                  <p><strong>Import Instructions:</strong></p>
+                  <ol className="list-decimal list-inside space-y-1 mt-1">
+                    <li>Click "Import Plant Data" above</li>
+                    <li>Navigate to your Downloads folder</li>
+                    <li>Look for a file named like "plant-data-backup-2025-07-14.json"</li>
+                    <li>If the file appears greyed out, try changing the file type filter to "All Files (*.*)"</li>
+                    <li>Select the file and click "Open"</li>
+                  </ol>
+                </div>
+                
+                <div className="p-2 bg-yellow-50 dark:bg-yellow-900/20 rounded border border-yellow-200 dark:border-yellow-800">
+                  <p className="text-yellow-800 dark:text-yellow-200 text-xs">
+                    <strong>File appears greyed out?</strong> This can happen due to browser security. 
+                    Try: 1) Look for "All Files" or "*.*" option in file picker, 2) Use "Copy Last Export Data" button instead, 
+                    or 3) Rename your file to have a .txt extension and try again.
+                  </p>
+                </div>
               </div>
               
               <div className="space-y-2">
                 <input
                   type="file"
-                  accept=".json,application/json"
+                  accept="*/*"
                   onChange={handleImportFileSelect}
                   style={{ display: 'none' }}
                   id="import-input"
@@ -387,7 +402,7 @@ const Settings = () => {
                   variant="outline"
                 >
                   <Upload className="h-4 w-4 mr-2" />
-                  Import Plant Data
+                  Import Plant Data (Select Any File)
                 </Button>
               </div>
               
