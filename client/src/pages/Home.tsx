@@ -161,7 +161,7 @@ const Home = () => {
         ) : plants && plants.length > 0 ? (
           // Plants list
           plants.map((plant, index) => (
-            <PlantCard key={plant.id} plant={plant} index={index} />
+            <PlantCard key={`plant-${plant.id}-${plant.plantNumber || index}`} plant={plant} index={index} />
           ))
         ) : (
           // Empty state

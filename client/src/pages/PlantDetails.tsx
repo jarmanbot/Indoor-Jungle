@@ -51,7 +51,24 @@ const PlantDetails = () => {
 
   const deleteMutation = useMutation({
     mutationFn: async () => {
-      await apiRequest('DELETE', `/api/plants/${id}`);
+      // Delete from local storage
+      const plants = localData.get('plants') || [];
+      const filteredPlants = plants.filter((p: any) => p.id !== parseInt(id || '0'));
+      localData.set('plants', filteredPlants);
+      
+      // Also clean up related logs
+      const wateringLogs = localData.get('wateringLogs') || [];
+      const feedingLogs = localData.get('feedingLogs') || [];
+      const repottingLogs = localData.get('repottingLogs') || [];
+      const soilTopUpLogs = localData.get('soilTopUpLogs') || [];
+      const pruningLogs = localData.get('pruningLogs') || [];
+      
+      const plantIdNum = parseInt(id || '0');
+      localData.set('wateringLogs', wateringLogs.filter((log: any) => log.plantId !== plantIdNum));
+      localData.set('feedingLogs', feedingLogs.filter((log: any) => log.plantId !== plantIdNum));
+      localData.set('repottingLogs', repottingLogs.filter((log: any) => log.plantId !== plantIdNum));
+      localData.set('soilTopUpLogs', soilTopUpLogs.filter((log: any) => log.plantId !== plantIdNum));
+      localData.set('pruningLogs', pruningLogs.filter((log: any) => log.plantId !== plantIdNum));
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/plants'] });
@@ -72,9 +89,12 @@ const PlantDetails = () => {
 
   const updateWateringFrequencyMutation = useMutation({
     mutationFn: async (newFrequency: number) => {
-      await apiRequest('PATCH', `/api/plants/${id}`, { 
-        wateringFrequencyDays: newFrequency 
-      });
+      // Update in local storage
+      const plants = localData.get('plants') || [];
+      const updatedPlants = plants.map((p: any) => 
+        p.id === parseInt(id || '0') ? { ...p, wateringFrequencyDays: newFrequency } : p
+      );
+      localData.set('plants', updatedPlants);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [`/api/plants/${id}`] });
@@ -95,9 +115,12 @@ const PlantDetails = () => {
 
   const updateFeedingFrequencyMutation = useMutation({
     mutationFn: async (newFrequency: number) => {
-      await apiRequest('PATCH', `/api/plants/${id}`, { 
-        feedingFrequencyDays: newFrequency 
-      });
+      // Update in local storage
+      const plants = localData.get('plants') || [];
+      const updatedPlants = plants.map((p: any) => 
+        p.id === parseInt(id || '0') ? { ...p, feedingFrequencyDays: newFrequency } : p
+      );
+      localData.set('plants', updatedPlants);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [`/api/plants/${id}`] });
