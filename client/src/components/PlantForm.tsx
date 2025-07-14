@@ -37,13 +37,19 @@ import { isAlphaTestingMode, alphaStorage, getNextId, getNextPlantNumber } from 
 import ImageUpload from "./ImageUpload";
 import { PlusCircle, Shuffle } from "lucide-react";
 
-// Plant name suggestions for random generation
-const plantNameSuggestions = [
-  "Sunny", "Leafy", "Buddy", "Sprout", "Olive", "Basil", "Rosie", "Ivy", "Fern", "Sage",
-  "Mint", "Daisy", "Lily", "Jade", "Ruby", "Emerald", "Forest", "Meadow", "Willow", "Cedar",
-  "Aurora", "Luna", "Star", "Bloom", "Petal", "Blossom", "Garden", "Verde", "Flora", "Herb",
-  "Clover", "Poppy", "Iris", "Violet", "Rose", "Jasmine", "Lavender", "Honey", "Peach", "Berry",
-  "Sunshine", "Rainbow", "Breeze", "Dew", "River", "Ocean", "Sky", "Cloud", "Rain", "Snow"
+// Human-like first and last names for plant naming
+const firstNames = [
+  "Alex", "Morgan", "Charlie", "Sam", "Jordan", "Casey", "Riley", "Taylor", "Avery", "Quinn",
+  "Blake", "Drew", "Sage", "River", "Sky", "Luna", "Ivy", "Rose", "Lily", "Iris",
+  "Jade", "Ruby", "Violet", "Daisy", "Hazel", "Olive", "Jasmine", "Willow", "Fern", "Poppy",
+  "Basil", "Rosie", "Sunny", "Aurora", "Maya", "Leo", "Max", "Zoe", "Emma", "Noah"
+];
+
+const lastNames = [
+  "Green", "Bloom", "Leaf", "Garden", "Forest", "Woods", "Branch", "Root", "Stem", "Petal",
+  "Meadow", "Valley", "Hill", "Grove", "Field", "Park", "Stone", "Rivers", "Brooks", "Wells",
+  "Sage", "Cedar", "Maple", "Oak", "Pine", "Birch", "Ash", "Elm", "Fir", "Spruce",
+  "Moss", "Clover", "Thorne", "Berry", "Bush", "Vine", "Reed", "Fern", "Palm", "Ivy"
 ];
 
 // Create a more robust form schema with validation
@@ -161,11 +167,12 @@ const PlantForm = ({ onSuccess, initialValues, plantId }: PlantFormProps) => {
     setSelectedImage(file);
   };
 
-  // Generate a random plant name
+  // Generate a random human-like plant name
   const generateRandomName = () => {
-    const randomIndex = Math.floor(Math.random() * plantNameSuggestions.length);
-    const randomName = plantNameSuggestions[randomIndex];
-    form.setValue('babyName', randomName);
+    const firstNameIndex = Math.floor(Math.random() * firstNames.length);
+    const lastNameIndex = Math.floor(Math.random() * lastNames.length);
+    const fullName = `${firstNames[firstNameIndex]} ${lastNames[lastNameIndex]}`;
+    form.setValue('babyName', fullName);
   };
   
   const handleAddCustomLocation = () => {
