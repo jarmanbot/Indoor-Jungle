@@ -119,22 +119,26 @@ const PlantForm = ({ onSuccess, initialValues, plantId }: PlantFormProps) => {
       console.error("Failed to load default care frequencies from localStorage:", error);
     }
     
-    // Then fetch custom locations from server for up-to-date data
+    // Fetch custom locations from server for up-to-date data (only if not in alpha mode)
     const fetchLocations = async () => {
-      try {
-        const response = await fetch('/api/locations');
-        if (response.ok) {
-          const locationData = await response.json();
-          // Extract names from the location objects
-          const locationNames = locationData.map((loc: any) => loc.name);
-          setCustomLocations(locationNames);
-          
-          // Update localStorage with the latest data
-          localStorage.setItem('customLocations', JSON.stringify(locationNames));
+      if (!isAlphaTestingMode()) {
+        try {
+          const response = await fetch('/api/locations');
+          if (response.ok) {
+            const locationData = await response.json();
+            // Extract names from the location objects
+            const locationNames = locationData.map((loc: any) => loc.name);
+            setCustomLocations(locationNames);
+            
+            // Update localStorage with the latest data
+            localStorage.setItem('customLocations', JSON.stringify(locationNames));
+          }
+        } catch (error) {
+          console.error("Failed to fetch custom locations from server:", error);
+          // We still continue with any localStorage data we have
         }
-      } catch (error) {
-        console.error("Failed to fetch custom locations from server:", error);
-        // We still continue with any localStorage data we have
+      } else {
+        console.log("Alpha mode: Using custom locations from localStorage only");
       }
     };
     
@@ -181,8 +185,10 @@ const PlantForm = ({ onSuccess, initialValues, plantId }: PlantFormProps) => {
     form.setValue('babyName', fullName);
   };
   
-  const handleAddCustomLocation = () => {
+  const handleAddCustomLocation = async () => {
     if (customLocation.trim()) {
+      console.log("Adding custom location:", customLocation.trim());
+      
       // Add new location to state
       const newLocations = [...customLocations, customLocation.trim()];
       setCustomLocations(newLocations);
@@ -190,6 +196,7 @@ const PlantForm = ({ onSuccess, initialValues, plantId }: PlantFormProps) => {
       // Save to localStorage
       try {
         localStorage.setItem('customLocations', JSON.stringify(newLocations));
+        console.log("Custom location saved to localStorage");
       } catch (error) {
         console.error("Failed to save custom location:", error);
       }
@@ -199,14 +206,23 @@ const PlantForm = ({ onSuccess, initialValues, plantId }: PlantFormProps) => {
       setCustomLocation("");
       setShowCustomLocationDialog(false);
       
-      // Additionally save in the database
-      saveCustomLocationToDb(customLocation.trim())
-        .then(() => {
+      // Only save to database if not in alpha mode
+      if (!isAlphaTestingMode()) {
+        try {
+          await saveCustomLocationToDb(customLocation.trim());
           console.log("Custom location saved to database");
-        })
-        .catch(error => {
+        } catch (error) {
           console.error("Failed to save custom location to database:", error);
-        });
+          // Show user a toast about the error but continue
+          toast({
+            title: "Warning",
+            description: "Location saved locally but couldn't sync to server",
+            variant: "destructive",
+          });
+        }
+      } else {
+        console.log("Alpha mode: Custom location saved locally only");
+      }
     }
   };
   

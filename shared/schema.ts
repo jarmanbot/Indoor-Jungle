@@ -56,11 +56,12 @@ export const plantLocations = [
   { value: "bedroom", label: "Bedroom" },
   { value: "kitchen", label: "Kitchen" },
   { value: "bathroom", label: "Bathroom" },
+  { value: "toilet", label: "Toilet" },
+  { value: "dining_room", label: "Dining Room" },
+  { value: "entrance_hall", label: "Entrance Hall" },
   { value: "office", label: "Office" },
   { value: "balcony", label: "Balcony" },
   { value: "outdoor", label: "Outdoor" },
-  { value: "patio", label: "Patio" },
-  { value: "garden", label: "Garden" },
   { value: "greenhouse", label: "Greenhouse" },
   { value: "other", label: "Other" }
 ] as const;
