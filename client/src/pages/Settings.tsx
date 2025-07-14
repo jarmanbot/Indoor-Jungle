@@ -275,7 +275,32 @@ const Settings = () => {
       </div>
       
       <div className="space-y-6">
-        {/* 1. Default Care Frequencies */}
+        {/* 1. Demo Plant */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Database className="h-4 w-4" />
+              Demo Plant
+            </CardTitle>
+            <CardDescription>Explore the app with a sample plant</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <Label className="text-sm font-medium">Show Demo Plant</Label>
+                <p className="text-xs text-muted-foreground">
+                  Display demo plant as plant #1 for exploring the app features
+                </p>
+              </div>
+              <Switch 
+                checked={demoPlantEnabled} 
+                onCheckedChange={handleDemoPlantToggle} 
+              />
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* 2. Default Care Frequencies */}
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
@@ -308,7 +333,7 @@ const Settings = () => {
           </CardContent>
         </Card>
 
-        {/* 2. Data Management */}
+        {/* 3. Data Management */}
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
@@ -413,21 +438,6 @@ const Settings = () => {
               
               <Separator />
               
-              <div className="flex items-center justify-between">
-                <div>
-                  <Label className="text-sm font-medium">Demo Plant</Label>
-                  <p className="text-xs text-muted-foreground">
-                    Show demo plant as plant #1 for exploring the app
-                  </p>
-                </div>
-                <Switch 
-                  checked={demoPlantEnabled} 
-                  onCheckedChange={handleDemoPlantToggle} 
-                />
-              </div>
-              
-              <Separator />
-              
               <Button 
                 onClick={handleClearAllData} 
                 className="w-full" 
@@ -441,7 +451,7 @@ const Settings = () => {
           </CardContent>
         </Card>
 
-        {/* 3. Notifications */}
+        {/* 4. Notifications */}
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
@@ -472,7 +482,7 @@ const Settings = () => {
           </CardContent>
         </Card>
 
-        {/* 4. Appearance */}
+        {/* 5. Appearance */}
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
