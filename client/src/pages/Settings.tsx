@@ -113,8 +113,22 @@ const Settings = () => {
 
   const handleImportFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
+    console.log('File selected:', file?.name, 'Type:', file?.type, 'Size:', file?.size);
+    
     if (file) {
+      // Validate it's a JSON file
+      if (!file.name.endsWith('.json') && file.type !== 'application/json') {
+        toast({
+          title: "Invalid file type",
+          description: "Please select a JSON file (.json)",
+          variant: "destructive",
+        });
+        return;
+      }
+      
       handleImport(file);
+    } else {
+      console.log('No file selected');
     }
   };
 
@@ -342,16 +356,33 @@ const Settings = () => {
                 Copy Last Export Data
               </Button>
               
+              <div className="text-xs text-muted-foreground mt-2">
+                <p><strong>Import Instructions:</strong></p>
+                <ol className="list-decimal list-inside space-y-1 mt-1">
+                  <li>Click "Import Plant Data" above</li>
+                  <li>Navigate to your Downloads folder</li>
+                  <li>Select the plant-data-backup-*.json file</li>
+                  <li>Click "Open" to import your data</li>
+                </ol>
+              </div>
+              
               <div className="space-y-2">
                 <input
                   type="file"
-                  accept=".json"
+                  accept=".json,application/json"
                   onChange={handleImportFileSelect}
                   style={{ display: 'none' }}
                   id="import-input"
+                  key={Math.random()} // Force re-render to clear previous selections
                 />
                 <Button 
-                  onClick={() => document.getElementById('import-input')?.click()}
+                  onClick={() => {
+                    const input = document.getElementById('import-input') as HTMLInputElement;
+                    if (input) {
+                      input.value = ''; // Clear previous selection
+                      input.click();
+                    }
+                  }}
                   className="w-full" 
                   variant="outline"
                 >
