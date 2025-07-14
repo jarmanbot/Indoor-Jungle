@@ -22,7 +22,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { format } from "date-fns";
 import { CalendarIcon, Flower } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { apiRequest } from "@/lib/queryClient";
+import { localStorage as localData } from "@/lib/localDataStorage";
 
 const formSchema = z.object({
   fedAt: z.date({
@@ -58,11 +58,33 @@ export default function FeedingLogForm({ plantId, onSuccess, onCancel }: Feeding
   const onSubmit = async (data: FormValues) => {
     setIsSubmitting(true);
     try {
-      await apiRequest(
-        "POST", 
-        `/api/plants/${plantId}/feeding-logs`,
-        data
-      );
+      // Always use local storage - save feeding log
+      const feedingLogs = localData.get('feedingLogs') || [];
+      const newId = feedingLogs.length > 0 ? Math.max(...feedingLogs.map((log: any) => log.id)) + 1 : 1;
+      
+      const newLog = {
+        id: newId,
+        plantId: plantId,
+        fedAt: data.fedAt.toISOString(),
+        fertilizer: data.fertilizer || "",
+        amount: data.amount || "",
+        notes: data.notes || "",
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
+      };
+      
+      feedingLogs.push(newLog);
+      localData.set('feedingLogs', feedingLogs);
+      
+      // Update plant's lastFed timestamp
+      const plants = localData.get('plants') || [];
+      const plantIndex = plants.findIndex((p: any) => p.id === plantId);
+      if (plantIndex !== -1) {
+        plants[plantIndex].lastFed = data.fedAt.toISOString();
+        plants[plantIndex].updatedAt = new Date().toISOString();
+        localData.set('plants', plants);
+      }
+      
       toast({
         title: "Feeding logged",
         description: "The feeding has been successfully recorded",

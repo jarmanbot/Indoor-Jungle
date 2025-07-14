@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -12,8 +12,8 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { CalendarIcon } from "lucide-react";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
-import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
+import { localStorage as localData } from "@/lib/localDataStorage";
 
 const formSchema = z.object({
   toppedUpAt: z.date().optional(),
@@ -33,7 +33,6 @@ interface SoilTopUpLogFormProps {
 export default function SoilTopUpLogForm({ plantId, onSuccess, onCancel }: SoilTopUpLogFormProps) {
   const [date, setDate] = useState<Date | undefined>(new Date());
   const { toast } = useToast();
-  const queryClient = useQueryClient();
 
   const {
     register,
@@ -48,39 +47,43 @@ export default function SoilTopUpLogForm({ plantId, onSuccess, onCancel }: SoilT
     },
   });
 
-  const mutation = useMutation({
-    mutationFn: async (data: FormValues) => {
-      const logData = {
-        ...data,
-        toppedUpAt: date?.toISOString(),
+  const handleFormSubmit = async (data: FormValues) => {
+    try {
+      // Always use local storage - save soil top up log
+      const soilTopUpLogs = localData.get('soilTopUpLogs') || [];
+      const newId = soilTopUpLogs.length > 0 ? Math.max(...soilTopUpLogs.map((log: any) => log.id)) + 1 : 1;
+      
+      const newLog = {
+        id: newId,
+        plantId: plantId,
+        toppedUpAt: date?.toISOString() || new Date().toISOString(),
+        soilType: data.soilType || "",
+        amount: data.amount || "",
+        notes: data.notes || "",
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
       };
-      return apiRequest("POST", `/api/plants/${plantId}/soil-top-up-logs`, logData);
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: [`/api/plants/${plantId}/soil-top-up-logs`] });
-      queryClient.invalidateQueries({ queryKey: [`/api/plants/${plantId}`] });
+      
+      soilTopUpLogs.push(newLog);
+      localData.set('soilTopUpLogs', soilTopUpLogs);
+      
       toast({
         title: "Success",
         description: "Soil top up log added successfully",
       });
       onSuccess();
-    },
-    onError: (error) => {
+    } catch (error) {
       console.error("Error adding soil top up log:", error);
       toast({
         title: "Error",
         description: "Failed to add soil top up log",
         variant: "destructive",
       });
-    },
-  });
-
-  const onSubmit = async (data: FormValues) => {
-    mutation.mutate(data);
+    }
   };
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+    <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-4">
       <div className="space-y-2">
         <Label htmlFor="toppedUpAt">Date</Label>
         <Popover>
