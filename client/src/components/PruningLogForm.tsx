@@ -32,6 +32,7 @@ interface PruningLogFormProps {
 
 export default function PruningLogForm({ plantId, onSuccess, onCancel }: PruningLogFormProps) {
   const [date, setDate] = useState<Date | undefined>(new Date());
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
 
   const {
@@ -48,6 +49,7 @@ export default function PruningLogForm({ plantId, onSuccess, onCancel }: Pruning
   });
 
   const handleFormSubmit = async (data: FormValues) => {
+    setIsSubmitting(true);
     try {
       // Always use local storage - save pruning log
       const pruningLogs = localData.get('pruningLogs') || [];
@@ -79,6 +81,8 @@ export default function PruningLogForm({ plantId, onSuccess, onCancel }: Pruning
         description: "Failed to add pruning log",
         variant: "destructive",
       });
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -149,10 +153,10 @@ export default function PruningLogForm({ plantId, onSuccess, onCancel }: Pruning
       <div className="flex gap-2 pt-4">
         <Button 
           type="submit" 
-          disabled={mutation.isPending}
+          disabled={isSubmitting}
           className="flex-1"
         >
-          {mutation.isPending ? "Adding..." : "Add Pruning Log"}
+          {isSubmitting ? "Adding..." : "Add Pruning Log"}
         </Button>
         {onCancel && (
           <Button type="button" variant="outline" onClick={onCancel}>

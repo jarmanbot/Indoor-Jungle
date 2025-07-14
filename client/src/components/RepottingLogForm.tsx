@@ -32,6 +32,7 @@ interface RepottingLogFormProps {
 
 export default function RepottingLogForm({ plantId, onSuccess, onCancel }: RepottingLogFormProps) {
   const [date, setDate] = useState<Date | undefined>(new Date());
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
 
   const {
@@ -48,6 +49,7 @@ export default function RepottingLogForm({ plantId, onSuccess, onCancel }: Repot
   });
 
   const handleFormSubmit = async (data: FormValues) => {
+    setIsSubmitting(true);
     try {
       // Always use local storage - save repotting log
       const repottingLogs = localData.get('repottingLogs') || [];
@@ -79,6 +81,8 @@ export default function RepottingLogForm({ plantId, onSuccess, onCancel }: Repot
         description: "Failed to add repotting log",
         variant: "destructive",
       });
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -149,10 +153,10 @@ export default function RepottingLogForm({ plantId, onSuccess, onCancel }: Repot
       <div className="flex gap-2 pt-4">
         <Button 
           type="submit" 
-          disabled={mutation.isPending}
+          disabled={isSubmitting}
           className="flex-1"
         >
-          {mutation.isPending ? "Adding..." : "Add Repotting Log"}
+          {isSubmitting ? "Adding..." : "Add Repotting Log"}
         </Button>
         {onCancel && (
           <Button type="button" variant="outline" onClick={onCancel}>

@@ -32,6 +32,7 @@ interface SoilTopUpLogFormProps {
 
 export default function SoilTopUpLogForm({ plantId, onSuccess, onCancel }: SoilTopUpLogFormProps) {
   const [date, setDate] = useState<Date | undefined>(new Date());
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
 
   const {
@@ -48,6 +49,7 @@ export default function SoilTopUpLogForm({ plantId, onSuccess, onCancel }: SoilT
   });
 
   const handleFormSubmit = async (data: FormValues) => {
+    setIsSubmitting(true);
     try {
       // Always use local storage - save soil top up log
       const soilTopUpLogs = localData.get('soilTopUpLogs') || [];
@@ -79,6 +81,8 @@ export default function SoilTopUpLogForm({ plantId, onSuccess, onCancel }: SoilT
         description: "Failed to add soil top up log",
         variant: "destructive",
       });
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -149,10 +153,10 @@ export default function SoilTopUpLogForm({ plantId, onSuccess, onCancel }: SoilT
       <div className="flex gap-2 pt-4">
         <Button 
           type="submit" 
-          disabled={mutation.isPending}
+          disabled={isSubmitting}
           className="flex-1"
         >
-          {mutation.isPending ? "Adding..." : "Add Soil Top Up Log"}
+          {isSubmitting ? "Adding..." : "Add Soil Top Up Log"}
         </Button>
         {onCancel && (
           <Button type="button" variant="outline" onClick={onCancel}>

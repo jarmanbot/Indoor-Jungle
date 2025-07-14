@@ -128,6 +128,7 @@ The app uses a robust local storage system that stores all data on each device:
 
 ```
 Changelog:
+- July 14, 2025. Fixed all care log forms (feeding, repotting, soil top-up, pruning) to work with local storage - removed server API dependencies
 - July 14, 2025. Completely removed alpha mode and replaced with robust local storage system
 - July 14, 2025. Added comprehensive export/import functionality for data backup and recovery
 - July 14, 2025. Updated Settings page with local storage management features
