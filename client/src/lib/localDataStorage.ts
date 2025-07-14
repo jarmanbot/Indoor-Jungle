@@ -170,18 +170,41 @@ function fallbackDownload(dataStr: string, filename: string): void {
 // Import user data from a JSON file
 export function importUserData(file: File): Promise<void> {
   return new Promise((resolve, reject) => {
+    console.log('Starting import of file:', file.name, 'Size:', file.size, 'bytes');
+    
     const reader = new FileReader();
     
     reader.onload = (e) => {
       try {
-        const data = JSON.parse(e.target?.result as string) as ExportData;
+        const result = e.target?.result as string;
+        console.log('File read successfully, parsing JSON...');
+        
+        let data: ExportData;
+        try {
+          data = JSON.parse(result);
+        } catch (parseError) {
+          console.error('JSON parsing failed:', parseError);
+          throw new Error('Invalid JSON format. Please check the file is a valid plant data export.');
+        }
+        
+        console.log('JSON parsed successfully:', data);
         
         // Validate the data structure
+        if (!data || typeof data !== 'object') {
+          throw new Error('Invalid data format: not an object');
+        }
+        
         if (!data.plants || !Array.isArray(data.plants)) {
           throw new Error('Invalid data format: missing or invalid plants array');
         }
         
-        // Import all data
+        console.log(`Found ${data.plants.length} plants to import`);
+        
+        // Clear existing data before importing
+        console.log('Clearing existing data...');
+        localStorage.clear();
+        
+        // Import all data with validation
         localStorage.set('plants', data.plants);
         localStorage.set('customLocations', data.customLocations || []);
         localStorage.set('wateringLogs', data.wateringLogs || []);
@@ -196,8 +219,20 @@ export function importUserData(file: File): Promise<void> {
           window.localStorage.setItem('defaultFeedingFreq', data.settings.defaultFeedingFreq.toString());
         }
         
+        // Update nextId to prevent conflicts
+        const maxId = Math.max(
+          ...data.plants.map((p: any) => p.id || 0),
+          ...(data.wateringLogs || []).map((l: any) => l.id || 0),
+          ...(data.feedingLogs || []).map((l: any) => l.id || 0),
+          ...(data.repottingLogs || []).map((l: any) => l.id || 0),
+          ...(data.soilTopUpLogs || []).map((l: any) => l.id || 0),
+          ...(data.pruningLogs || []).map((l: any) => l.id || 0)
+        );
+        localStorage.set('nextId', maxId + 1);
+        
         console.log('Plant data imported successfully');
         console.log(`Imported ${data.plants.length} plants from ${data.exportDate}`);
+        console.log('Import complete - all data restored');
         resolve();
       } catch (error) {
         console.error('Failed to import data:', error);
@@ -206,7 +241,8 @@ export function importUserData(file: File): Promise<void> {
     };
     
     reader.onerror = () => {
-      reject(new Error('Failed to read file'));
+      console.error('Failed to read file');
+      reject(new Error('Failed to read file. Please try again.'));
     };
     
     reader.readAsText(file);

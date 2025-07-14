@@ -120,6 +120,7 @@ const Settings = () => {
 
   const handleImport = async (file: File) => {
     try {
+      console.log('Starting import process for file:', file.name);
       await importUserData(file);
       toast({
         title: "Import successful",
@@ -127,6 +128,11 @@ const Settings = () => {
       });
       // Refresh the page to show updated data
       queryClient.invalidateQueries({ queryKey: ['/api/plants'] });
+      
+      // Force a page refresh to ensure all components reload with new data
+      setTimeout(() => {
+        window.location.reload();
+      }, 1000);
     } catch (error) {
       console.error("Import failed:", error);
       toast({
