@@ -128,6 +128,8 @@ The app uses a robust local storage system that stores all data on each device:
 
 ```
 Changelog:
+- July 14, 2025. Fixed demo plant deletion in Settings - removed auto-initialization that was preventing demo plant removal
+- July 14, 2025. Enhanced empty state message with link to Settings for demo plant option
 - July 14, 2025. Fixed all care log forms (feeding, repotting, soil top-up, pruning) to work with local storage - removed server API dependencies
 - July 14, 2025. Completely removed alpha mode and replaced with robust local storage system
 - July 14, 2025. Added comprehensive export/import functionality for data backup and recovery

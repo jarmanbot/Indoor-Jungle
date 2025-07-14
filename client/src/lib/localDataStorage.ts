@@ -189,36 +189,8 @@ export function getNextPlantNumber(): number {
   return nextNumber;
 }
 
-// Initialize local storage with demo plant if no plants exist
+// Initialize local storage (no longer auto-adds demo plant)
 export function initializeLocalStorage(): void {
-  const plants = localStorage.get('plants') || [];
-  
-  // If no plants exist, add a demo plant
-  if (plants.length === 0) {
-    const demoPlant = {
-      id: 1,
-      plantNumber: 1,
-      babyName: "Demo Plant",
-      commonName: "Sample Houseplant",
-      latinName: "Plantus Demonstratus",
-      name: "Demo Plant",
-      location: "living_room",
-      lastWatered: null,
-      nextCheck: null,
-      lastFed: null,
-      wateringFrequencyDays: 7,
-      feedingFrequencyDays: 14,
-      notes: "This is your demo plant to explore the app! You can delete it and add your own plants.",
-      imageUrl: "/demo-plant.gif",
-      status: "healthy",
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString()
-    };
-    
-    localStorage.set('plants', [demoPlant]);
-    console.log('Demo plant added to local storage');
-  }
-  
   // Clean up any orphaned data
   cleanupLocalData();
 }

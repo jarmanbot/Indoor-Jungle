@@ -167,12 +167,24 @@ const Home = () => {
           ))
         ) : (
           // Empty state
-          <div className="text-center py-8">
+          <div className="text-center py-8 px-4">
+            <div className="bg-green-100 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
+              <Leaf className="h-8 w-8 text-green-600" />
+            </div>
             <h3 className="text-lg font-medium text-gray-800 mb-2">No plants yet</h3>
             <p className="text-gray-600 mb-4">Start adding plants to your collection</p>
-            <Link href="/add" className="bg-green-700 text-white px-4 py-2 rounded-md font-medium inline-block">
-              Add Your First Plant
-            </Link>
+            <div className="space-y-3">
+              <Link href="/add" className="bg-green-700 text-white px-6 py-3 rounded-md font-medium inline-block">
+                Add Your First Plant
+              </Link>
+              <div className="text-sm text-gray-500">
+                Or enable the demo plant in{" "}
+                <Link href="/settings" className="text-green-600 hover:text-green-700 underline">
+                  Settings
+                </Link>{" "}
+                to explore the app
+              </div>
+            </div>
           </div>
         )}
       </div>
