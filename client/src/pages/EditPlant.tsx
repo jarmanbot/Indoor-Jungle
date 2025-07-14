@@ -3,7 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { queryClient } from "@/lib/queryClient";
 import PlantForm from "@/components/PlantForm";
 import { X } from "lucide-react";
-import { isAlphaTestingMode, alphaStorage } from "@/lib/alphaTestingMode";
+import { localStorage as localData } from "@/lib/localDataStorage";
 import { Plant } from "@shared/schema";
 
 const EditPlant = () => {
@@ -15,22 +15,13 @@ const EditPlant = () => {
   const { data: plant, isLoading, error } = useQuery<Plant>({
     queryKey: [`/api/plants/${plantId}`],
     queryFn: async () => {
-      if (isAlphaTestingMode()) {
-        // In alpha mode, get plant from localStorage
-        const plants = alphaStorage.get('plants') || [];
-        const plant = plants.find((p: any) => p.id === plantId);
-        if (!plant) {
-          throw new Error('Plant not found in alpha storage');
-        }
-        return plant;
-      } else {
-        // Normal API call
-        const response = await fetch(`/api/plants/${plantId}`);
-        if (!response.ok) {
-          throw new Error('Failed to fetch plant');
-        }
-        return response.json();
+      // Always use local storage mode now
+      const plants = localData.get('plants') || [];
+      const plant = plants.find((p: any) => p.id === plantId);
+      if (!plant) {
+        throw new Error('Plant not found in local storage');
       }
+      return plant;
     },
     enabled: !!plantId,
   });
