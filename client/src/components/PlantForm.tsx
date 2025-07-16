@@ -365,21 +365,6 @@ const PlantForm = ({ onSuccess, initialValues, plantId }: PlantFormProps) => {
                         className="bg-background"
                         type="text"
                         inputMode="text"
-                        autoFocus={false}
-                        tabIndex={0}
-                        onTouchStart={(e) => {
-                          // Force focus on mobile touch
-                          e.currentTarget.focus();
-                        }}
-                        onPointerDown={(e) => {
-                          // Alternative approach for mobile
-                          e.currentTarget.focus();
-                        }}
-                        onClick={(e) => {
-                          // PWA-specific focus handling
-                          e.currentTarget.focus();
-                          e.currentTarget.click();
-                        }}
                       />
                     </FormControl>
                     <Button

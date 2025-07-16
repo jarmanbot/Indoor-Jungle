@@ -104,21 +104,35 @@
     }
   }
 
-  /* PWA-specific input handling */
+  /* Aggressive mobile keyboard fixes */
+  input, textarea, select {
+    -webkit-user-select: text !important;
+    user-select: text !important;
+    -webkit-touch-callout: default !important;
+    position: relative !important;
+    z-index: 999 !important;
+    /* Force 16px font size to prevent zoom on iOS */
+    font-size: 16px !important;
+  }
+  
+  /* Focus state enhancements */
+  input:focus, textarea:focus {
+    -webkit-user-select: text !important;
+    user-select: text !important;
+    transform: translateZ(0) !important;
+    outline: none !important;
+    border: 2px solid #16a34a !important;
+  }
+  
+  /* PWA-specific overrides */
   @media all and (display-mode: standalone) {
-    input, textarea, select {
-      -webkit-user-select: text !important;
-      user-select: text !important;
-      -webkit-touch-callout: default !important;
-      position: relative !important;
-      z-index: 999 !important;
-    }
-    
-    /* Force iOS to show keyboard in standalone mode */
-    input:focus, textarea:focus {
-      -webkit-user-select: text !important;
-      user-select: text !important;
-      transform: translateZ(0) !important;
+    input, textarea {
+      -webkit-appearance: none !important;
+      appearance: none !important;
+      background-color: white !important;
+      border: 1px solid #ccc !important;
+      padding: 8px !important;
+      border-radius: 4px !important;
     }
   }
 }
