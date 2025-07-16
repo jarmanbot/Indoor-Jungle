@@ -19,16 +19,14 @@ const Home = () => {
       // Sort plants by plant number to ensure proper display order
       return plants.sort((a: any, b: any) => (a.plantNumber || 0) - (b.plantNumber || 0));
     },
-    staleTime: 5 * 60 * 1000, // 5 minutes
-    refetchOnMount: false,
-    refetchOnWindowFocus: false,
-    refetchOnReconnect: false,
+    staleTime: 0, // Always refetch on mount
+    refetchOnMount: true,
   });
 
-  // Remove excessive debug logging to improve performance
-  if (process.env.NODE_ENV === 'development') {
-    console.log("Home page - Plants:", plants?.length || 0, "plants");
-  }
+  // Debug log for plants data
+  console.log("Home page - Plants data:", plants);
+  console.log("Home page - IsLoading:", isLoading);
+  console.log("Home page - Error:", error);
 
   // Calculate stats for dashboard
   const totalPlants = plants?.length || 0;
