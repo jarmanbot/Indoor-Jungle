@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useLocation, useRoute, Link } from 'wouter';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
@@ -147,12 +147,14 @@ const gameLevels = [
 export default function Game() {
   const [location, setLocation] = useLocation();
   const [, params] = useRoute('/game/:level');
-  const level = params?.level || 'apartment';
+  const level = params?.level || 'level1';
   
-  // Enforce default level if none selected
-  if (!params?.level) {
-    setLocation('/game/level1');
-  }
+  // Use useEffect to avoid state update during render
+  useEffect(() => {
+    if (!params?.level) {
+      setLocation('/game/level1');
+    }
+  }, [params?.level, setLocation]);
 
   return (
     <div className="pb-20">
