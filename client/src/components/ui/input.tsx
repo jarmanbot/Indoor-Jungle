@@ -12,14 +12,21 @@ const Input = React.forwardRef<HTMLInputElement, React.ComponentProps<"input">>(
           className
         )}
         ref={ref}
-        // Ensure inputs work properly on mobile
+        // PWA-specific mobile input attributes
         autoComplete="off"
         autoCapitalize="words"
         autoCorrect="off"
         spellCheck="false"
-        // Force mobile keyboard to appear
         inputMode={type === "number" ? "numeric" : "text"}
         enterKeyHint="done"
+        // Critical for PWA keyboard display
+        readOnly={false}
+        onTouchStart={(e) => {
+          // Ensure input becomes active on PWA
+          if (e.currentTarget) {
+            e.currentTarget.focus();
+          }
+        }}
         {...props}
       />
     )

@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5, user-scalable=yes" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
     <title>Indoor Jungle - Plant Care</title>
     <meta name="description" content="Track and care for your plant collection with Indoor Jungle" />
     <meta name="theme-color" content="#16a34a" />
@@ -22,6 +22,32 @@
   </head>
   <body>
     <div id="root"></div>
+    
+    <!-- PWA input focus fix -->
+    <script>
+      // Detect if running as PWA and fix input focus issues
+      if (window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone) {
+        document.addEventListener('DOMContentLoaded', function() {
+          // Force focus on input elements in PWA mode
+          document.addEventListener('touchstart', function(e) {
+            if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') {
+              setTimeout(() => {
+                e.target.focus();
+                e.target.click();
+              }, 100);
+            }
+          }, { passive: true });
+          
+          // Additional click handler for PWA
+          document.addEventListener('click', function(e) {
+            if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') {
+              e.target.focus();
+            }
+          }, { passive: true });
+        });
+      }
+    </script>
+    
     <script type="module" src="/src/main.tsx"></script>
     <!-- This is a replit script which adds a banner on the top of the page when opened in development mode outside the replit environment -->
     <script type="text/javascript" src="https://replit.com/public/js/replit-dev-banner.js"></script>

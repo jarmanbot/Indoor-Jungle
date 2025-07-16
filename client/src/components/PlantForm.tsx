@@ -375,6 +375,11 @@ const PlantForm = ({ onSuccess, initialValues, plantId }: PlantFormProps) => {
                           // Alternative approach for mobile
                           e.currentTarget.focus();
                         }}
+                        onClick={(e) => {
+                          // PWA-specific focus handling
+                          e.currentTarget.focus();
+                          e.currentTarget.click();
+                        }}
                       />
                     </FormControl>
                     <Button

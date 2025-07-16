@@ -103,6 +103,24 @@
       font-size: 16px !important;
     }
   }
+
+  /* PWA-specific input handling */
+  @media all and (display-mode: standalone) {
+    input, textarea, select {
+      -webkit-user-select: text !important;
+      user-select: text !important;
+      -webkit-touch-callout: default !important;
+      position: relative !important;
+      z-index: 999 !important;
+    }
+    
+    /* Force iOS to show keyboard in standalone mode */
+    input:focus, textarea:focus {
+      -webkit-user-select: text !important;
+      user-select: text !important;
+      transform: translateZ(0) !important;
+    }
+  }
 }
 
 .plant-status-indicator {
