@@ -1,17 +1,26 @@
 {
   "name": "Indoor Jungle - Plant Care",
   "short_name": "Indoor Jungle",
-  "description": "Track and care for your plant collection",
+  "description": "Track and care for your plant collection with Indoor Jungle",
   "start_url": "/",
+  "scope": "/",
   "display": "standalone",
+  "orientation": "portrait",
   "background_color": "#16a34a",
   "theme_color": "#16a34a",
+  "lang": "en",
+  "categories": ["lifestyle", "productivity"],
   "icons": [
     {
       "src": "/favicon.svg",
       "sizes": "any",
       "type": "image/svg+xml",
       "purpose": "any maskable"
+    },
+    {
+      "src": "/favicon.ico",
+      "sizes": "32x32",
+      "type": "image/x-icon"
     }
   ]
 }

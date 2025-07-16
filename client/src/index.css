@@ -57,6 +57,36 @@
     font-family: 'Inter', sans-serif;
     @apply antialiased bg-background text-foreground;
   }
+
+  /* Ensure proper input focus on mobile devices */
+  input, textarea, select {
+    -webkit-tap-highlight-color: transparent;
+    -webkit-touch-callout: none;
+    -webkit-user-select: auto;
+    user-select: auto;
+    touch-action: manipulation;
+  }
+
+  /* Prevent zoom on input focus for better UX */
+  input[type="text"], 
+  input[type="email"], 
+  input[type="password"], 
+  input[type="number"], 
+  input[type="tel"], 
+  textarea {
+    font-size: 16px;
+  }
+
+  @media screen and (max-width: 768px) {
+    input[type="text"], 
+    input[type="email"], 
+    input[type="password"], 
+    input[type="number"], 
+    input[type="tel"], 
+    textarea {
+      font-size: 16px !important;
+    }
+  }
 }
 
 .plant-status-indicator {

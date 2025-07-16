@@ -12,6 +12,11 @@ const Input = React.forwardRef<HTMLInputElement, React.ComponentProps<"input">>(
           className
         )}
         ref={ref}
+        // Ensure inputs work properly on mobile
+        autoComplete="off"
+        autoCapitalize="words"
+        autoCorrect="off"
+        spellCheck="false"
         {...props}
       />
     )

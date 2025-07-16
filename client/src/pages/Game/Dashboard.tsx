@@ -16,11 +16,17 @@ export default function GameDashboard() {
   const [walletConnected, setWalletConnected] = useState(false);
   const [walletAddress, setWalletAddress] = useState("");
 
-  // Query game player data
+  // Query game player data with optimized caching and reduced frequency
   const { data: playerData, isLoading: playerLoading } = useQuery({
     queryKey: ['/api/game/player'],
     // Only try to fetch if we have a wallet connected
     enabled: walletConnected,
+    // Cache for 5 minutes to reduce server calls
+    staleTime: 5 * 60 * 1000,
+    // Reduce background refetch frequency
+    refetchInterval: 30 * 1000, // 30 seconds instead of default
+    // Don't refetch on window focus to reduce disruption
+    refetchOnWindowFocus: false,
   });
 
   // Connect wallet function
