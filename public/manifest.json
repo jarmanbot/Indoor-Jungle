@@ -2,7 +2,7 @@
   "name": "Indoor Jungle - Plant Care",
   "short_name": "Indoor Jungle",
   "description": "Track and care for your plant collection with Indoor Jungle",
-  "start_url": "/",
+  "start_url": "/?v=2025071601",
   "scope": "/",
   "display": "standalone",
   "prefer_related_applications": false,
@@ -11,6 +11,7 @@
   "theme_color": "#16a34a",
   "lang": "en",
   "categories": ["lifestyle", "productivity"],
+  "version": "2025.07.16.01",
   "icons": [
     {
       "src": "/favicon.svg",

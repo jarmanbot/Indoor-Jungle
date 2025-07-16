@@ -12,28 +12,9 @@ const Input = React.forwardRef<HTMLInputElement, React.ComponentProps<"input">>(
           className
         )}
         ref={ref}
-        // Mobile input optimization
-        autoComplete="off"
-        autoCapitalize="words"
-        autoCorrect="off"
-        spellCheck="false"
+        // Essential mobile attributes only
         inputMode={type === "number" ? "numeric" : "text"}
-        enterKeyHint="done"
-        // Force keyboard display
-        readOnly={false}
-        tabIndex={0}
         style={{ fontSize: '16px' }}
-        onTouchStart={(e) => {
-          e.preventDefault();
-          e.currentTarget.focus();
-          e.currentTarget.removeAttribute('readonly');
-        }}
-        onPointerDown={(e) => {
-          e.currentTarget.focus();
-        }}
-        onClick={(e) => {
-          e.currentTarget.focus();
-        }}
         {...props}
       />
     )

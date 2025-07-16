@@ -17,8 +17,29 @@
     <link rel="apple-touch-icon" href="/favicon.svg" />
     <link rel="apple-touch-icon" sizes="180x180" href="/favicon.svg" />
     
-    <!-- PWA manifest -->
-    <link rel="manifest" href="/manifest.json" />
+    <!-- PWA manifest with cache busting -->
+    <link rel="manifest" href="/manifest.json?v=2025071601" />
+    
+    <!-- Clear old PWA caches -->
+    <script>
+      // Clear old service workers and caches to fix PWA issues
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.getRegistrations().then(function(registrations) {
+          for(let registration of registrations) {
+            registration.unregister();
+          }
+        });
+      }
+      
+      // Clear all caches
+      if ('caches' in window) {
+        caches.keys().then(function(names) {
+          for (let name of names) {
+            caches.delete(name);
+          }
+        });
+      }
+    </script>
   </head>
   <body>
     <div id="root"></div>
@@ -29,27 +50,34 @@
       document.addEventListener('DOMContentLoaded', function() {
         // Always apply fixes (don't rely on PWA detection which can be unreliable)
         
+        // Debug PWA detection
+        console.log('PWA Detection:', {
+          standalone: window.matchMedia('(display-mode: standalone)').matches,
+          ios: window.navigator.standalone,
+          userAgent: navigator.userAgent
+        });
+        
         // Method 1: Touch events with aggressive keyboard triggering
         document.addEventListener('touchstart', function(e) {
+          console.log('Touch on:', e.target.tagName, e.target);
           if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') {
+            console.log('Triggering keyboard for input');
             // Remove readonly if present
             e.target.removeAttribute('readonly');
-            e.target.setAttribute('contenteditable', 'true');
+            e.target.removeAttribute('disabled');
             
-            // Multiple focus attempts
+            // Force keyboard display
             e.target.focus();
+            e.target.click();
+            
             setTimeout(() => {
               e.target.focus();
-              e.target.click();
-              // Force cursor to end
-              if (e.target.setSelectionRange) {
-                const len = e.target.value.length;
-                e.target.setSelectionRange(len, len);
-              }
-            }, 10);
+              e.target.select();
+            }, 50);
+            
             setTimeout(() => {
               e.target.focus();
-            }, 100);
+            }, 150);
           }
         }, { passive: true });
         
