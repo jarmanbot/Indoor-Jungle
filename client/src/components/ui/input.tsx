@@ -17,6 +17,9 @@ const Input = React.forwardRef<HTMLInputElement, React.ComponentProps<"input">>(
         autoCapitalize="words"
         autoCorrect="off"
         spellCheck="false"
+        // Force mobile keyboard to appear
+        inputMode={type === "number" ? "numeric" : "text"}
+        enterKeyHint="done"
         {...props}
       />
     )

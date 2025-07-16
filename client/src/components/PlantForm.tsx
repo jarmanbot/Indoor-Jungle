@@ -363,6 +363,18 @@ const PlantForm = ({ onSuccess, initialValues, plantId }: PlantFormProps) => {
                         placeholder="e.g., Alex Yolobo" 
                         {...field} 
                         className="bg-background"
+                        type="text"
+                        inputMode="text"
+                        autoFocus={false}
+                        tabIndex={0}
+                        onTouchStart={(e) => {
+                          // Force focus on mobile touch
+                          e.currentTarget.focus();
+                        }}
+                        onPointerDown={(e) => {
+                          // Alternative approach for mobile
+                          e.currentTarget.focus();
+                        }}
                       />
                     </FormControl>
                     <Button
@@ -392,6 +404,8 @@ const PlantForm = ({ onSuccess, initialValues, plantId }: PlantFormProps) => {
                       placeholder="e.g., Swiss Cheese Plant" 
                       {...field} 
                       className="bg-background"
+                      type="text"
+                      inputMode="text"
                     />
                   </FormControl>
                   <FormMessage />
@@ -411,6 +425,8 @@ const PlantForm = ({ onSuccess, initialValues, plantId }: PlantFormProps) => {
                     placeholder="e.g., Monstera Deliciosa" 
                     {...field} 
                     className="bg-background"
+                    type="text"
+                    inputMode="text"
                   />
                 </FormControl>
                 <FormMessage />
