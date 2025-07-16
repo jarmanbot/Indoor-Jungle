@@ -1,46 +1,17 @@
 {
-  "name": "Indoor Jungle Monitor",
-  "short_name": "Plant Care",
-  "description": "Track and care for your plants with ease",
+  "name": "Indoor Jungle - Plant Care",
+  "short_name": "Indoor Jungle",
+  "description": "Track and care for your plant collection",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#ffffff",
-  "theme_color": "#22c55e",
-  "orientation": "portrait",
-  "scope": "/",
+  "background_color": "#16a34a",
+  "theme_color": "#16a34a",
   "icons": [
     {
-      "src": "/generated-icon.png",
-      "sizes": "512x512",
-      "type": "image/png",
-      "purpose": "any maskable"
-    },
-    {
-      "src": "/generated-icon.png",
-      "sizes": "192x192",
-      "type": "image/png",
-      "purpose": "any maskable"
-    },
-    {
-      "src": "/generated-icon.png",
-      "sizes": "144x144",
-      "type": "image/png",
-      "purpose": "any maskable"
-    },
-    {
-      "src": "/generated-icon.png",
-      "sizes": "96x96",
-      "type": "image/png",
-      "purpose": "any maskable"
-    },
-    {
-      "src": "/generated-icon.png",
-      "sizes": "72x72",
-      "type": "image/png",
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
       "purpose": "any maskable"
     }
-  ],
-  "categories": ["lifestyle", "productivity"],
-  "lang": "en",
-  "dir": "ltr"
+  ]
 }

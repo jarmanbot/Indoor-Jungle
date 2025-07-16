@@ -128,6 +128,10 @@ The app uses a robust local storage system that stores all data on each device:
 
 ```
 Changelog:
+- July 16, 2025. Optimized app performance - fixed React state update warning in Game component, reduced query frequency, improved caching
+- July 16, 2025. Moved demo plant section to top of Settings page for better visibility
+- July 16, 2025. Enhanced export/import system with multiple fallback methods for browser compatibility
+- July 16, 2025. Improved file picker to accept any file type and bypass browser restrictions
 - July 14, 2025. Fixed demo plant deletion in Settings - removed auto-initialization that was preventing demo plant removal
 - July 14, 2025. Enhanced empty state message with link to Settings for demo plant option
 - July 14, 2025. Fixed all care log forms (feeding, repotting, soil top-up, pruning) to work with local storage - removed server API dependencies

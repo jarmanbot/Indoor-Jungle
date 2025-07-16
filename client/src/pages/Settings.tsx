@@ -150,7 +150,7 @@ const Settings = () => {
       // Force a page refresh to ensure all components reload with new data
       setTimeout(() => {
         window.location.reload();
-      }, 1000);
+      }, 500);
     } catch (error) {
       console.error("Import failed:", error);
       toast({

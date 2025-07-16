@@ -1,0 +1,20 @@
+<svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background circle -->
+  <circle cx="16" cy="16" r="16" fill="#16a34a"/>
+  
+  <!-- Plant stem -->
+  <rect x="15" y="18" width="2" height="8" fill="#15803d"/>
+  
+  <!-- Large leaf -->
+  <ellipse cx="12" cy="14" rx="4" ry="6" fill="#22c55e" transform="rotate(-20 12 14)"/>
+  
+  <!-- Medium leaf -->
+  <ellipse cx="20" cy="16" rx="3" ry="4" fill="#22c55e" transform="rotate(25 20 16)"/>
+  
+  <!-- Small leaf -->
+  <ellipse cx="16" cy="10" rx="2" ry="3" fill="#22c55e" transform="rotate(0 16 10)"/>
+  
+  <!-- Pot -->
+  <path d="M10 26 L22 26 L21 22 L11 22 Z" fill="#8b5cf6"/>
+  <ellipse cx="16" cy="22" rx="5.5" ry="1" fill="#7c3aed"/>
+</svg>
