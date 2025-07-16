@@ -363,8 +363,6 @@ const PlantForm = ({ onSuccess, initialValues, plantId }: PlantFormProps) => {
                         placeholder="e.g., Alex Yolobo" 
                         {...field} 
                         className="bg-background"
-                        type="text"
-                        inputMode="text"
                       />
                     </FormControl>
                     <Button
@@ -394,8 +392,6 @@ const PlantForm = ({ onSuccess, initialValues, plantId }: PlantFormProps) => {
                       placeholder="e.g., Swiss Cheese Plant" 
                       {...field} 
                       className="bg-background"
-                      type="text"
-                      inputMode="text"
                     />
                   </FormControl>
                   <FormMessage />
@@ -415,8 +411,6 @@ const PlantForm = ({ onSuccess, initialValues, plantId }: PlantFormProps) => {
                     placeholder="e.g., Monstera Deliciosa" 
                     {...field} 
                     className="bg-background"
-                    type="text"
-                    inputMode="text"
                   />
                 </FormControl>
                 <FormMessage />

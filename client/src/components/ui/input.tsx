@@ -12,9 +12,6 @@ const Input = React.forwardRef<HTMLInputElement, React.ComponentProps<"input">>(
           className
         )}
         ref={ref}
-        // Essential mobile attributes only
-        inputMode={type === "number" ? "numeric" : "text"}
-        style={{ fontSize: '16px' }}
         {...props}
       />
     )
