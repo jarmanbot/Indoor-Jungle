@@ -71,7 +71,16 @@ const PlantDetails = () => {
       localData.set('pruningLogs', pruningLogs.filter((log: any) => log.plantId !== plantIdNum));
     },
     onSuccess: () => {
+      // Invalidate all plant-related queries to ensure immediate UI updates
       queryClient.invalidateQueries({ queryKey: ['/api/plants'] });
+      queryClient.invalidateQueries({ queryKey: [`/api/plants/${id}`] });
+      
+      // Also remove the specific plant from cache immediately
+      queryClient.removeQueries({ queryKey: [`/api/plants/${id}`] });
+      
+      // Refetch the plants list to ensure immediate update
+      queryClient.refetchQueries({ queryKey: ['/api/plants'] });
+      
       toast({
         title: "Plant deleted",
         description: "The plant has been removed from your collection",
