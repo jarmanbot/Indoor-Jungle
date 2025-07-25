@@ -184,8 +184,10 @@ const Settings = () => {
         title: "All data cleared",
         description: "All plant data has been removed from this device",
       });
-      // Refresh the page to show cleared data
+      // Enhanced cache management for immediate UI update
       queryClient.invalidateQueries({ queryKey: ['/api/plants'] });
+      queryClient.removeQueries();
+      queryClient.refetchQueries({ queryKey: ['/api/plants'] });
     } else {
       toast({
         title: "Incorrect password",
@@ -213,7 +215,10 @@ const Settings = () => {
         description: "You can now use plant #1 for your own plant",
       });
       
+      // Enhanced cache management for immediate UI update
       queryClient.invalidateQueries({ queryKey: ['/api/plants'] });
+      queryClient.removeQueries({ queryKey: ['/api/plants/1'] });
+      queryClient.refetchQueries({ queryKey: ['/api/plants'] });
     } else {
       // Check if there's already a plant #1
       const plants = localData.get('plants') || [];
@@ -259,7 +264,10 @@ const Settings = () => {
       description: "The demo plant is now available as plant #1",
     });
     
+    // Enhanced cache management for immediate UI update
     queryClient.invalidateQueries({ queryKey: ['/api/plants'] });
+    queryClient.invalidateQueries({ queryKey: ['/api/plants/1'] });
+    queryClient.refetchQueries({ queryKey: ['/api/plants'] });
   };
 
   return (
