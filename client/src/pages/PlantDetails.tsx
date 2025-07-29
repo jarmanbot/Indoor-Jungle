@@ -15,9 +15,11 @@ import RepottingLogForm from "@/components/RepottingLogForm";
 import SoilTopUpLogForm from "@/components/SoilTopUpLogForm";
 import PruningLogForm from "@/components/PruningLogForm";
 import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ChevronLeft, Droplet, Clock, Package, MapPin, Edit, Trash, Hash, Flower, Shovel, Mountain, Scissors, Check, X } from "lucide-react";
 import PlantCareHistory from "@/components/PlantCareHistory";
 import { localStorage as localData } from "@/lib/localDataStorage";
+import { plantLocations } from "@shared/schema";
 
 const PlantDetails = () => {
   const { id } = useParams();
@@ -34,6 +36,8 @@ const PlantDetails = () => {
   const [feedingFrequencyValue, setFeedingFrequencyValue] = useState("");
   const [editingNextCheck, setEditingNextCheck] = useState(false);
   const [nextCheckValue, setNextCheckValue] = useState("");
+  const [editingLocation, setEditingLocation] = useState(false);
+  const [locationValue, setLocationValue] = useState("");
   const numericId = id ? parseInt(id) : 0;
 
   // Custom data fetching that uses local storage
@@ -248,6 +252,57 @@ const PlantDetails = () => {
   const handleNextCheckCancel = () => {
     setEditingNextCheck(false);
     setNextCheckValue("");
+  };
+
+  // Location editing handlers
+  const updateLocationMutation = useMutation({
+    mutationFn: async (newLocation: string) => {
+      // Update in local storage
+      const plants = localData.get('plants') || [];
+      const updatedPlants = plants.map((p: any) => 
+        p.id === parseInt(id || '0') ? { ...p, location: newLocation } : p
+      );
+      localData.set('plants', updatedPlants);
+    },
+    onSuccess: () => {
+      setEditingLocation(false);
+      setLocationValue("");
+      queryClient.invalidateQueries({ queryKey: [`/api/plants/${id}`] });
+      queryClient.refetchQueries({ queryKey: [`/api/plants/${id}`] });
+      toast({
+        title: "Location updated",
+        description: "Plant location has been updated successfully",
+      });
+    },
+    onError: (error) => {
+      toast({
+        title: "Error",
+        description: error instanceof Error ? error.message : "Failed to update location",
+        variant: "destructive",
+      });
+    }
+  });
+
+  const handleLocationEdit = () => {
+    setLocationValue(plant?.location || "");
+    setEditingLocation(true);
+  };
+
+  const handleLocationSave = () => {
+    if (locationValue) {
+      updateLocationMutation.mutate(locationValue);
+    } else {
+      toast({
+        title: "Invalid location",
+        description: "Please select a valid location",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleLocationCancel = () => {
+    setEditingLocation(false);
+    setLocationValue("");
   };
 
   if (isLoading) {
@@ -501,9 +556,53 @@ const PlantDetails = () => {
             <div className="bg-neutral-light rounded-md p-3">
               <div className="flex items-start">
                 <MapPin className="h-5 w-5 text-primary mr-2 mt-0.5" />
-                <div>
+                <div className="flex-1">
                   <h4 className="font-medium">Location</h4>
-                  <p className="text-sm text-neutral-dark">{formatLocation(plant.location)}</p>
+                  {editingLocation ? (
+                    <div className="flex items-center gap-2 mt-1">
+                      <Select value={locationValue} onValueChange={setLocationValue}>
+                        <SelectTrigger className="h-7 text-sm">
+                          <SelectValue placeholder="Select location" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {plantLocations.map((location) => (
+                            <SelectItem key={location.value} value={location.value}>
+                              {location.label}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        className="h-7 w-7 p-0"
+                        onClick={handleLocationSave}
+                        disabled={updateLocationMutation.isPending}
+                      >
+                        <Check className="h-3 w-3" />
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        className="h-7 w-7 p-0"
+                        onClick={handleLocationCancel}
+                      >
+                        <X className="h-3 w-3" />
+                      </Button>
+                    </div>
+                  ) : (
+                    <div className="flex items-center gap-2 mt-1">
+                      <p className="text-sm text-neutral-dark">{formatLocation(plant.location)}</p>
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        className="h-7 w-7 p-0"
+                        onClick={handleLocationEdit}
+                      >
+                        <Edit className="h-3 w-3" />
+                      </Button>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>

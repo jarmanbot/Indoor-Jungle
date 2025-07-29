@@ -53,7 +53,12 @@ export const PlantStatus = {
 // Common plant locations (predefined options)
 export const plantLocations = [
   { value: "living_room", label: "Living Room" },
+  { value: "living_room_1", label: "Living Room 1" },
+  { value: "living_room_2", label: "Living Room 2" },
   { value: "bedroom", label: "Bedroom" },
+  { value: "master_bedroom", label: "Master Bedroom" },
+  { value: "bedroom_a", label: "Bedroom A" },
+  { value: "bedroom_l", label: "Bedroom L" },
   { value: "kitchen", label: "Kitchen" },
   { value: "bathroom", label: "Bathroom" },
   { value: "toilet", label: "Toilet" },
@@ -61,6 +66,7 @@ export const plantLocations = [
   { value: "entrance_hall", label: "Entrance Hall" },
   { value: "office", label: "Office" },
   { value: "balcony", label: "Balcony" },
+  { value: "deck", label: "Deck" },
   { value: "outdoor", label: "Outdoor" },
   { value: "greenhouse", label: "Greenhouse" },
   { value: "other", label: "Other" }
