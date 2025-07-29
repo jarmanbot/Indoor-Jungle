@@ -11,8 +11,8 @@ import {
   Calendar, 
   MapPin, 
   Hash,
-  ChevronLeft,
-  ChevronRight,
+  ChevronUp,
+  ChevronDown,
   Eye,
   Edit
 } from "lucide-react"
@@ -26,6 +26,7 @@ const PlantRolodex = ({ plants }: PlantRolodexProps) => {
   const [emblaRef, emblaApi] = useEmblaCarousel({ 
     loop: false,
     align: 'start',
+    axis: 'y',
     skipSnaps: false,
     dragFree: true,
     containScroll: 'trimSnaps',
@@ -58,12 +59,12 @@ const PlantRolodex = ({ plants }: PlantRolodexProps) => {
     setScrollSnaps(emblaApi.scrollSnapList())
     emblaApi.on('select', onSelect)
 
-    // Add keyboard navigation
+    // Add keyboard navigation for vertical scrolling
     const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'ArrowLeft') {
+      if (event.key === 'ArrowUp') {
         event.preventDefault()
         scrollPrev()
-      } else if (event.key === 'ArrowRight') {
+      } else if (event.key === 'ArrowDown') {
         event.preventDefault()
         scrollNext()
       }
@@ -109,38 +110,38 @@ const PlantRolodex = ({ plants }: PlantRolodexProps) => {
       <div className="flex items-center justify-between px-4 py-3 bg-gradient-to-r from-green-50 to-blue-50">
         <div>
           <h3 className="font-semibold text-lg text-gray-800">Plant Collection</h3>
-          <p className="text-sm text-gray-600">{plants.length} plants • Swipe or tap arrows to flip through</p>
+          <p className="text-sm text-gray-600">{plants.length} plants • Swipe vertically or use arrows to flip through</p>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex flex-col items-center gap-1">
           <Button
             variant="outline"
             size="sm"
             onClick={scrollPrev}
-            className="h-8 w-8 p-0 hover:bg-green-100 transition-colors"
+            className="h-6 w-8 p-0 hover:bg-green-100 transition-colors"
           >
-            <ChevronLeft className="h-4 w-4" />
+            <ChevronUp className="h-3 w-3" />
           </Button>
-          <div className="text-xs text-gray-500 px-2">
+          <div className="text-xs text-gray-500 px-1">
             {selectedIndex + 1} / {plants.length}
           </div>
           <Button
             variant="outline"
             size="sm"
             onClick={scrollNext}
-            className="h-8 w-8 p-0 hover:bg-green-100 transition-colors"
+            className="h-6 w-8 p-0 hover:bg-green-100 transition-colors"
           >
-            <ChevronRight className="h-4 w-4" />
+            <ChevronDown className="h-3 w-3" />
           </Button>
         </div>
       </div>
 
-      {/* Carousel */}
-      <div className="overflow-hidden" ref={emblaRef}>
-        <div className="flex">
+      {/* Carousel - Vertical */}
+      <div className="overflow-hidden h-96" ref={emblaRef}>
+        <div className="flex flex-col h-full">
           {plants.map((plant, index) => (
-            <div key={plant.id} className="flex-[0_0_75%] min-w-0 pl-2 pr-2 first:pl-4 last:pr-4">
+            <div key={plant.id} className="flex-[0_0_80%] min-h-0 py-2 first:pt-4 last:pb-4">
               <Card className={`
-                mx-1 my-4 overflow-hidden transition-all duration-200 transform hover:scale-105 cursor-pointer
+                mx-4 my-2 overflow-hidden transition-all duration-200 transform hover:scale-102 cursor-pointer
                 shadow-lg hover:shadow-xl
                 ${needsWater(plant) ? 'bg-red-50 border-red-200 ring-2 ring-red-300' : 
                   needsFeeding(plant) ? 'bg-yellow-50 border-yellow-200 ring-2 ring-yellow-300' : 
@@ -246,15 +247,15 @@ const PlantRolodex = ({ plants }: PlantRolodexProps) => {
         </div>
       </div>
 
-      {/* Quick Navigation Dots */}
-      <div className="flex justify-center gap-1 pb-4 px-4">
-        <div className="flex gap-1 overflow-x-auto max-w-full">
+      {/* Quick Navigation Dots - Vertical Layout */}
+      <div className="flex justify-center pb-4 px-4">
+        <div className="flex gap-1 flex-wrap justify-center max-w-full">
           {scrollSnaps.map((_, index) => (
             <button
               key={index}
               className={`flex-shrink-0 w-2 h-2 rounded-full transition-all duration-200 ${
                 index === selectedIndex 
-                  ? 'bg-green-600 w-6 shadow-md' 
+                  ? 'bg-green-600 h-6 shadow-md' 
                   : 'bg-gray-300 hover:bg-green-400 hover:scale-125'
               }`}
               onClick={() => scrollTo(index)}
