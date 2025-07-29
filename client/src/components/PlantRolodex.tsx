@@ -25,9 +25,11 @@ interface PlantRolodexProps {
 const PlantRolodex = ({ plants }: PlantRolodexProps) => {
   const [emblaRef, emblaApi] = useEmblaCarousel({ 
     loop: false,
-    align: 'center',
+    align: 'start',
     skipSnaps: false,
-    dragFree: false
+    dragFree: true,
+    containScroll: 'trimSnaps',
+    slidesToScroll: 1
   })
   const [selectedIndex, setSelectedIndex] = useState(0)
   const [scrollSnaps, setScrollSnaps] = useState<number[]>([])
@@ -56,10 +58,24 @@ const PlantRolodex = ({ plants }: PlantRolodexProps) => {
     setScrollSnaps(emblaApi.scrollSnapList())
     emblaApi.on('select', onSelect)
 
+    // Add keyboard navigation
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'ArrowLeft') {
+        event.preventDefault()
+        scrollPrev()
+      } else if (event.key === 'ArrowRight') {
+        event.preventDefault()
+        scrollNext()
+      }
+    }
+
+    document.addEventListener('keydown', handleKeyDown)
+
     return () => {
       emblaApi.off('select', onSelect)
+      document.removeEventListener('keydown', handleKeyDown)
     }
-  }, [emblaApi, onSelect])
+  }, [emblaApi, onSelect, scrollPrev, scrollNext])
 
   const formatDate = (date: Date | string | null) => {
     if (!date) return "Never";
@@ -93,24 +109,25 @@ const PlantRolodex = ({ plants }: PlantRolodexProps) => {
       <div className="flex items-center justify-between px-4 py-3 bg-gradient-to-r from-green-50 to-blue-50">
         <div>
           <h3 className="font-semibold text-lg text-gray-800">Plant Collection</h3>
-          <p className="text-sm text-gray-600">{plants.length} plants • Swipe to browse</p>
+          <p className="text-sm text-gray-600">{plants.length} plants • Swipe or tap arrows to flip through</p>
         </div>
         <div className="flex items-center gap-2">
           <Button
             variant="outline"
             size="sm"
             onClick={scrollPrev}
-            disabled={selectedIndex === 0}
-            className="h-8 w-8 p-0"
+            className="h-8 w-8 p-0 hover:bg-green-100 transition-colors"
           >
             <ChevronLeft className="h-4 w-4" />
           </Button>
+          <div className="text-xs text-gray-500 px-2">
+            {selectedIndex + 1} / {plants.length}
+          </div>
           <Button
             variant="outline"
             size="sm"
             onClick={scrollNext}
-            disabled={selectedIndex === plants.length - 1}
-            className="h-8 w-8 p-0"
+            className="h-8 w-8 p-0 hover:bg-green-100 transition-colors"
           >
             <ChevronRight className="h-4 w-4" />
           </Button>
@@ -121,16 +138,13 @@ const PlantRolodex = ({ plants }: PlantRolodexProps) => {
       <div className="overflow-hidden" ref={emblaRef}>
         <div className="flex">
           {plants.map((plant, index) => (
-            <div key={plant.id} className="flex-[0_0_85%] min-w-0 pl-4 pr-2 first:pl-4 last:pr-4">
+            <div key={plant.id} className="flex-[0_0_75%] min-w-0 pl-2 pr-2 first:pl-4 last:pr-4">
               <Card className={`
-                mx-2 my-4 overflow-hidden transition-all duration-300 transform
-                ${index === selectedIndex 
-                  ? 'scale-100 shadow-xl ring-2 ring-green-400 ring-opacity-50' 
-                  : 'scale-95 shadow-md opacity-75'
-                }
-                ${needsWater(plant) ? 'bg-red-50 border-red-200' : 
-                  needsFeeding(plant) ? 'bg-yellow-50 border-yellow-200' : 
-                  'bg-white'
+                mx-1 my-4 overflow-hidden transition-all duration-200 transform hover:scale-105 cursor-pointer
+                shadow-lg hover:shadow-xl
+                ${needsWater(plant) ? 'bg-red-50 border-red-200 ring-2 ring-red-300' : 
+                  needsFeeding(plant) ? 'bg-yellow-50 border-yellow-200 ring-2 ring-yellow-300' : 
+                  'bg-white border-gray-200'
                 }
               `}>
                 <CardContent className="p-0">
@@ -232,19 +246,22 @@ const PlantRolodex = ({ plants }: PlantRolodexProps) => {
         </div>
       </div>
 
-      {/* Dots Indicator */}
-      <div className="flex justify-center gap-1 pb-4">
-        {scrollSnaps.map((_, index) => (
-          <button
-            key={index}
-            className={`w-2 h-2 rounded-full transition-all ${
-              index === selectedIndex 
-                ? 'bg-green-600 w-6' 
-                : 'bg-gray-300 hover:bg-gray-400'
-            }`}
-            onClick={() => scrollTo(index)}
-          />
-        ))}
+      {/* Quick Navigation Dots */}
+      <div className="flex justify-center gap-1 pb-4 px-4">
+        <div className="flex gap-1 overflow-x-auto max-w-full">
+          {scrollSnaps.map((_, index) => (
+            <button
+              key={index}
+              className={`flex-shrink-0 w-2 h-2 rounded-full transition-all duration-200 ${
+                index === selectedIndex 
+                  ? 'bg-green-600 w-6 shadow-md' 
+                  : 'bg-gray-300 hover:bg-green-400 hover:scale-125'
+              }`}
+              onClick={() => scrollTo(index)}
+              title={`Go to ${plants[index]?.name || `Plant ${index + 1}`}`}
+            />
+          ))}
+        </div>
       </div>
     </div>
   )
