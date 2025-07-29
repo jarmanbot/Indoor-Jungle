@@ -128,6 +128,8 @@ The app uses a robust local storage system that stores all data on each device:
 
 ```
 Changelog:
+- July 29, 2025. Fixed "Set Reminder" functionality - now properly updates nextCheck date in local storage instead of attempting server API calls
+- July 29, 2025. Enhanced plant deletion and demo plant toggle with immediate cache refresh - plants now appear/disappear instantly without page refresh
 - July 16, 2025. Optimized app performance - fixed React state update warning in Game component, reduced query frequency, improved caching
 - July 16, 2025. Moved demo plant section to top of Settings page for better visibility
 - July 16, 2025. Enhanced export/import system with multiple fallback methods for browser compatibility

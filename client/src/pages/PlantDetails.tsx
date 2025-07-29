@@ -365,14 +365,20 @@ const PlantDetails = () => {
                   const frequency = plant.wateringFrequencyDays || 7;
                   nextCheck.setDate(nextCheck.getDate() + frequency);
 
-                  apiRequest('PATCH', `/api/plants/${plant.id}`, { 
-                    nextCheck: nextCheck.toISOString()
-                  }).then(() => {
-                    queryClient.invalidateQueries({ queryKey: [`/api/plants/${plant.id}`] });
-                    toast({
-                      title: "Reminder set",
-                      description: `Your plant's next check has been scheduled for ${frequency} days from now`,
-                    });
+                  // Update in local storage
+                  const plants = localData.get('plants') || [];
+                  const updatedPlants = plants.map((p: any) => 
+                    p.id === parseInt(id || '0') ? { ...p, nextCheck: nextCheck.toISOString() } : p
+                  );
+                  localData.set('plants', updatedPlants);
+
+                  // Invalidate cache and refresh
+                  queryClient.invalidateQueries({ queryKey: [`/api/plants/${plant.id}`] });
+                  queryClient.refetchQueries({ queryKey: [`/api/plants/${plant.id}`] });
+                  
+                  toast({
+                    title: "Reminder set",
+                    description: `Your plant's next check has been scheduled for ${frequency} days from now`,
                   });
                 }}
               >
