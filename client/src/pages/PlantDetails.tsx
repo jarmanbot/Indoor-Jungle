@@ -32,6 +32,8 @@ const PlantDetails = () => {
   const [wateringFrequencyValue, setWateringFrequencyValue] = useState("");
   const [editingFeedingFrequency, setEditingFeedingFrequency] = useState(false);
   const [feedingFrequencyValue, setFeedingFrequencyValue] = useState("");
+  const [editingNextCheck, setEditingNextCheck] = useState(false);
+  const [nextCheckValue, setNextCheckValue] = useState("");
   const numericId = id ? parseInt(id) : 0;
 
   // Custom data fetching that uses local storage
@@ -194,6 +196,60 @@ const PlantDetails = () => {
     setFeedingFrequencyValue("");
   };
 
+  // Next Check Date editing handlers
+  const updateNextCheckMutation = useMutation({
+    mutationFn: async (newDate: string) => {
+      // Update in local storage
+      const plants = localData.get('plants') || [];
+      const updatedPlants = plants.map((p: any) => 
+        p.id === parseInt(id || '0') ? { ...p, nextCheck: newDate } : p
+      );
+      localData.set('plants', updatedPlants);
+    },
+    onSuccess: () => {
+      setEditingNextCheck(false);
+      setNextCheckValue("");
+      queryClient.invalidateQueries({ queryKey: [`/api/plants/${id}`] });
+      queryClient.refetchQueries({ queryKey: [`/api/plants/${id}`] });
+      toast({
+        title: "Next check updated",
+        description: "Plant check date has been updated successfully",
+      });
+    },
+    onError: (error) => {
+      toast({
+        title: "Error",
+        description: error instanceof Error ? error.message : "Failed to update next check date",
+        variant: "destructive",
+      });
+    }
+  });
+
+  const handleNextCheckEdit = () => {
+    // Format current date for input field (YYYY-MM-DD)
+    const currentDate = plant?.nextCheck ? new Date(plant.nextCheck) : new Date();
+    setNextCheckValue(currentDate.toISOString().split('T')[0]);
+    setEditingNextCheck(true);
+  };
+
+  const handleNextCheckSave = () => {
+    if (nextCheckValue) {
+      const selectedDate = new Date(nextCheckValue);
+      updateNextCheckMutation.mutate(selectedDate.toISOString());
+    } else {
+      toast({
+        title: "Invalid date",
+        description: "Please select a valid date",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleNextCheckCancel = () => {
+    setEditingNextCheck(false);
+    setNextCheckValue("");
+  };
+
   if (isLoading) {
     return (
       <div className="p-4">
@@ -350,9 +406,47 @@ const PlantDetails = () => {
             <div className="bg-neutral-light rounded-md p-3">
               <div className="flex items-start">
                 <Clock className="h-5 w-5 text-warning mr-2 mt-0.5" />
-                <div>
+                <div className="flex-1">
                   <h4 className="font-medium">Next Check</h4>
-                  <p className="text-sm text-neutral-dark">{formatDate(plant.nextCheck)}</p>
+                  {editingNextCheck ? (
+                    <div className="flex items-center gap-2 mt-1">
+                      <Input
+                        type="date"
+                        value={nextCheckValue}
+                        onChange={(e) => setNextCheckValue(e.target.value)}
+                        className="h-7 text-sm"
+                      />
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        className="h-7 w-7 p-0"
+                        onClick={handleNextCheckSave}
+                        disabled={updateNextCheckMutation.isPending}
+                      >
+                        <Check className="h-3 w-3" />
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        className="h-7 w-7 p-0"
+                        onClick={handleNextCheckCancel}
+                      >
+                        <X className="h-3 w-3" />
+                      </Button>
+                    </div>
+                  ) : (
+                    <div className="flex items-center gap-2 mt-1">
+                      <p className="text-sm text-neutral-dark">{formatDate(plant.nextCheck)}</p>
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        className="h-7 w-7 p-0"
+                        onClick={handleNextCheckEdit}
+                      >
+                        <Edit className="h-3 w-3" />
+                      </Button>
+                    </div>
+                  )}
                 </div>
               </div>
               <Button 
@@ -382,7 +476,7 @@ const PlantDetails = () => {
                   });
                 }}
               >
-                Set Reminder
+                Auto Set (+{plant.wateringFrequencyDays || 7} days)
               </Button>
             </div>
 
