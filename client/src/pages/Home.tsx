@@ -7,7 +7,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
-import { Plus, Leaf, Droplet, Package, ImageIcon, Thermometer, Zap, Search, Brain, BarChart3, Award, CalendarRange, X } from "lucide-react";
+import { Plus, Leaf, Droplet, Package, ImageIcon, Thermometer, Search, Award, CalendarRange, X } from "lucide-react";
 import { localStorage as localData, initializeLocalStorage } from "@/lib/localDataStorage";
 import { useState } from "react";
 
@@ -126,40 +126,6 @@ const Home = () => {
         )}
       </div>
 
-      {/* Compact Quick Actions */}
-      <div className="p-2 bg-green-100 border-b">
-        <h3 className="font-medium text-gray-800 mb-1.5 text-sm">Quick Actions</h3>
-        <div className="grid grid-cols-4 gap-1.5">
-          <Link href="/bulk-care" className="flex flex-col items-center p-1.5 rounded-lg bg-white hover:bg-green-50 transition-colors">
-            <div className="bg-green-200 rounded-full p-1 mb-0.5">
-              <Zap className="h-2.5 w-2.5 text-green-700" />
-            </div>
-            <span className="text-xs text-center text-gray-700">Bulk Care</span>
-          </Link>
-          
-          <Link href="/identify" className="flex flex-col items-center p-1.5 rounded-lg bg-white hover:bg-green-50 transition-colors">
-            <div className="bg-blue-200 rounded-full p-1 mb-0.5">
-              <Search className="h-2.5 w-2.5 text-blue-700" />
-            </div>
-            <span className="text-xs text-center text-gray-700">Plant ID</span>
-          </Link>
-          
-          <Link href="/recommendations" className="flex flex-col items-center p-1.5 rounded-lg bg-white hover:bg-green-50 transition-colors">
-            <div className="bg-purple-200 rounded-full p-1 mb-0.5">
-              <Brain className="h-2.5 w-2.5 text-purple-700" />
-            </div>
-            <span className="text-xs text-center text-gray-700">Smart Tips</span>
-          </Link>
-          
-          <Link href="/analytics" className="flex flex-col items-center p-1.5 rounded-lg bg-white hover:bg-green-50 transition-colors">
-            <div className="bg-indigo-200 rounded-full p-1 mb-0.5">
-              <BarChart3 className="h-2.5 w-2.5 text-indigo-700" />
-            </div>
-            <span className="text-xs text-center text-gray-700">Analytics</span>
-          </Link>
-        </div>
-      </div>
-      
       {/* Search bar for many plants */}
       {plants && plants.length > 3 && (
         <div className="p-3 bg-white border-b border-gray-200">
