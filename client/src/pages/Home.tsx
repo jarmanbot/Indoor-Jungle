@@ -6,10 +6,13 @@ import { Plant } from "@shared/schema";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Leaf, Droplet, Package, ImageIcon, Thermometer, Zap, Search, Brain, BarChart3, Award, CalendarRange } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Plus, Leaf, Droplet, Package, ImageIcon, Thermometer, Zap, Search, Brain, BarChart3, Award, CalendarRange, X } from "lucide-react";
 import { localStorage as localData, initializeLocalStorage } from "@/lib/localDataStorage";
+import { useState } from "react";
 
 const Home = () => {
+  const [searchQuery, setSearchQuery] = useState("");
   const { data: plants, isLoading, error, refetch } = useQuery<Plant[]>({
     queryKey: ['/api/plants'],
     queryFn: async () => {
@@ -29,6 +32,19 @@ const Home = () => {
   if (process.env.NODE_ENV === 'development') {
     console.log("Home page - Plants:", plants?.length || 0, "plants");
   }
+
+  // Filter plants based on search query
+  const filteredPlants = plants?.filter(plant => {
+    if (!searchQuery.trim()) return true;
+    const query = searchQuery.toLowerCase();
+    return (
+      plant.name?.toLowerCase().includes(query) ||
+      plant.babyName?.toLowerCase().includes(query) ||
+      plant.commonName?.toLowerCase().includes(query) ||
+      plant.latinName?.toLowerCase().includes(query) ||
+      plant.plantNumber?.toString().includes(query)
+    );
+  }) || [];
 
   // Calculate stats for dashboard
   const totalPlants = plants?.length || 0;
@@ -144,49 +160,108 @@ const Home = () => {
         </div>
       </div>
       
-      <div className="plant-list">
-        {isLoading ? (
-          // Loading state
-          Array(3).fill(0).map((_, i) => (
-            <div key={i} className={`relative ${i % 2 === 0 ? 'bg-blue-50' : 'bg-green-50'} border-b border-gray-200 py-2 pl-3 pr-2 flex items-center`}>
-              <Skeleton className="w-16 h-16 mr-3 rounded-md" />
-              <div className="flex-1">
-                <Skeleton className="h-4 w-24 mb-2" />
-                <Skeleton className="h-3 w-32 mb-1" />
-                <Skeleton className="h-3 w-20" />
-              </div>
-            </div>
-          ))
-        ) : error ? (
-          // Error state
-          <div className="bg-red-50 p-4 rounded-md border border-red-100">
-            <p className="text-red-600">Failed to load plants. Please try again.</p>
+      {/* Search bar for many plants */}
+      {plants && plants.length > 3 && (
+        <div className="p-3 bg-white border-b border-gray-200">
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+            <Input
+              placeholder="Search plants by name, type, or number..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-10 pr-10 text-sm"
+            />
+            {searchQuery && (
+              <button
+                onClick={() => setSearchQuery("")}
+                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            )}
           </div>
-        ) : plants && plants.length > 0 ? (
-          // Plants list
-          plants.map((plant, index) => (
-            <PlantCard key={`plant-${plant.id}-${plant.plantNumber || index}`} plant={plant} index={index} />
-          ))
-        ) : (
-          // Empty state
-          <div className="text-center py-8 px-4">
-            <div className="bg-green-100 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
-              <Leaf className="h-8 w-8 text-green-600" />
+          {searchQuery && (
+            <div className="mt-2 text-xs text-gray-600">
+              {filteredPlants.length} of {plants.length} plants shown
             </div>
-            <h3 className="text-lg font-medium text-gray-800 mb-2">No plants yet</h3>
-            <p className="text-gray-600 mb-4">Start adding plants to your collection</p>
-            <div className="space-y-3">
-              <Link href="/add" className="bg-green-700 text-white px-6 py-3 rounded-md font-medium inline-block">
-                Add Your First Plant
-              </Link>
-              <div className="text-sm text-gray-500">
-                Or enable the demo plant in{" "}
-                <Link href="/settings" className="text-green-600 hover:text-green-700 underline">
-                  Settings
-                </Link>{" "}
-                to explore the app
+          )}
+        </div>
+      )}
+
+      {/* Enhanced scrollable plant list */}
+      <div className="flex-1 relative">
+        {plants && plants.length > 5 && !searchQuery && (
+          <div className="bg-green-50 border-b border-green-200 px-3 py-2 text-xs text-green-700 font-medium">
+            {plants.length} plants • Scroll down to see all
+          </div>
+        )}
+        
+        <div className="plant-list overflow-y-auto max-h-[calc(100vh-240px)] scrollbar-thin scrollbar-thumb-green-300 scrollbar-track-green-100">
+          {isLoading ? (
+            // Loading state
+            Array(3).fill(0).map((_, i) => (
+              <div key={i} className={`relative ${i % 2 === 0 ? 'bg-blue-50' : 'bg-green-50'} border-b border-gray-200 py-2 pl-3 pr-2 flex items-center`}>
+                <Skeleton className="w-16 h-16 mr-3 rounded-md" />
+                <div className="flex-1">
+                  <Skeleton className="h-4 w-24 mb-2" />
+                  <Skeleton className="h-3 w-32 mb-1" />
+                  <Skeleton className="h-3 w-20" />
+                </div>
+              </div>
+            ))
+          ) : error ? (
+            // Error state
+            <div className="bg-red-50 p-4 rounded-md border border-red-100 m-4">
+              <p className="text-red-600">Failed to load plants. Please try again.</p>
+            </div>
+          ) : filteredPlants && filteredPlants.length > 0 ? (
+            // Plants list
+            filteredPlants.map((plant, index) => (
+              <PlantCard key={`plant-${plant.id}-${plant.plantNumber || index}`} plant={plant} index={index} />
+            ))
+          ) : searchQuery && plants && plants.length > 0 ? (
+            // No search results
+            <div className="text-center py-8 px-4">
+              <div className="bg-gray-100 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
+                <Search className="h-8 w-8 text-gray-400" />
+              </div>
+              <h3 className="text-lg font-medium text-gray-800 mb-2">No plants found</h3>
+              <p className="text-gray-600 mb-4">Try searching with different keywords</p>
+              <button
+                onClick={() => setSearchQuery("")}
+                className="text-green-600 hover:text-green-700 underline text-sm"
+              >
+                Clear search to see all plants
+              </button>
+            </div>
+          ) : (
+            // Empty state
+            <div className="text-center py-8 px-4">
+              <div className="bg-green-100 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
+                <Leaf className="h-8 w-8 text-green-600" />
+              </div>
+              <h3 className="text-lg font-medium text-gray-800 mb-2">No plants yet</h3>
+              <p className="text-gray-600 mb-4">Start adding plants to your collection</p>
+              <div className="space-y-3">
+                <Link href="/add" className="bg-green-700 text-white px-6 py-3 rounded-md font-medium inline-block">
+                  Add Your First Plant
+                </Link>
+                <div className="text-sm text-gray-500">
+                  Or enable the demo plant in{" "}
+                  <Link href="/settings" className="text-green-600 hover:text-green-700 underline">
+                    Settings
+                  </Link>{" "}
+                  to explore the app
+                </div>
               </div>
             </div>
+          )}
+        </div>
+        
+        {/* Scroll indicator for many plants */}
+        {filteredPlants && filteredPlants.length > 10 && (
+          <div className="absolute bottom-2 right-4 bg-green-600 text-white text-xs px-2 py-1 rounded-full shadow-lg opacity-75">
+            {searchQuery ? `${filteredPlants.length} of ${plants?.length}` : `${filteredPlants.length} total`}
           </div>
         )}
       </div>

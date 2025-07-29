@@ -59,6 +59,39 @@
   }
 }
 
+/* Custom scrollbar styles for plant list */
+.scrollbar-thin {
+  scrollbar-width: thin;
+}
+
+.scrollbar-thumb-green-300 {
+  scrollbar-color: #86EFAC #F0FDF4;
+}
+
+.scrollbar-track-green-100 {
+  scrollbar-color: #86EFAC #F0FDF4;
+}
+
+/* Webkit scrollbar styling for better browser support */
+.plant-list::-webkit-scrollbar {
+  width: 8px;
+}
+
+.plant-list::-webkit-scrollbar-track {
+  background: #F0FDF4;
+  border-radius: 4px;
+}
+
+.plant-list::-webkit-scrollbar-thumb {
+  background: #86EFAC;
+  border-radius: 4px;
+  border: 1px solid #F0FDF4;
+}
+
+.plant-list::-webkit-scrollbar-thumb:hover {
+  background: #4ADE80;
+}
+
 .plant-status-indicator {
   width: 12px;
   height: 12px;
