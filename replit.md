@@ -128,6 +128,7 @@ The app uses a robust local storage system that stores all data on each device:
 
 ```
 Changelog:
+- July 29, 2025. Added interactive plant rolodex interface - plants now display in an elegant carousel with swipe navigation, visual care status, and enhanced plant cards
 - July 29, 2025. Fixed "Set Reminder" functionality - now properly updates nextCheck date in local storage instead of attempting server API calls
 - July 29, 2025. Enhanced plant deletion and demo plant toggle with immediate cache refresh - plants now appear/disappear instantly without page refresh
 - July 16, 2025. Optimized app performance - fixed React state update warning in Game component, reduced query frequency, improved caching

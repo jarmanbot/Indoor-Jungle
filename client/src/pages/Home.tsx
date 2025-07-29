@@ -1,6 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "wouter";
 import PlantCard from "@/components/PlantCard";
+import PlantRolodex from "@/components/PlantRolodex";
 import FloatingActionButton from "@/components/FloatingActionButton";
 import { Plant } from "@shared/schema";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -144,52 +145,49 @@ const Home = () => {
         </div>
       </div>
       
-      <div className="plant-list">
-        {isLoading ? (
-          // Loading state
-          Array(3).fill(0).map((_, i) => (
-            <div key={i} className={`relative ${i % 2 === 0 ? 'bg-blue-50' : 'bg-green-50'} border-b border-gray-200 py-2 pl-3 pr-2 flex items-center`}>
-              <Skeleton className="w-16 h-16 mr-3 rounded-md" />
-              <div className="flex-1">
-                <Skeleton className="h-4 w-24 mb-2" />
-                <Skeleton className="h-3 w-32 mb-1" />
-                <Skeleton className="h-3 w-20" />
-              </div>
-            </div>
-          ))
-        ) : error ? (
-          // Error state
-          <div className="bg-red-50 p-4 rounded-md border border-red-100">
-            <p className="text-red-600">Failed to load plants. Please try again.</p>
+      {/* Plant Rolodex */}
+      {isLoading ? (
+        // Loading state for rolodex
+        <div className="px-4 py-8">
+          <div className="flex items-center justify-center space-x-4">
+            <Skeleton className="w-80 h-96 rounded-lg" />
           </div>
-        ) : plants && plants.length > 0 ? (
-          // Plants list
-          plants.map((plant, index) => (
-            <PlantCard key={`plant-${plant.id}-${plant.plantNumber || index}`} plant={plant} index={index} />
-          ))
-        ) : (
-          // Empty state
-          <div className="text-center py-8 px-4">
-            <div className="bg-green-100 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
-              <Leaf className="h-8 w-8 text-green-600" />
-            </div>
-            <h3 className="text-lg font-medium text-gray-800 mb-2">No plants yet</h3>
-            <p className="text-gray-600 mb-4">Start adding plants to your collection</p>
-            <div className="space-y-3">
-              <Link href="/add" className="bg-green-700 text-white px-6 py-3 rounded-md font-medium inline-block">
-                Add Your First Plant
-              </Link>
-              <div className="text-sm text-gray-500">
-                Or enable the demo plant in{" "}
-                <Link href="/settings" className="text-green-600 hover:text-green-700 underline">
-                  Settings
-                </Link>{" "}
-                to explore the app
-              </div>
+          <div className="flex justify-center gap-2 mt-4">
+            {Array(3).fill(0).map((_, i) => (
+              <Skeleton key={i} className="w-2 h-2 rounded-full" />
+            ))}
+          </div>
+        </div>
+      ) : error ? (
+        // Error state
+        <div className="bg-red-50 p-4 mx-4 rounded-md border border-red-100">
+          <p className="text-red-600">Failed to load plants. Please try again.</p>
+        </div>
+      ) : plants && plants.length > 0 ? (
+        // Plant Rolodex
+        <PlantRolodex plants={plants} />
+      ) : (
+        // Empty state
+        <div className="text-center py-8 px-4">
+          <div className="bg-green-100 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
+            <Leaf className="h-8 w-8 text-green-600" />
+          </div>
+          <h3 className="text-lg font-medium text-gray-800 mb-2">No plants yet</h3>
+          <p className="text-gray-600 mb-4">Start adding plants to your collection</p>
+          <div className="space-y-3">
+            <Link href="/add" className="bg-green-700 text-white px-6 py-3 rounded-md font-medium inline-block">
+              Add Your First Plant
+            </Link>
+            <div className="text-sm text-gray-500">
+              Or enable the demo plant in{" "}
+              <Link href="/settings" className="text-green-600 hover:text-green-700 underline">
+                Settings
+              </Link>{" "}
+              to explore the app
             </div>
           </div>
-        )}
-      </div>
+        </div>
+      )}
     </div>
   );
 };
