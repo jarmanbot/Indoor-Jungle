@@ -60,6 +60,15 @@ const Home = () => {
     return daysSince >= (plant.feedingFrequencyDays || 14);
   }).length || 0;
 
+  // Calculate total plants needing care (either water or feeding)
+  const plantsNeedingCare = plants?.filter(plant => {
+    const needsWater = !plant.lastWatered || 
+      Math.floor((Date.now() - new Date(plant.lastWatered).getTime()) / (1000 * 60 * 60 * 24)) >= (plant.wateringFrequencyDays || 7);
+    const needsFeeding = !plant.lastFed || 
+      Math.floor((Date.now() - new Date(plant.lastFed).getTime()) / (1000 * 60 * 60 * 24)) >= (plant.feedingFrequencyDays || 14);
+    return needsWater || needsFeeding;
+  }).length || 0;
+
   return (
     <div className="pb-20">
       {/* Header with stats */}
@@ -72,57 +81,35 @@ const Home = () => {
 
         </div>
 
-        {/* Compact stats */}
-        {totalPlants > 0 && (
-          <div className="grid grid-cols-3 gap-1.5">
-            <Link href="/analytics">
-              <Card className="bg-green-100 border-green-200 hover:bg-green-200 transition-colors cursor-pointer">
-                <CardContent className="p-1.5">
-                  <div className="flex items-center gap-1">
-                    <div className="bg-blue-100 rounded-full p-0.5">
-                      <Leaf className="h-2.5 w-2.5 text-blue-600" />
+        {/* Need Care Button */}
+        {totalPlants > 0 && plantsNeedingCare > 0 && (
+          <Link href="/bulk-care">
+            <Card className="bg-orange-100 border-orange-200 hover:bg-orange-200 transition-colors cursor-pointer">
+              <CardContent className="p-3">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="bg-orange-200 rounded-full p-2">
+                      <Droplet className="h-5 w-5 text-orange-700" />
                     </div>
                     <div>
-                      <div className="text-xs font-bold">{totalPlants}</div>
-                      <p className="text-xs text-gray-600">Total</p>
+                      <div className="text-lg font-bold text-orange-900">{plantsNeedingCare}</div>
+                      <p className="text-sm text-orange-700">
+                        Plant{plantsNeedingCare === 1 ? '' : 's'} need care
+                      </p>
+                      <p className="text-xs text-orange-600">
+                        {plantsNeedingWater} need water • {plantsNeedingFeeding} need feeding
+                      </p>
                     </div>
                   </div>
-                </CardContent>
-              </Card>
-            </Link>
-            
-            <Link href="/bulk-care">
-              <Card className="bg-green-100 border-green-200 hover:bg-green-200 transition-colors cursor-pointer">
-                <CardContent className="p-1.5">
-                  <div className="flex items-center gap-1">
-                    <div className="bg-orange-100 rounded-full p-0.5">
-                      <Droplet className="h-2.5 w-2.5 text-orange-600" />
-                    </div>
-                    <div>
-                      <div className="text-xs font-bold">{plantsNeedingWater}</div>
-                      <p className="text-xs text-gray-600">Need water</p>
-                    </div>
+                  <div className="text-orange-600">
+                    <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                    </svg>
                   </div>
-                </CardContent>
-              </Card>
-            </Link>
-            
-            <Link href="/bulk-care">
-              <Card className="bg-green-100 border-green-200 hover:bg-green-200 transition-colors cursor-pointer">
-                <CardContent className="p-1.5">
-                  <div className="flex items-center gap-1">
-                    <div className="bg-green-100 rounded-full p-0.5">
-                      <Package className="h-2.5 w-2.5 text-green-600" />
-                    </div>
-                    <div>
-                      <div className="text-xs font-bold">{plantsNeedingFeeding}</div>
-                      <p className="text-xs text-gray-600">Need feed</p>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </Link>
-          </div>
+                </div>
+              </CardContent>
+            </Card>
+          </Link>
         )}
       </div>
 
