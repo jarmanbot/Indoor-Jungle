@@ -145,6 +145,36 @@ const BulkCare = () => {
   const currentNeedyPlants = activeTab === "water" ? plantsThatNeedWater : plantsThatNeedFeeding;
   const plantsToShow = showOnlyNeedy ? currentNeedyPlants : (plants || []);
 
+  // Group plants by room/location
+  const plantsByRoom = plantsToShow.reduce((acc, plant) => {
+    const location = plant.location || 'No Location';
+    if (!acc[location]) {
+      acc[location] = [];
+    }
+    acc[location].push(plant);
+    return acc;
+  }, {} as Record<string, typeof plantsToShow>);
+
+  // Get room selection counts
+  const getRoomStats = (roomPlants: typeof plantsToShow) => {
+    const selected = roomPlants.filter(p => selectedPlants.includes(p.id)).length;
+    const needy = roomPlants.filter(p => currentNeedyPlants.some(np => np.id === p.id)).length;
+    return { selected, needy, total: roomPlants.length };
+  };
+
+  const handleRoomToggle = (roomPlants: typeof plantsToShow) => {
+    const roomIds = roomPlants.map(p => p.id);
+    const allSelected = roomIds.every(id => selectedPlants.includes(id));
+    
+    if (allSelected) {
+      // Deselect all in room
+      setSelectedPlants(prev => prev.filter(id => !roomIds.includes(id)));
+    } else {
+      // Select all in room
+      setSelectedPlants(prev => [...new Set([...prev, ...roomIds])]);
+    }
+  };
+
   if (isLoading) {
     return (
       <div className="p-4 pb-20">
@@ -197,45 +227,51 @@ const BulkCare = () => {
         </button>
       </div>
 
-      {/* Quick Selection Buttons */}
-      <div className="flex flex-wrap gap-2 mb-4">
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={handleSelectAllNeedy}
-          disabled={currentNeedyPlants.length === 0}
-          className={activeTab === "water" ? "border-blue-200 text-blue-700" : "border-green-200 text-green-700"}
-        >
-          <Check className="h-3 w-3 mr-1" />
-          Select {currentNeedyPlants.length} needy
-        </Button>
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={handleSelectAll}
-        >
-          <Check className="h-3 w-3 mr-1" />
-          Select all plants
-        </Button>
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={handleClearSelection}
-          disabled={selectedPlants.length === 0}
-        >
-          <X className="h-3 w-3 mr-1" />
-          Clear selection
-        </Button>
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => setShowOnlyNeedy(!showOnlyNeedy)}
-          className={showOnlyNeedy ? "bg-gray-100" : ""}
-        >
-          <Filter className="h-3 w-3 mr-1" />
-          {showOnlyNeedy ? "Show all" : "Show needy only"}
-        </Button>
-      </div>
+      {/* Quick Selection and Filter Bar */}
+      <Card className="mb-4">
+        <CardContent className="p-4">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div className="flex flex-wrap gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleSelectAllNeedy}
+                disabled={currentNeedyPlants.length === 0}
+                className={`${activeTab === "water" ? "border-blue-200 text-blue-700 hover:bg-blue-50" : "border-green-200 text-green-700 hover:bg-green-50"}`}
+              >
+                <Check className="h-3 w-3 mr-1" />
+                Select {currentNeedyPlants.length} needy
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleSelectAll}
+              >
+                <Check className="h-3 w-3 mr-1" />
+                All plants ({plants?.length || 0})
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleClearSelection}
+                disabled={selectedPlants.length === 0}
+              >
+                <X className="h-3 w-3 mr-1" />
+                Clear
+              </Button>
+            </div>
+            
+            <Button
+              variant={showOnlyNeedy ? "default" : "outline"}
+              size="sm"
+              onClick={() => setShowOnlyNeedy(!showOnlyNeedy)}
+            >
+              <Filter className="h-3 w-3 mr-1" />
+              {showOnlyNeedy ? "Showing needy only" : "Show needy only"}
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
 
       {/* Selected Count */}
       {selectedPlants.length > 0 && (
@@ -249,61 +285,120 @@ const BulkCare = () => {
         </div>
       )}
 
-      {/* Plant List */}
-      <Card className="mb-4">
-        <CardContent className="p-4">
-          <div className="space-y-3 max-h-96 overflow-y-auto">
-            {plantsToShow.length === 0 ? (
-              <div className="text-center py-8 text-gray-500">
+      {/* Plant List Grouped by Room */}
+      <div className="space-y-4 mb-4">
+        {Object.keys(plantsByRoom).length === 0 ? (
+          <Card>
+            <CardContent className="p-8">
+              <div className="text-center text-gray-500">
                 {showOnlyNeedy 
                   ? `No plants need ${activeTab === "water" ? "watering" : "feeding"} right now!` 
                   : "No plants found"
                 }
               </div>
-            ) : (
-              plantsToShow.map(plant => {
-                const needsCare = currentNeedyPlants.some(p => p.id === plant.id);
-                return (
-                  <div 
-                    key={plant.id} 
-                    className={`flex items-center gap-3 p-3 border rounded-lg cursor-pointer transition-colors ${
-                      selectedPlants.includes(plant.id) 
-                        ? 'bg-blue-50 border-blue-200' 
-                        : 'hover:bg-gray-50'
-                    }`}
-                    onClick={() => handlePlantToggle(plant.id)}
-                  >
-                    <Checkbox
-                      checked={selectedPlants.includes(plant.id)}
-                      onCheckedChange={() => handlePlantToggle(plant.id)}
-                    />
-                    <div className="h-12 w-12 rounded-md overflow-hidden flex-shrink-0">
-                      <img 
-                        src={plant.imageUrl || "https://via.placeholder.com/48?text=Plant"} 
-                        alt={plant.name}
-                        className="h-full w-full object-cover"
+            </CardContent>
+          </Card>
+        ) : (
+          Object.entries(plantsByRoom).map(([room, roomPlants]) => {
+            const stats = getRoomStats(roomPlants);
+            const allRoomSelected = roomPlants.every(p => selectedPlants.includes(p.id));
+            const someRoomSelected = roomPlants.some(p => selectedPlants.includes(p.id));
+            
+            return (
+              <Card key={room}>
+                <CardContent className="p-4">
+                  {/* Room Header */}
+                  <div className="flex items-center justify-between mb-4 pb-3 border-b">
+                    <div className="flex items-center gap-3">
+                      <h3 className="font-semibold text-lg capitalize">
+                        {room.replace(/_/g, ' ')}
+                      </h3>
+                      <div className="flex gap-2">
+                        <Badge variant="secondary">
+                          {stats.total} plant{stats.total !== 1 ? 's' : ''}
+                        </Badge>
+                        {stats.needy > 0 && (
+                          <Badge 
+                            variant="outline" 
+                            className={activeTab === "water" ? "text-blue-600 border-blue-200" : "text-green-600 border-green-200"}
+                          >
+                            {stats.needy} need care
+                          </Badge>
+                        )}
+                        {stats.selected > 0 && (
+                          <Badge variant="default">
+                            {stats.selected} selected
+                          </Badge>
+                        )}
+                      </div>
+                    </div>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handleRoomToggle(roomPlants)}
+                      className="flex items-center gap-2"
+                    >
+                      <Checkbox 
+                        checked={allRoomSelected}
+                        className="pointer-events-none"
+                        ref={el => {
+                          if (el) {
+                            el.indeterminate = someRoomSelected && !allRoomSelected;
+                          }
+                        }}
                       />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <h4 className="font-medium truncate">#{plant.plantNumber} {plant.name}</h4>
-                      <p className="text-sm text-gray-600 truncate">{plant.location}</p>
-                    </div>
-                    {needsCare && (
-                      <Badge 
-                        variant="outline" 
-                        className={activeTab === "water" ? "text-blue-600 border-blue-200" : "text-green-600 border-green-200"}
-                      >
-                        {activeTab === "water" ? <Droplet className="h-3 w-3 mr-1" /> : <Package className="h-3 w-3 mr-1" />}
-                        Needs {activeTab === "water" ? "water" : "feed"}
-                      </Badge>
-                    )}
+                      {allRoomSelected ? 'Deselect room' : 'Select room'}
+                    </Button>
                   </div>
-                );
-              })
-            )}
-          </div>
-        </CardContent>
-      </Card>
+
+                  {/* Plants in Room */}
+                  <div className="space-y-2">
+                    {roomPlants.map(plant => {
+                      const needsCare = currentNeedyPlants.some(p => p.id === plant.id);
+                      return (
+                        <div 
+                          key={plant.id} 
+                          className={`flex items-center gap-3 p-3 border rounded-lg cursor-pointer transition-colors ${
+                            selectedPlants.includes(plant.id) 
+                              ? 'bg-blue-50 border-blue-200' 
+                              : 'hover:bg-gray-50'
+                          }`}
+                          onClick={() => handlePlantToggle(plant.id)}
+                        >
+                          <Checkbox
+                            checked={selectedPlants.includes(plant.id)}
+                            onCheckedChange={() => handlePlantToggle(plant.id)}
+                          />
+                          <div className="h-12 w-12 rounded-md overflow-hidden flex-shrink-0">
+                            <img 
+                              src={plant.imageUrl || "https://via.placeholder.com/48?text=Plant"} 
+                              alt={plant.name}
+                              className="h-full w-full object-cover"
+                            />
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <h4 className="font-medium truncate">#{plant.plantNumber} {plant.name}</h4>
+                            <p className="text-sm text-gray-600 truncate">{plant.commonName}</p>
+                          </div>
+                          {needsCare && (
+                            <Badge 
+                              variant="outline" 
+                              className={activeTab === "water" ? "text-blue-600 border-blue-200 bg-blue-50" : "text-green-600 border-green-200 bg-green-50"}
+                            >
+                              {activeTab === "water" ? <Droplet className="h-3 w-3 mr-1" /> : <Package className="h-3 w-3 mr-1" />}
+                              Needs {activeTab === "water" ? "water" : "feed"}
+                            </Badge>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                </CardContent>
+              </Card>
+            );
+          })
+        )}
+      </div>
 
       {/* Notes Section */}
       {selectedPlants.length > 0 && (
