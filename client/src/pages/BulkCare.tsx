@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/textarea";
 import { Plant } from "@shared/schema";
@@ -14,13 +15,17 @@ import {
   CheckCircle, 
   Clock,
   ChevronLeft,
-  Sparkles
+  Check,
+  X,
+  Filter
 } from "lucide-react";
 
 const BulkCare = () => {
   const [_, setLocation] = useLocation();
   const [notes, setNotes] = useState("");
   const [activeTab, setActiveTab] = useState<"water" | "feed">("water");
+  const [selectedPlants, setSelectedPlants] = useState<number[]>([]);
+  const [showOnlyNeedy, setShowOnlyNeedy] = useState(false);
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
@@ -62,6 +67,7 @@ const BulkCare = () => {
     },
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ['/api/plants'] });
+      queryClient.refetchQueries({ queryKey: ['/api/plants'] });
       
       toast({
         title: "Bulk care completed!",
@@ -69,6 +75,7 @@ const BulkCare = () => {
       });
       
       // Reset form
+      setSelectedPlants([]);
       setNotes("");
     },
     onError: (error) => {
@@ -80,12 +87,12 @@ const BulkCare = () => {
     }
   });
 
-  const handleBulkCare = (plantIds: number[], type: "watering" | "feeding") => {
-    if (plantIds.length === 0) return;
+  const handleBulkCare = () => {
+    if (selectedPlants.length === 0) return;
     
     bulkCareMutation.mutate({
-      plantIds,
-      type,
+      plantIds: selectedPlants,
+      type: activeTab === "water" ? "watering" : "feeding",
       notes
     });
   };
@@ -107,8 +114,36 @@ const BulkCare = () => {
     });
   };
 
+  const handlePlantToggle = (plantId: number) => {
+    setSelectedPlants(prev => 
+      prev.includes(plantId) 
+        ? prev.filter(id => id !== plantId)
+        : [...prev, plantId]
+    );
+  };
+
+  const handleSelectAllNeedy = () => {
+    const needyPlants = getPlantsThatNeedCare(activeTab === "water" ? "watering" : "feeding");
+    const needyIds = needyPlants.map(p => p.id);
+    setSelectedPlants(needyIds);
+  };
+
+  const handleSelectAll = () => {
+    if (!plants) return;
+    const allIds = plants.map(p => p.id);
+    setSelectedPlants(allIds);
+  };
+
+  const handleClearSelection = () => {
+    setSelectedPlants([]);
+  };
+
   const plantsThatNeedWater = getPlantsThatNeedCare("watering");
   const plantsThatNeedFeeding = getPlantsThatNeedCare("feeding");
+  
+  // Filter plants based on current tab and filter
+  const currentNeedyPlants = activeTab === "water" ? plantsThatNeedWater : plantsThatNeedFeeding;
+  const plantsToShow = showOnlyNeedy ? currentNeedyPlants : (plants || []);
 
   if (isLoading) {
     return (
@@ -126,14 +161,17 @@ const BulkCare = () => {
       </Button>
       
       <div className="mb-6">
-        <h2 className="text-2xl font-bold text-gray-800 mb-2">Plant Care</h2>
-        <p className="text-gray-600">Log care for multiple plants at once</p>
+        <h2 className="text-2xl font-bold text-gray-800 mb-2">Bulk Plant Care</h2>
+        <p className="text-gray-600">Select plants and log care for multiple plants at once</p>
       </div>
 
       {/* Tab Navigation */}
-      <div className="flex bg-gray-100 rounded-lg p-1 mb-6">
+      <div className="flex bg-gray-100 rounded-lg p-1 mb-4">
         <button
-          onClick={() => setActiveTab("water")}
+          onClick={() => {
+            setActiveTab("water");
+            setSelectedPlants([]);
+          }}
           className={`flex-1 flex items-center justify-center gap-2 py-2 px-4 rounded-md transition-colors ${
             activeTab === "water" 
               ? "bg-blue-500 text-white shadow-sm" 
@@ -141,10 +179,13 @@ const BulkCare = () => {
           }`}
         >
           <Droplet className="h-4 w-4" />
-          Watering ({plantsThatNeedWater.length})
+          Watering ({plantsThatNeedWater.length} need)
         </button>
         <button
-          onClick={() => setActiveTab("feed")}
+          onClick={() => {
+            setActiveTab("feed");
+            setSelectedPlants([]);
+          }}
           className={`flex-1 flex items-center justify-center gap-2 py-2 px-4 rounded-md transition-colors ${
             activeTab === "feed" 
               ? "bg-green-500 text-white shadow-sm" 
@@ -152,92 +193,90 @@ const BulkCare = () => {
           }`}
         >
           <Package className="h-4 w-4" />
-          Feeding ({plantsThatNeedFeeding.length})
+          Feeding ({plantsThatNeedFeeding.length} need)
         </button>
       </div>
 
-      {/* Notes Section */}
-      <Card className="mb-6">
-        <CardContent className="p-4">
-          <label className="block text-sm font-medium mb-2">Notes (optional)</label>
-          <Textarea
-            placeholder="Add notes about this care session..."
-            value={notes}
-            onChange={(e) => setNotes(e.target.value)}
-            rows={2}
-            className="text-sm"
-          />
-        </CardContent>
-      </Card>
+      {/* Quick Selection Buttons */}
+      <div className="flex flex-wrap gap-2 mb-4">
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={handleSelectAllNeedy}
+          disabled={currentNeedyPlants.length === 0}
+          className={activeTab === "water" ? "border-blue-200 text-blue-700" : "border-green-200 text-green-700"}
+        >
+          <Check className="h-3 w-3 mr-1" />
+          Select {currentNeedyPlants.length} needy
+        </Button>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={handleSelectAll}
+        >
+          <Check className="h-3 w-3 mr-1" />
+          Select all plants
+        </Button>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={handleClearSelection}
+          disabled={selectedPlants.length === 0}
+        >
+          <X className="h-3 w-3 mr-1" />
+          Clear selection
+        </Button>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => setShowOnlyNeedy(!showOnlyNeedy)}
+          className={showOnlyNeedy ? "bg-gray-100" : ""}
+        >
+          <Filter className="h-3 w-3 mr-1" />
+          {showOnlyNeedy ? "Show all" : "Show needy only"}
+        </Button>
+      </div>
 
-      {/* Quick Action Button */}
-      {(activeTab === "water" ? plantsThatNeedWater : plantsThatNeedFeeding).length > 0 && (
-        <Card className="mb-6">
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between mb-3">
-              <div>
-                <h3 className="font-medium">
-                  {activeTab === "water" ? "Water all plants that need it" : "Feed all plants that need it"}
-                </h3>
-                <p className="text-sm text-gray-600">
-                  {(activeTab === "water" ? plantsThatNeedWater : plantsThatNeedFeeding).length} plants ready for {activeTab === "water" ? "watering" : "feeding"}
-                </p>
-              </div>
-              <Sparkles className="h-6 w-6 text-yellow-500" />
-            </div>
-            
-            <Button 
-              className={`w-full ${activeTab === "water" ? "bg-blue-500 hover:bg-blue-600" : "bg-green-500 hover:bg-green-600"}`}
-              onClick={() => handleBulkCare(
-                (activeTab === "water" ? plantsThatNeedWater : plantsThatNeedFeeding).map(p => p.id),
-                activeTab === "water" ? "watering" : "feeding"
-              )}
-              disabled={bulkCareMutation.isPending}
-            >
-              {bulkCareMutation.isPending ? (
-                <>
-                  <Clock className="h-4 w-4 mr-2 animate-spin" />
-                  Logging...
-                </>
-              ) : (
-                <>
-                  <CheckCircle className="h-4 w-4 mr-2" />
-                  {activeTab === "water" ? "Water" : "Feed"} All ({(activeTab === "water" ? plantsThatNeedWater : plantsThatNeedFeeding).length})
-                </>
-              )}
-            </Button>
-          </CardContent>
-        </Card>
+      {/* Selected Count */}
+      {selectedPlants.length > 0 && (
+        <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-4">
+          <div className="flex items-center justify-between">
+            <span className="text-blue-800 font-medium">
+              {selectedPlants.length} plants selected for {activeTab === "water" ? "watering" : "feeding"}
+            </span>
+            <Badge variant="secondary">{selectedPlants.length}</Badge>
+          </div>
+        </div>
       )}
 
       {/* Plant List */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-lg">
-            Plants that need {activeTab === "water" ? "watering" : "feeding"}
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          {(activeTab === "water" ? plantsThatNeedWater : plantsThatNeedFeeding).length === 0 ? (
-            <div className="text-center py-8">
-              <div className="bg-green-100 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
-                <CheckCircle className="h-8 w-8 text-green-600" />
+      <Card className="mb-4">
+        <CardContent className="p-4">
+          <div className="space-y-3 max-h-96 overflow-y-auto">
+            {plantsToShow.length === 0 ? (
+              <div className="text-center py-8 text-gray-500">
+                {showOnlyNeedy 
+                  ? `No plants need ${activeTab === "water" ? "watering" : "feeding"} right now!` 
+                  : "No plants found"
+                }
               </div>
-              <h3 className="font-medium text-gray-800 mb-2">All caught up!</h3>
-              <p className="text-gray-600 text-sm">
-                No plants need {activeTab === "water" ? "watering" : "feeding"} right now.
-              </p>
-            </div>
-          ) : (
-            <div className="space-y-3 max-h-96 overflow-y-auto">
-              {(activeTab === "water" ? plantsThatNeedWater : plantsThatNeedFeeding).map(plant => {
-                const lastCareDate = activeTab === "water" ? plant.lastWatered : plant.lastFed;
-                const daysSince = lastCareDate 
-                  ? Math.floor((Date.now() - new Date(lastCareDate).getTime()) / (1000 * 60 * 60 * 24))
-                  : null;
-                
+            ) : (
+              plantsToShow.map(plant => {
+                const needsCare = currentNeedyPlants.some(p => p.id === plant.id);
                 return (
-                  <div key={plant.id} className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
+                  <div 
+                    key={plant.id} 
+                    className={`flex items-center gap-3 p-3 border rounded-lg cursor-pointer transition-colors ${
+                      selectedPlants.includes(plant.id) 
+                        ? 'bg-blue-50 border-blue-200' 
+                        : 'hover:bg-gray-50'
+                    }`}
+                    onClick={() => handlePlantToggle(plant.id)}
+                  >
+                    <Checkbox
+                      checked={selectedPlants.includes(plant.id)}
+                      onCheckedChange={() => handlePlantToggle(plant.id)}
+                    />
                     <div className="h-12 w-12 rounded-md overflow-hidden flex-shrink-0">
                       <img 
                         src={plant.imageUrl || "https://via.placeholder.com/48?text=Plant"} 
@@ -245,24 +284,63 @@ const BulkCare = () => {
                         className="h-full w-full object-cover"
                       />
                     </div>
-                    <div className="flex-1">
-                      <h4 className="font-medium">{plant.name}</h4>
-                      <p className="text-sm text-gray-600">
-                        {plant.location} • #{plant.plantNumber}
-                      </p>
+                    <div className="flex-1 min-w-0">
+                      <h4 className="font-medium truncate">#{plant.plantNumber} {plant.name}</h4>
+                      <p className="text-sm text-gray-600 truncate">{plant.location}</p>
                     </div>
-                    <div className="text-right">
-                      <Badge variant="outline" className={activeTab === "water" ? "text-blue-600" : "text-green-600"}>
-                        {daysSince ? `${daysSince} days ago` : "Never"}
+                    {needsCare && (
+                      <Badge 
+                        variant="outline" 
+                        className={activeTab === "water" ? "text-blue-600 border-blue-200" : "text-green-600 border-green-200"}
+                      >
+                        {activeTab === "water" ? <Droplet className="h-3 w-3 mr-1" /> : <Package className="h-3 w-3 mr-1" />}
+                        Needs {activeTab === "water" ? "water" : "feed"}
                       </Badge>
-                    </div>
+                    )}
                   </div>
                 );
-              })}
-            </div>
-          )}
+              })
+            )}
+          </div>
         </CardContent>
       </Card>
+
+      {/* Notes Section */}
+      {selectedPlants.length > 0 && (
+        <Card className="mb-4">
+          <CardContent className="p-4">
+            <label className="block text-sm font-medium mb-2">Notes (optional)</label>
+            <Textarea
+              placeholder={`Add notes about this ${activeTab === "water" ? "watering" : "feeding"} session...`}
+              value={notes}
+              onChange={(e) => setNotes(e.target.value)}
+              rows={2}
+              className="text-sm"
+            />
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Action Button */}
+      {selectedPlants.length > 0 && (
+        <Button 
+          className={`w-full ${activeTab === "water" ? "bg-blue-500 hover:bg-blue-600" : "bg-green-500 hover:bg-green-600"}`}
+          onClick={handleBulkCare}
+          disabled={bulkCareMutation.isPending}
+        >
+          {bulkCareMutation.isPending ? (
+            <>
+              <Clock className="h-4 w-4 mr-2 animate-spin" />
+              Logging {activeTab === "water" ? "watering" : "feeding"}...
+            </>
+          ) : (
+            <>
+              <CheckCircle className="h-4 w-4 mr-2" />
+              Log {activeTab === "water" ? "watering" : "feeding"} for {selectedPlants.length} plants
+            </>
+          )}
+        </Button>
+      )}
     </div>
   );
 };
