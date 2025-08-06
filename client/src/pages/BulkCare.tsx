@@ -30,6 +30,7 @@ const BulkCare = () => {
   const [isDragSelecting, setIsDragSelecting] = useState(false);
   const [dragStartPlant, setDragStartPlant] = useState<number | null>(null);
   const [dragMode, setDragMode] = useState<'add' | 'remove'>('add');
+  const [groupBy, setGroupBy] = useState<'room' | 'lastWatered' | 'species' | 'potSize' | 'needsCare'>('room');
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
@@ -195,20 +196,57 @@ const BulkCare = () => {
     }
   }, [isDragSelecting, dragMode, selectedPlants]);
 
-  // Group plants by room/location
+  // Group plants by various criteria
   const plantsThatNeedWater = getPlantsThatNeedCare("watering");
   const plantsThatNeedFeeding = getPlantsThatNeedCare("feeding");
   const currentNeedyPlants = activeTab === "water" ? plantsThatNeedWater : plantsThatNeedFeeding;
   const plantsToShow = showOnlyNeedy ? currentNeedyPlants : (plants || []);
 
-  const plantsByRoom = plantsToShow.reduce((acc, plant) => {
-    const location = plant.location || 'No Location';
-    if (!acc[location]) {
-      acc[location] = [];
+  const getGroupKey = (plant: any, groupBy: string) => {
+    switch (groupBy) {
+      case 'room':
+        return plant.location || 'No Location';
+      case 'lastWatered':
+        if (!plant.lastWatered) return 'Never Watered';
+        const daysSinceWatered = Math.floor((Date.now() - new Date(plant.lastWatered).getTime()) / (1000 * 60 * 60 * 24));
+        if (daysSinceWatered === 0) return 'Today';
+        if (daysSinceWatered === 1) return 'Yesterday';
+        if (daysSinceWatered <= 7) return 'This Week';
+        if (daysSinceWatered <= 14) return '1-2 Weeks Ago';
+        if (daysSinceWatered <= 30) return '2-4 Weeks Ago';
+        return 'Over a Month Ago';
+      case 'species':
+        return plant.commonName || plant.name || 'Unknown Species';
+      case 'potSize':
+        return plant.potSize || 'Unknown Pot Size';
+      case 'needsCare':
+        const needsWater = plantsThatNeedWater.some(p => p.id === plant.id);
+        const needsFood = plantsThatNeedFeeding.some(p => p.id === plant.id);
+        if (needsWater && needsFood) return 'Needs Water & Food';
+        if (needsWater) return 'Needs Water';
+        if (needsFood) return 'Needs Food';
+        return 'All Good';
+      default:
+        return 'Other';
     }
-    acc[location].push(plant);
+  };
+
+  const plantsByGroup = plantsToShow.reduce((acc, plant) => {
+    const groupKey = getGroupKey(plant, groupBy);
+    if (!acc[groupKey]) {
+      acc[groupKey] = [];
+    }
+    acc[groupKey].push(plant);
     return acc;
   }, {} as Record<string, typeof plantsToShow>);
+
+  const groupOptions = [
+    { value: 'room', label: 'Room', icon: '🏠' },
+    { value: 'lastWatered', label: 'Last Watered', icon: '💧' },
+    { value: 'species', label: 'Species', icon: '🌿' },
+    { value: 'potSize', label: 'Pot Size', icon: '🪴' },
+    { value: 'needsCare', label: 'Care Status', icon: '⚠️' }
+  ];
 
   // Get room selection counts
   const getRoomStats = (roomPlants: typeof plantsToShow) => {
@@ -247,9 +285,12 @@ const BulkCare = () => {
       
       <div className="mb-6">
         <h2 className="text-2xl font-bold text-gray-800 mb-2">Bulk Plant Care</h2>
-        <div className="flex items-center gap-2 text-gray-600">
+        <div className="flex items-center gap-2 text-gray-600 mb-2">
           <MousePointer2 className="h-4 w-4" />
-          <span>Click to select plants, or drag across plants for multi-selection</span>
+          <span>Click on plant cards to select, or drag across plants for multi-selection</span>
+        </div>
+        <div className="text-sm text-gray-500">
+          Use the floating buttons on the right to quickly water or feed selected plants
         </div>
       </div>
 
@@ -285,10 +326,28 @@ const BulkCare = () => {
         </button>
       </div>
 
-      {/* Quick Selection and Filter Bar */}
+      {/* Grouping Selection */}
       <Card className="mb-4">
         <CardContent className="p-4">
-          <div className="flex flex-wrap items-center justify-between gap-3">
+          <div className="mb-3">
+            <label className="text-sm font-medium text-gray-700 mb-2 block">Group plants by:</label>
+            <div className="flex gap-2 overflow-x-auto pb-2">
+              {groupOptions.map((option) => (
+                <Button
+                  key={option.value}
+                  variant={groupBy === option.value ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => setGroupBy(option.value as any)}
+                  className="flex items-center gap-2 whitespace-nowrap"
+                >
+                  <span>{option.icon}</span>
+                  {option.label}
+                </Button>
+              ))}
+            </div>
+          </div>
+          
+          <div className="flex flex-wrap items-center justify-between gap-3 pt-3 border-t">
             <div className="flex flex-wrap gap-2">
               <Button
                 variant="outline"
@@ -343,9 +402,9 @@ const BulkCare = () => {
         </div>
       )}
 
-      {/* Plant List Grouped by Room */}
+      {/* Plant List Grouped by Selected Criteria */}
       <div className="space-y-4 mb-4">
-        {Object.keys(plantsByRoom).length === 0 ? (
+        {Object.keys(plantsByGroup).length === 0 ? (
           <Card>
             <CardContent className="p-8">
               <div className="text-center text-gray-500">
@@ -357,19 +416,19 @@ const BulkCare = () => {
             </CardContent>
           </Card>
         ) : (
-          Object.entries(plantsByRoom).map(([room, roomPlants]) => {
-            const stats = getRoomStats(roomPlants);
-            const allRoomSelected = roomPlants.every(p => selectedPlants.includes(p.id));
-            const someRoomSelected = roomPlants.some(p => selectedPlants.includes(p.id));
+          Object.entries(plantsByGroup).map(([groupName, groupPlants]) => {
+            const stats = getRoomStats(groupPlants);
+            const allGroupSelected = groupPlants.every(p => selectedPlants.includes(p.id));
+            const someGroupSelected = groupPlants.some(p => selectedPlants.includes(p.id));
             
             return (
-              <Card key={room}>
+              <Card key={groupName}>
                 <CardContent className="p-4">
-                  {/* Room Header */}
+                  {/* Group Header */}
                   <div className="flex items-center justify-between mb-4 pb-3 border-b">
                     <div className="flex items-center gap-3">
                       <h3 className="font-semibold text-lg capitalize">
-                        {room.replace(/_/g, ' ')}
+                        {groupName.replace(/_/g, ' ')}
                       </h3>
                       <div className="flex gap-2">
                         <Badge variant="secondary">
@@ -392,26 +451,26 @@ const BulkCare = () => {
                     </div>
                     <div
                       className="flex items-center gap-2 cursor-pointer"
-                      onClick={() => handleRoomToggle(roomPlants)}
+                      onClick={() => handleRoomToggle(groupPlants)}
                     >
                       <Checkbox 
-                        checked={allRoomSelected}
+                        checked={allGroupSelected}
                         className="pointer-events-none"
                         ref={el => {
                           if (el && 'indeterminate' in el) {
-                            (el as any).indeterminate = someRoomSelected && !allRoomSelected;
+                            (el as any).indeterminate = someGroupSelected && !allGroupSelected;
                           }
                         }}
                       />
                       <span className="text-sm font-medium">
-                        {allRoomSelected ? 'Deselect room' : 'Select room'}
+                        {allGroupSelected ? 'Deselect group' : 'Select group'}
                       </span>
                     </div>
                   </div>
 
-                  {/* Plants in Room */}
+                  {/* Plants in Group */}
                   <div className="space-y-2">
-                    {roomPlants.map(plant => {
+                    {groupPlants.map(plant => {
                       const needsCare = currentNeedyPlants.some(p => p.id === plant.id);
                       const isSelected = selectedPlants.includes(plant.id);
                       
@@ -518,14 +577,19 @@ const BulkCare = () => {
         </Button>
       )}
 
-      {/* Floating Quick Action Button */}
+      {/* Floating Quick Action Buttons - Right Side */}
       {selectedPlants.length > 0 && (
-        <div className="fixed bottom-20 right-4 z-50">
-          <div className="flex flex-col gap-2">
+        <div className="fixed top-1/2 right-4 transform -translate-y-1/2 z-50">
+          <div className="flex flex-col gap-3 items-center">
+            {/* Selection Counter */}
+            <div className="bg-gray-800 text-white text-sm px-3 py-2 rounded-full font-medium shadow-lg">
+              {selectedPlants.length}
+            </div>
+            
             {/* Quick Water Button */}
             <Button
               size="lg"
-              className="bg-blue-500 hover:bg-blue-600 text-white shadow-lg rounded-lg px-3 py-2 min-w-16"
+              className="bg-blue-500 hover:bg-blue-600 text-white shadow-lg rounded-lg px-4 py-3 min-w-20"
               onClick={() => {
                 bulkCareMutation.mutate({
                   plantIds: selectedPlants,
@@ -542,7 +606,7 @@ const BulkCare = () => {
             {/* Quick Feed Button */}
             <Button
               size="lg"
-              className="bg-green-500 hover:bg-green-600 text-white shadow-lg rounded-lg px-3 py-2 min-w-16"
+              className="bg-green-500 hover:bg-green-600 text-white shadow-lg rounded-lg px-4 py-3 min-w-20"
               onClick={() => {
                 bulkCareMutation.mutate({
                   plantIds: selectedPlants,
@@ -555,11 +619,6 @@ const BulkCare = () => {
             >
               <span className="text-sm font-medium">Feed</span>
             </Button>
-            
-            {/* Selection Counter */}
-            <div className="bg-gray-800 text-white text-xs px-2 py-1 rounded-full text-center min-w-14">
-              {selectedPlants.length}
-            </div>
           </div>
         </div>
       )}
