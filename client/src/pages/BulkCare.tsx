@@ -390,11 +390,9 @@ const BulkCare = () => {
                         )}
                       </div>
                     </div>
-                    <Button
-                      variant="outline"
-                      size="sm"
+                    <div
+                      className="flex items-center gap-2 cursor-pointer"
                       onClick={() => handleRoomToggle(roomPlants)}
-                      className="flex items-center gap-2"
                     >
                       <Checkbox 
                         checked={allRoomSelected}
@@ -405,8 +403,10 @@ const BulkCare = () => {
                           }
                         }}
                       />
-                      {allRoomSelected ? 'Deselect room' : 'Select room'}
-                    </Button>
+                      <span className="text-sm font-medium">
+                        {allRoomSelected ? 'Deselect room' : 'Select room'}
+                      </span>
+                    </div>
                   </div>
 
                   {/* Plants in Room */}
@@ -501,6 +501,52 @@ const BulkCare = () => {
             </>
           )}
         </Button>
+      )}
+
+      {/* Floating Quick Action Button */}
+      {selectedPlants.length > 0 && (
+        <div className="fixed bottom-20 right-4 z-50">
+          <div className="flex flex-col gap-2">
+            {/* Quick Water Button */}
+            <Button
+              size="lg"
+              className="bg-blue-500 hover:bg-blue-600 text-white shadow-lg rounded-full w-14 h-14 p-0"
+              onClick={() => {
+                bulkCareMutation.mutate({
+                  plantIds: selectedPlants,
+                  type: "watering",
+                  notes: "Quick watering via floating button"
+                });
+              }}
+              disabled={bulkCareMutation.isPending}
+              title={`Water ${selectedPlants.length} selected plants`}
+            >
+              <Droplet className="h-6 w-6" />
+            </Button>
+            
+            {/* Quick Feed Button */}
+            <Button
+              size="lg"
+              className="bg-green-500 hover:bg-green-600 text-white shadow-lg rounded-full w-14 h-14 p-0"
+              onClick={() => {
+                bulkCareMutation.mutate({
+                  plantIds: selectedPlants,
+                  type: "feeding",
+                  notes: "Quick feeding via floating button"
+                });
+              }}
+              disabled={bulkCareMutation.isPending}
+              title={`Feed ${selectedPlants.length} selected plants`}
+            >
+              <Package className="h-6 w-6" />
+            </Button>
+            
+            {/* Selection Counter */}
+            <div className="bg-gray-800 text-white text-xs px-2 py-1 rounded-full text-center min-w-14">
+              {selectedPlants.length}
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );
