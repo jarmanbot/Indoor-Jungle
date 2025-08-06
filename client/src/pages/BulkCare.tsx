@@ -510,7 +510,7 @@ const BulkCare = () => {
             {/* Quick Water Button */}
             <Button
               size="lg"
-              className="bg-blue-500 hover:bg-blue-600 text-white shadow-lg rounded-full w-14 h-14 p-0"
+              className="bg-blue-500 hover:bg-blue-600 text-white shadow-lg rounded-lg px-3 py-2 min-w-16"
               onClick={() => {
                 bulkCareMutation.mutate({
                   plantIds: selectedPlants,
@@ -521,13 +521,13 @@ const BulkCare = () => {
               disabled={bulkCareMutation.isPending}
               title={`Water ${selectedPlants.length} selected plants`}
             >
-              <Droplet className="h-6 w-6" />
+              <span className="text-sm font-medium">Water</span>
             </Button>
             
             {/* Quick Feed Button */}
             <Button
               size="lg"
-              className="bg-green-500 hover:bg-green-600 text-white shadow-lg rounded-full w-14 h-14 p-0"
+              className="bg-green-500 hover:bg-green-600 text-white shadow-lg rounded-lg px-3 py-2 min-w-16"
               onClick={() => {
                 bulkCareMutation.mutate({
                   plantIds: selectedPlants,
@@ -538,7 +538,7 @@ const BulkCare = () => {
               disabled={bulkCareMutation.isPending}
               title={`Feed ${selectedPlants.length} selected plants`}
             >
-              <Package className="h-6 w-6" />
+              <span className="text-sm font-medium">Feed</span>
             </Button>
             
             {/* Selection Counter */}
