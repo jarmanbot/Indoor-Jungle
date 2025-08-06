@@ -248,23 +248,23 @@ const BulkCare = () => {
     { value: 'needsCare', label: 'Care Status', icon: '⚠️' }
   ];
 
-  // Get room selection counts
-  const getRoomStats = (roomPlants: typeof plantsToShow) => {
-    const selected = roomPlants.filter(p => selectedPlants.includes(p.id)).length;
-    const needy = roomPlants.filter(p => currentNeedyPlants.some(np => np.id === p.id)).length;
-    return { selected, needy, total: roomPlants.length };
+  // Get group selection counts
+  const getGroupStats = (groupPlants: typeof plantsToShow) => {
+    const selected = groupPlants.filter(p => selectedPlants.includes(p.id)).length;
+    const needy = groupPlants.filter(p => currentNeedyPlants.some(np => np.id === p.id)).length;
+    return { selected, needy, total: groupPlants.length };
   };
 
-  const handleRoomToggle = (roomPlants: typeof plantsToShow) => {
-    const roomIds = roomPlants.map(p => p.id);
-    const allSelected = roomIds.every(id => selectedPlants.includes(id));
+  const handleGroupToggle = (groupPlants: typeof plantsToShow) => {
+    const groupIds = groupPlants.map(p => p.id);
+    const allSelected = groupIds.every(id => selectedPlants.includes(id));
     
     if (allSelected) {
-      // Deselect all in room
-      setSelectedPlants(prev => prev.filter(id => !roomIds.includes(id)));
+      // Deselect all in group
+      setSelectedPlants(prev => prev.filter(id => !groupIds.includes(id)));
     } else {
-      // Select all in room
-      setSelectedPlants(prev => Array.from(new Set([...prev, ...roomIds])));
+      // Select all in group
+      setSelectedPlants(prev => Array.from(new Set([...prev, ...groupIds])));
     }
   };
 
@@ -290,7 +290,7 @@ const BulkCare = () => {
           <span>Click on plant cards to select, or drag across plants for multi-selection</span>
         </div>
         <div className="text-sm text-gray-500">
-          Use the floating buttons on the right to quickly water or feed selected plants
+          Use the floating buttons on the left to quickly water or feed selected plants
         </div>
       </div>
 
@@ -417,7 +417,7 @@ const BulkCare = () => {
           </Card>
         ) : (
           Object.entries(plantsByGroup).map(([groupName, groupPlants]) => {
-            const stats = getRoomStats(groupPlants);
+            const stats = getGroupStats(groupPlants);
             const allGroupSelected = groupPlants.every(p => selectedPlants.includes(p.id));
             const someGroupSelected = groupPlants.some(p => selectedPlants.includes(p.id));
             
@@ -451,7 +451,7 @@ const BulkCare = () => {
                     </div>
                     <div
                       className="flex items-center gap-2 cursor-pointer"
-                      onClick={() => handleRoomToggle(groupPlants)}
+                      onClick={() => handleGroupToggle(groupPlants)}
                     >
                       <Checkbox 
                         checked={allGroupSelected}
@@ -577,10 +577,10 @@ const BulkCare = () => {
         </Button>
       )}
 
-      {/* Floating Quick Action Buttons - Right Side */}
+      {/* Floating Quick Action Buttons - Left Side */}
       {selectedPlants.length > 0 && (
-        <div className="fixed top-1/2 right-4 transform -translate-y-1/2 z-50">
-          <div className="flex flex-col gap-3 items-center">
+        <div className="fixed top-1/2 left-4 transform -translate-y-1/2 z-50">
+          <div className="flex flex-col gap-6 items-center">
             {/* Selection Counter */}
             <div className="bg-gray-800 text-white text-sm px-3 py-2 rounded-full font-medium shadow-lg">
               {selectedPlants.length}
@@ -589,7 +589,7 @@ const BulkCare = () => {
             {/* Quick Water Button */}
             <Button
               size="lg"
-              className="bg-blue-500 hover:bg-blue-600 text-white shadow-lg rounded-lg px-4 py-3 min-w-20"
+              className="bg-blue-500 hover:bg-blue-600 text-white shadow-lg rounded-lg px-4 py-4 min-w-20"
               onClick={() => {
                 bulkCareMutation.mutate({
                   plantIds: selectedPlants,
@@ -603,10 +603,13 @@ const BulkCare = () => {
               <span className="text-sm font-medium">Water</span>
             </Button>
             
+            {/* Spacer */}
+            <div className="h-4"></div>
+            
             {/* Quick Feed Button */}
             <Button
               size="lg"
-              className="bg-green-500 hover:bg-green-600 text-white shadow-lg rounded-lg px-4 py-3 min-w-20"
+              className="bg-green-500 hover:bg-green-600 text-white shadow-lg rounded-lg px-4 py-4 min-w-20"
               onClick={() => {
                 bulkCareMutation.mutate({
                   plantIds: selectedPlants,
