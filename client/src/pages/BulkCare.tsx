@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -17,7 +17,8 @@ import {
   ChevronLeft,
   Check,
   X,
-  Filter
+  Filter,
+  MousePointer2
 } from "lucide-react";
 
 const BulkCare = () => {
@@ -26,6 +27,9 @@ const BulkCare = () => {
   const [activeTab, setActiveTab] = useState<"water" | "feed">("water");
   const [selectedPlants, setSelectedPlants] = useState<number[]>([]);
   const [showOnlyNeedy, setShowOnlyNeedy] = useState(false);
+  const [isDragSelecting, setIsDragSelecting] = useState(false);
+  const [dragStartPlant, setDragStartPlant] = useState<number | null>(null);
+  const [dragMode, setDragMode] = useState<'add' | 'remove'>('add');
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
@@ -138,14 +142,65 @@ const BulkCare = () => {
     setSelectedPlants([]);
   };
 
+  // Drag-and-drop selection functionality
+  const handleDragStart = useCallback((plantId: number, e: React.DragEvent) => {
+    e.dataTransfer.effectAllowed = 'copy';
+    e.dataTransfer.setData('text/plain', plantId.toString());
+    
+    setIsDragSelecting(true);
+    setDragStartPlant(plantId);
+    
+    // Determine drag mode based on current selection state
+    const isSelected = selectedPlants.includes(plantId);
+    setDragMode(isSelected ? 'remove' : 'add');
+    
+    // Add visual feedback
+    const plantCard = e.currentTarget as HTMLElement;
+    plantCard.style.opacity = '0.5';
+  }, [selectedPlants]);
+
+  const handleDragEnd = useCallback((e: React.DragEvent) => {
+    setIsDragSelecting(false);
+    setDragStartPlant(null);
+    
+    // Reset visual feedback
+    const plantCard = e.currentTarget as HTMLElement;
+    plantCard.style.opacity = '1';
+  }, []);
+
+  const handleDragOver = useCallback((plantId: number, e: React.DragEvent) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'copy';
+    
+    if (!isDragSelecting || plantId === dragStartPlant) return;
+    
+    // Select/deselect plants based on drag mode
+    if (dragMode === 'add' && !selectedPlants.includes(plantId)) {
+      setSelectedPlants(prev => [...prev, plantId]);
+    } else if (dragMode === 'remove' && selectedPlants.includes(plantId)) {
+      setSelectedPlants(prev => prev.filter(id => id !== plantId));
+    }
+  }, [isDragSelecting, dragStartPlant, dragMode, selectedPlants]);
+
+  const handleDrop = useCallback((plantId: number, e: React.DragEvent) => {
+    e.preventDefault();
+    
+    if (!isDragSelecting) return;
+    
+    // Final selection logic
+    if (dragMode === 'add' && !selectedPlants.includes(plantId)) {
+      setSelectedPlants(prev => [...prev, plantId]);
+    } else if (dragMode === 'remove' && selectedPlants.includes(plantId)) {
+      setSelectedPlants(prev => prev.filter(id => id !== plantId));
+    }
+  }, [isDragSelecting, dragMode, selectedPlants]);
+
+  // Group plants by room/location
   const plantsThatNeedWater = getPlantsThatNeedCare("watering");
   const plantsThatNeedFeeding = getPlantsThatNeedCare("feeding");
-  
-  // Filter plants based on current tab and filter
   const currentNeedyPlants = activeTab === "water" ? plantsThatNeedWater : plantsThatNeedFeeding;
   const plantsToShow = showOnlyNeedy ? currentNeedyPlants : (plants || []);
 
-  // Group plants by room/location
   const plantsByRoom = plantsToShow.reduce((acc, plant) => {
     const location = plant.location || 'No Location';
     if (!acc[location]) {
@@ -171,7 +226,7 @@ const BulkCare = () => {
       setSelectedPlants(prev => prev.filter(id => !roomIds.includes(id)));
     } else {
       // Select all in room
-      setSelectedPlants(prev => [...new Set([...prev, ...roomIds])]);
+      setSelectedPlants(prev => Array.from(new Set([...prev, ...roomIds])));
     }
   };
 
@@ -192,7 +247,10 @@ const BulkCare = () => {
       
       <div className="mb-6">
         <h2 className="text-2xl font-bold text-gray-800 mb-2">Bulk Plant Care</h2>
-        <p className="text-gray-600">Select plants and log care for multiple plants at once</p>
+        <div className="flex items-center gap-2 text-gray-600">
+          <MousePointer2 className="h-4 w-4" />
+          <span>Click to select plants, or drag across plants for multi-selection</span>
+        </div>
       </div>
 
       {/* Tab Navigation */}
@@ -342,8 +400,8 @@ const BulkCare = () => {
                         checked={allRoomSelected}
                         className="pointer-events-none"
                         ref={el => {
-                          if (el) {
-                            el.indeterminate = someRoomSelected && !allRoomSelected;
+                          if (el && 'indeterminate' in el) {
+                            (el as any).indeterminate = someRoomSelected && !allRoomSelected;
                           }
                         }}
                       />
@@ -355,18 +413,25 @@ const BulkCare = () => {
                   <div className="space-y-2">
                     {roomPlants.map(plant => {
                       const needsCare = currentNeedyPlants.some(p => p.id === plant.id);
+                      const isSelected = selectedPlants.includes(plant.id);
+                      
                       return (
                         <div 
                           key={plant.id} 
-                          className={`flex items-center gap-3 p-3 border rounded-lg cursor-pointer transition-colors ${
-                            selectedPlants.includes(plant.id) 
-                              ? 'bg-blue-50 border-blue-200' 
-                              : 'hover:bg-gray-50'
-                          }`}
+                          className={`plant-item flex items-center gap-3 p-3 border rounded-lg cursor-pointer transition-all duration-200 ${
+                            isSelected
+                              ? 'bg-blue-50 border-blue-200 shadow-sm' 
+                              : 'hover:bg-gray-50 hover:shadow-sm'
+                          } ${isDragSelecting ? 'select-none' : ''}`}
+                          draggable
+                          onDragStart={(e) => handleDragStart(plant.id, e)}
+                          onDragEnd={handleDragEnd}
+                          onDragOver={(e) => handleDragOver(plant.id, e)}
+                          onDrop={(e) => handleDrop(plant.id, e)}
                           onClick={() => handlePlantToggle(plant.id)}
                         >
                           <Checkbox
-                            checked={selectedPlants.includes(plant.id)}
+                            checked={isSelected}
                             onCheckedChange={() => handlePlantToggle(plant.id)}
                           />
                           <div className="h-12 w-12 rounded-md overflow-hidden flex-shrink-0">
@@ -374,6 +439,7 @@ const BulkCare = () => {
                               src={plant.imageUrl || "https://via.placeholder.com/48?text=Plant"} 
                               alt={plant.name}
                               className="h-full w-full object-cover"
+                              draggable={false}
                             />
                           </div>
                           <div className="flex-1 min-w-0">
