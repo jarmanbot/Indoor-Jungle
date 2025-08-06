@@ -418,10 +418,10 @@ const BulkCare = () => {
                       return (
                         <div 
                           key={plant.id} 
-                          className={`plant-item flex items-center gap-3 p-3 border rounded-lg cursor-pointer transition-all duration-200 ${
+                          className={`plant-item flex items-center gap-3 p-3 border rounded-lg cursor-pointer transition-all duration-200 relative ${
                             isSelected
-                              ? 'bg-blue-50 border-blue-200 shadow-sm' 
-                              : 'hover:bg-gray-50 hover:shadow-sm'
+                              ? 'bg-blue-50 border-blue-300 shadow-md ring-2 ring-blue-200' 
+                              : 'hover:bg-gray-50 hover:shadow-sm border-gray-200'
                           } ${isDragSelecting ? 'select-none' : ''}`}
                           draggable
                           onDragStart={(e) => handleDragStart(plant.id, e)}
@@ -430,21 +430,36 @@ const BulkCare = () => {
                           onDrop={(e) => handleDrop(plant.id, e)}
                           onClick={() => handlePlantToggle(plant.id)}
                         >
-                          <Checkbox
-                            checked={isSelected}
-                            onCheckedChange={() => handlePlantToggle(plant.id)}
-                          />
-                          <div className="h-12 w-12 rounded-md overflow-hidden flex-shrink-0">
+                          {/* Selection Indicator */}
+                          {isSelected && (
+                            <div className="absolute -top-1 -right-1 bg-blue-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs font-bold shadow-lg">
+                              ✓
+                            </div>
+                          )}
+                          
+                          <div className={`h-12 w-12 rounded-md overflow-hidden flex-shrink-0 transition-all duration-200 ${
+                            isSelected ? 'ring-2 ring-blue-400 ring-offset-1' : ''
+                          }`}>
                             <img 
                               src={plant.imageUrl || "https://via.placeholder.com/48?text=Plant"} 
                               alt={plant.name}
-                              className="h-full w-full object-cover"
+                              className={`h-full w-full object-cover transition-all duration-200 ${
+                                isSelected ? 'brightness-110 saturate-110' : ''
+                              }`}
                               draggable={false}
                             />
                           </div>
                           <div className="flex-1 min-w-0">
-                            <h4 className="font-medium truncate">#{plant.plantNumber} {plant.name}</h4>
-                            <p className="text-sm text-gray-600 truncate">{plant.commonName}</p>
+                            <h4 className={`font-medium truncate transition-colors duration-200 ${
+                              isSelected ? 'text-blue-800' : 'text-gray-900'
+                            }`}>
+                              #{plant.plantNumber} {plant.name}
+                            </h4>
+                            <p className={`text-sm truncate transition-colors duration-200 ${
+                              isSelected ? 'text-blue-600' : 'text-gray-600'
+                            }`}>
+                              {plant.commonName}
+                            </p>
                           </div>
                           {needsCare && (
                             <Badge 
