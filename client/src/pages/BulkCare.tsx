@@ -519,6 +519,12 @@ const BulkCare = () => {
                             }`}>
                               {plant.commonName}
                             </p>
+                            {plant.nextCheck && (
+                              <div className="flex items-center text-xs text-amber-600 mt-1">
+                                <Clock className="h-3 w-3 mr-1" />
+                                <span>Check: {new Date(plant.nextCheck).toLocaleDateString()}</span>
+                              </div>
+                            )}
                           </div>
                           {needsCare && (
                             <Badge 
