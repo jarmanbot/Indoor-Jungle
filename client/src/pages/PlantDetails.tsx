@@ -214,6 +214,7 @@ const PlantDetails = () => {
       setEditingNextCheck(false);
       setNextCheckValue("");
       queryClient.invalidateQueries({ queryKey: [`/api/plants/${id}`] });
+      queryClient.invalidateQueries({ queryKey: ['/api/plants'] });
       queryClient.refetchQueries({ queryKey: [`/api/plants/${id}`] });
       toast({
         title: "Next check updated",
@@ -523,6 +524,7 @@ const PlantDetails = () => {
 
                   // Invalidate cache and refresh
                   queryClient.invalidateQueries({ queryKey: [`/api/plants/${plant.id}`] });
+                  queryClient.invalidateQueries({ queryKey: ['/api/plants'] });
                   queryClient.refetchQueries({ queryKey: [`/api/plants/${plant.id}`] });
                   
                   toast({
