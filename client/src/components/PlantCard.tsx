@@ -155,12 +155,25 @@ const PlantCard = ({ plant, index = 0 }: PlantCardProps) => {
               <div className="text-xs italic text-gray-500 mb-0.5">{plant.latinName}</div>
             )}
             <div className="flex items-center">
-              {plant.nextCheck && (
-                <div className="flex items-center text-xs text-gray-500 mr-2">
-                  <Clock className="h-2.5 w-2.5 mr-1 text-amber-500" />
-                  <span className="text-[10px]">Check: {formatDate(plant.nextCheck)}</span>
-                </div>
-              )}
+              {(() => {
+                // Calculate next check date if not set
+                let nextCheckDate = plant.nextCheck;
+                if (!nextCheckDate && plant.lastWatered) {
+                  const lastWatered = new Date(plant.lastWatered);
+                  const daysToAdd = plant.wateringFrequencyDays || 7;
+                  nextCheckDate = new Date(lastWatered.getTime() + (daysToAdd * 24 * 60 * 60 * 1000)).toISOString();
+                } else if (!nextCheckDate) {
+                  // If no last watered date, suggest checking soon
+                  nextCheckDate = new Date(Date.now() + (2 * 24 * 60 * 60 * 1000)).toISOString();
+                }
+                
+                return nextCheckDate && (
+                  <div className="flex items-center text-xs text-gray-500 mr-2">
+                    <Clock className="h-2.5 w-2.5 mr-1 text-amber-500" />
+                    <span className="text-[10px]">Check: {formatDate(new Date(nextCheckDate))}</span>
+                  </div>
+                );
+              })()}
               {plant.location && (
                 <div className="text-xs text-gray-500 text-[10px]">
                   {formatLocation(plant.location)}
