@@ -14,6 +14,7 @@ import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
 import { localStorage as localData } from "@/lib/localDataStorage";
+import { queryClient } from "@/lib/queryClient";
 
 const formSchema = z.object({
   prunedAt: z.date().optional(),
@@ -68,6 +69,11 @@ export default function PruningLogForm({ plantId, onSuccess, onCancel }: Pruning
       
       pruningLogs.push(newLog);
       localData.set('pruningLogs', pruningLogs);
+      
+      // Invalidate queries to refresh UI
+      queryClient.invalidateQueries({ queryKey: ['/api/plants'] });
+      queryClient.invalidateQueries({ queryKey: [`/api/plants/${plantId}`] });
+      queryClient.invalidateQueries({ queryKey: [`/api/plants/${plantId}/pruning-logs`] });
       
       toast({
         title: "Success",

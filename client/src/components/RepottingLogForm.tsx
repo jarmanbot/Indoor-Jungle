@@ -14,6 +14,7 @@ import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
 import { localStorage as localData } from "@/lib/localDataStorage";
+import { queryClient } from "@/lib/queryClient";
 
 const formSchema = z.object({
   repottedAt: z.date().optional(),
@@ -68,6 +69,11 @@ export default function RepottingLogForm({ plantId, onSuccess, onCancel }: Repot
       
       repottingLogs.push(newLog);
       localData.set('repottingLogs', repottingLogs);
+      
+      // Invalidate queries to refresh UI
+      queryClient.invalidateQueries({ queryKey: ['/api/plants'] });
+      queryClient.invalidateQueries({ queryKey: [`/api/plants/${plantId}`] });
+      queryClient.invalidateQueries({ queryKey: [`/api/plants/${plantId}/repotting-logs`] });
       
       toast({
         title: "Success",

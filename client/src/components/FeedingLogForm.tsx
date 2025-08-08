@@ -23,6 +23,8 @@ import { format } from "date-fns";
 import { CalendarIcon, Flower } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { localStorage as localData } from "@/lib/localDataStorage";
+import { calculateNextCheckDate } from "@/lib/utils";
+import { queryClient } from "@/lib/queryClient";
 
 const formSchema = z.object({
   fedAt: z.date({
@@ -76,14 +78,22 @@ export default function FeedingLogForm({ plantId, onSuccess, onCancel }: Feeding
       feedingLogs.push(newLog);
       localData.set('feedingLogs', feedingLogs);
       
-      // Update plant's lastFed timestamp
+      // Update plant's lastFed timestamp and calculate new nextCheck date
       const plants = localData.get('plants') || [];
       const plantIndex = plants.findIndex((p: any) => p.id === plantId);
       if (plantIndex !== -1) {
+        // Calculate the new next check date based on watering and feeding frequencies
+        const nextCheck = calculateNextCheckDate(plants[plantIndex], undefined, data.fedAt);
         plants[plantIndex].lastFed = data.fedAt.toISOString();
+        plants[plantIndex].nextCheck = nextCheck;
         plants[plantIndex].updatedAt = new Date().toISOString();
         localData.set('plants', plants);
       }
+      
+      // Invalidate queries to refresh UI
+      queryClient.invalidateQueries({ queryKey: ['/api/plants'] });
+      queryClient.invalidateQueries({ queryKey: [`/api/plants/${plantId}`] });
+      queryClient.invalidateQueries({ queryKey: [`/api/plants/${plantId}/feeding-logs`] });
       
       toast({
         title: "Feeding logged",

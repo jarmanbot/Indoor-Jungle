@@ -31,6 +31,7 @@ import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import { localStorage as localData, getNextId } from "@/lib/localDataStorage";
 import { queryClient } from "@/lib/queryClient";
+import { calculateNextCheckDate } from "@/lib/utils";
 
 const formSchema = z.object({
   wateredAt: z.date({
@@ -85,11 +86,21 @@ export default function WateringLogForm({ plantId, onSuccess, onCancel }: Wateri
       const existingLogs = localData.get('wateringLogs') || [];
       localData.set('wateringLogs', [...existingLogs, wateringLog]);
       
-      // Update plant's lastWatered date
+      // Update plant's lastWatered date and calculate new nextCheck date
       const plants = localData.get('plants') || [];
-      const updatedPlants = plants.map((p: any) => 
-        p.id === plantId ? { ...p, lastWatered: data.wateredAt.toISOString() } : p
-      );
+      const updatedPlants = plants.map((p: any) => {
+        if (p.id === plantId) {
+          // Calculate the new next check date based on watering and feeding frequencies
+          const nextCheck = calculateNextCheckDate(p, data.wateredAt);
+          return { 
+            ...p, 
+            lastWatered: data.wateredAt.toISOString(),
+            nextCheck: nextCheck,
+            updatedAt: new Date().toISOString()
+          };
+        }
+        return p;
+      });
       localData.set('plants', updatedPlants);
       
       // Invalidate queries to refresh UI

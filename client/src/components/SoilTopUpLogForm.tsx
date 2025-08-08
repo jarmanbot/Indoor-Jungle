@@ -14,6 +14,7 @@ import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
 import { localStorage as localData } from "@/lib/localDataStorage";
+import { queryClient } from "@/lib/queryClient";
 
 const formSchema = z.object({
   toppedUpAt: z.date().optional(),
@@ -68,6 +69,11 @@ export default function SoilTopUpLogForm({ plantId, onSuccess, onCancel }: SoilT
       
       soilTopUpLogs.push(newLog);
       localData.set('soilTopUpLogs', soilTopUpLogs);
+      
+      // Invalidate queries to refresh UI
+      queryClient.invalidateQueries({ queryKey: ['/api/plants'] });
+      queryClient.invalidateQueries({ queryKey: [`/api/plants/${plantId}`] });
+      queryClient.invalidateQueries({ queryKey: [`/api/plants/${plantId}/soil-top-up-logs`] });
       
       toast({
         title: "Success",
