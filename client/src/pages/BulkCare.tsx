@@ -519,12 +519,25 @@ const BulkCare = () => {
                             }`}>
                               {plant.commonName}
                             </p>
-                            {plant.nextCheck && (
-                              <div className="flex items-center text-xs text-amber-600 mt-1">
-                                <Clock className="h-3 w-3 mr-1" />
-                                <span>Check: {new Date(plant.nextCheck).toLocaleDateString()}</span>
-                              </div>
-                            )}
+                            {(() => {
+                              // Calculate next check date if not set
+                              let nextCheckDate = plant.nextCheck;
+                              if (!nextCheckDate && plant.lastWatered) {
+                                const lastWatered = new Date(plant.lastWatered);
+                                const daysToAdd = plant.wateringFrequencyDays || 7;
+                                nextCheckDate = new Date(lastWatered.getTime() + (daysToAdd * 24 * 60 * 60 * 1000)).toISOString();
+                              } else if (!nextCheckDate) {
+                                // If no last watered date, suggest checking soon
+                                nextCheckDate = new Date(Date.now() + (2 * 24 * 60 * 60 * 1000)).toISOString();
+                              }
+                              
+                              return nextCheckDate && (
+                                <div className="flex items-center text-xs text-amber-600 mt-1">
+                                  <Clock className="h-3 w-3 mr-1" />
+                                  <span>Check: {new Date(nextCheckDate).toLocaleDateString()}</span>
+                                </div>
+                              );
+                            })()}
                           </div>
                           {needsCare && (
                             <Badge 
