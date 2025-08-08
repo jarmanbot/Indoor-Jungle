@@ -216,6 +216,7 @@ const PlantDetails = () => {
       queryClient.invalidateQueries({ queryKey: [`/api/plants/${id}`] });
       queryClient.invalidateQueries({ queryKey: ['/api/plants'] });
       queryClient.refetchQueries({ queryKey: [`/api/plants/${id}`] });
+      queryClient.refetchQueries({ queryKey: ['/api/plants'] });
       toast({
         title: "Next check updated",
         description: "Plant check date has been updated successfully",
@@ -526,6 +527,7 @@ const PlantDetails = () => {
                   queryClient.invalidateQueries({ queryKey: [`/api/plants/${plant.id}`] });
                   queryClient.invalidateQueries({ queryKey: ['/api/plants'] });
                   queryClient.refetchQueries({ queryKey: [`/api/plants/${plant.id}`] });
+                  queryClient.refetchQueries({ queryKey: ['/api/plants'] });
                   
                   toast({
                     title: "Reminder set",
