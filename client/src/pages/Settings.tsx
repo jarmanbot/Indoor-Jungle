@@ -9,7 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { Bell, Moon, Info, HelpCircle, Database, Shield, Download, Upload, Clock, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
-import { localStorage as localData, exportUserData, importUserData, cleanupLocalData } from "@/lib/localDataStorage";
+import { localStorage as localData, exportUserData, importUserData, cleanupLocalData, getStorageUsage } from "@/lib/localDataStorage";
 import { queryClient } from "@/lib/queryClient";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 
@@ -354,6 +354,42 @@ const Settings = () => {
             <div className="space-y-3">
               <div className="text-sm text-muted-foreground mb-4">
                 Your plant data is stored locally on this device. Regular backups are recommended.
+              </div>
+              
+              {/* Storage Usage Display */}
+              <div className="bg-muted/50 rounded-lg p-3 space-y-2">
+                <div className="flex items-center justify-between text-sm">
+                  <span className="text-muted-foreground">Storage Usage</span>
+                  <span className="font-medium">
+                    {(() => {
+                      const usage = getStorageUsage();
+                      return `${(usage.used / 1024 / 1024).toFixed(1)}MB / ${(usage.total / 1024 / 1024).toFixed(0)}MB`;
+                    })()}
+                  </span>
+                </div>
+                <div className="w-full bg-muted rounded-full h-2">
+                  <div 
+                    className={`h-2 rounded-full transition-all ${
+                      (() => {
+                        const usage = getStorageUsage();
+                        if (usage.percentage > 90) return 'bg-red-500';
+                        if (usage.percentage > 70) return 'bg-yellow-500';
+                        return 'bg-green-500';
+                      })()
+                    }`}
+                    style={{ 
+                      width: `${Math.min(getStorageUsage().percentage, 100)}%` 
+                    }}
+                  />
+                </div>
+                <div className="text-xs text-muted-foreground">
+                  {getStorageUsage().percentage.toFixed(1)}% used
+                  {getStorageUsage().percentage > 80 && (
+                    <span className="text-amber-600 ml-2">
+                      • Storage nearly full - consider exporting data and removing images
+                    </span>
+                  )}
+                </div>
               </div>
               
               <Button onClick={handleExport} className="w-full" variant="outline">
