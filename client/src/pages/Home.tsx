@@ -85,15 +85,15 @@ const Home = () => {
         {totalPlants > 0 && plantsNeedingCare > 0 && (
           <Link href="/bulk-care">
             <Card className="bg-orange-100 border-orange-200 hover:bg-orange-200 transition-colors cursor-pointer">
-              <CardContent className="p-3">
+              <CardContent className="p-2">
                 <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="bg-orange-200 rounded-full p-2">
-                      <Droplet className="h-5 w-5 text-orange-700" />
+                  <div className="flex items-center gap-2">
+                    <div className="bg-orange-200 rounded-full p-1.5">
+                      <Droplet className="h-4 w-4 text-orange-700" />
                     </div>
                     <div>
-                      <div className="text-lg font-bold text-orange-900">{plantsNeedingCare}</div>
-                      <p className="text-sm text-orange-700">
+                      <div className="text-base font-bold text-orange-900">{plantsNeedingCare}</div>
+                      <p className="text-xs text-orange-700">
                         Plant{plantsNeedingCare === 1 ? '' : 's'} need care
                       </p>
                       <p className="text-xs text-orange-600">
@@ -102,7 +102,7 @@ const Home = () => {
                     </div>
                   </div>
                   <div className="text-orange-600">
-                    <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                     </svg>
                   </div>
