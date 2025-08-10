@@ -30,6 +30,21 @@ const Settings = () => {
 
   // Load default frequencies and check demo plant status on mount
   useEffect(() => {
+    // Check for hash in URL and scroll to section
+    const hash = window.location.hash;
+    if (hash === '#google-drive') {
+      setTimeout(() => {
+        const element = document.getElementById('google-drive');
+        if (element) {
+          element.scrollIntoView({ behavior: 'smooth' });
+        }
+      }, 100);
+    }
+    
+    // Clear hash from URL after scrolling
+    if (hash) {
+      window.history.replaceState(null, '', window.location.pathname);
+    }
     try {
       const savedWateringFreq = window.localStorage.getItem('defaultWateringFreq');
       const savedFeedingFreq = window.localStorage.getItem('defaultFeedingFreq');
@@ -343,7 +358,9 @@ const Settings = () => {
         </Card>
 
         {/* 3. Google Drive Cloud Storage */}
-        <GoogleDriveSync />
+        <div id="google-drive">
+          <GoogleDriveSync />
+        </div>
 
         {/* 4. Data Management */}
         <Card>

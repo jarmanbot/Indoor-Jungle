@@ -114,22 +114,22 @@ const Home = () => {
 
         {/* Plant Limit Warning Banner */}
         {plantUsage.needsGoogleDrive && (
-          <Link href="/settings">
-            <Card className="bg-orange-100 border-orange-200 hover:bg-orange-200 transition-colors cursor-pointer mt-3">
+          <Link href="/settings#google-drive">
+            <Card className="bg-red-100 border-red-200 hover:bg-red-200 transition-colors cursor-pointer mt-3">
               <CardContent className="px-3 py-2">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <div className="bg-orange-200 rounded-full p-1">
-                      <AlertTriangle className="h-3 w-3 text-orange-700" />
+                    <div className="bg-red-200 rounded-full p-1">
+                      <AlertTriangle className="h-3 w-3 text-red-700" />
                     </div>
                     <div>
-                      <div className="text-sm font-bold text-orange-900">Plant Limit Reached</div>
-                      <p className="text-xs text-orange-700">
+                      <div className="text-sm font-bold text-red-900">Plant Limit Reached</div>
+                      <p className="text-xs text-red-700">
                         {plantUsage.current}/{plantUsage.max} plants • Enable Google Drive for unlimited storage
                       </p>
                     </div>
                   </div>
-                  <div className="flex items-center gap-1 text-orange-600">
+                  <div className="flex items-center gap-1 text-red-600">
                     <Cloud className="h-3 w-3" />
                     <svg className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
@@ -143,7 +143,7 @@ const Home = () => {
 
         {/* Near Limit Warning Banner */}
         {plantUsage.percentage >= 80 && !plantUsage.needsGoogleDrive && (
-          <Link href="/settings">
+          <Link href="/settings#google-drive">
             <Card className="bg-yellow-50 border-yellow-200 hover:bg-yellow-100 transition-colors cursor-pointer mt-3">
               <CardContent className="px-3 py-2">
                 <div className="flex items-center justify-between">
