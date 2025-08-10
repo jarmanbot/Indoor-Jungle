@@ -6,12 +6,13 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Separator } from "@/components/ui/separator";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { Bell, Moon, Info, HelpCircle, Database, Shield, Download, Upload, Clock, ArrowLeft } from "lucide-react";
+import { Bell, Moon, Info, HelpCircle, Database, Shield, Download, Upload, Clock, ArrowLeft, Cloud } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { localStorage as localData, exportUserData, importUserData, cleanupLocalData, getStorageUsage } from "@/lib/localDataStorage";
 import { queryClient } from "@/lib/queryClient";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { GoogleDriveSync } from "@/components/GoogleDriveSync";
 
 const Settings = () => {
   const [, setLocation] = useLocation();
@@ -341,14 +342,17 @@ const Settings = () => {
           </CardContent>
         </Card>
 
-        {/* 3. Data Management */}
+        {/* 3. Google Drive Cloud Storage */}
+        <GoogleDriveSync />
+
+        {/* 4. Data Management */}
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Database className="h-4 w-4" />
-              Data Management
+              Local Data Management
             </CardTitle>
-            <CardDescription>Backup, export, and import your plant data</CardDescription>
+            <CardDescription>Backup, export, and import your local plant data</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-3">
