@@ -16,7 +16,9 @@ import {
   ExternalLink,
   Shield,
   HardDrive,
-  Smartphone
+  Smartphone,
+  Copy,
+  Check
 } from "lucide-react";
 import { apiRequest } from "@/lib/queryClient";
 import { localStorage as localData } from "@/lib/localDataStorage";
@@ -25,8 +27,31 @@ export function GoogleDriveSync() {
   const [syncProgress, setSyncProgress] = useState(0);
   const [syncStatus, setSyncStatus] = useState<'idle' | 'uploading' | 'downloading' | 'complete'>('idle');
   const [showSetupGuide, setShowSetupGuide] = useState(false);
+  const [copiedStates, setCopiedStates] = useState<Record<string, boolean>>({});
   const { toast } = useToast();
   const queryClient = useQueryClient();
+
+  // Helper function to copy text to clipboard
+  const copyToClipboard = async (text: string, key: string, description: string) => {
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopiedStates(prev => ({ ...prev, [key]: true }));
+      toast({
+        title: "Copied!",
+        description: `${description} copied to clipboard`,
+      });
+      // Reset the copied state after 2 seconds
+      setTimeout(() => {
+        setCopiedStates(prev => ({ ...prev, [key]: false }));
+      }, 2000);
+    } catch (error) {
+      toast({
+        title: "Copy Failed",
+        description: "Could not copy to clipboard. Please copy manually.",
+        variant: "destructive",
+      });
+    }
+  };
 
   // Check authentication status
   const { data: authStatus, isLoading: checkingAuth } = useQuery({
@@ -244,15 +269,43 @@ export function GoogleDriveSync() {
             Connect Google Drive
           </Button>
 
-          <Button
-            onClick={() => setShowSetupGuide(!showSetupGuide)}
-            variant="outline"
-            className="w-full"
-            size="sm"
-          >
-            <ExternalLink className="h-4 w-4 mr-2" />
-            {showSetupGuide ? 'Hide Setup Guide' : 'Show Setup Guide'}
-          </Button>
+          <div className="space-y-2">
+            <Button
+              onClick={() => setShowSetupGuide(!showSetupGuide)}
+              variant="outline"
+              className="w-full"
+              size="sm"
+            >
+              <ExternalLink className="h-4 w-4 mr-2" />
+              {showSetupGuide ? 'Hide Setup Guide' : 'Show Setup Guide'}
+            </Button>
+            
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-xs font-medium text-blue-900">Your App URL:</p>
+                  <code className="text-xs text-blue-800 break-all">https://{window.location.hostname}</code>
+                </div>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => copyToClipboard(
+                    `https://${window.location.hostname}`,
+                    'app-url',
+                    'App URL'
+                  )}
+                  className="h-8 w-8 p-0"
+                >
+                  {copiedStates['app-url'] ? (
+                    <Check className="h-3 w-3 text-green-600" />
+                  ) : (
+                    <Copy className="h-3 w-3" />
+                  )}
+                </Button>
+              </div>
+              <p className="text-xs text-blue-700 mt-1">Use this as the base URL for OAuth configuration</p>
+            </div>
+          </div>
 
           {showSetupGuide && (
             <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 space-y-4">
@@ -265,7 +318,28 @@ export function GoogleDriveSync() {
                 <div className="bg-white rounded p-3 border border-amber-200">
                   <h5 className="font-semibold text-amber-900 mb-2">Step 1: Create Google Cloud Project</h5>
                   <ol className="list-decimal list-inside space-y-1 ml-2 text-xs">
-                    <li>Go to <a href="https://console.cloud.google.com/" target="_blank" rel="noopener noreferrer" className="text-blue-600 underline">Google Cloud Console</a></li>
+                    <li className="flex items-center gap-2 mb-2">
+                      Go to Google Cloud Console:
+                      <div className="flex items-center gap-1 ml-2">
+                        <a href="https://console.cloud.google.com/" target="_blank" rel="noopener noreferrer" className="text-blue-600 underline text-xs">console.cloud.google.com</a>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => copyToClipboard(
+                            'https://console.cloud.google.com/',
+                            'console-url',
+                            'Google Cloud Console URL'
+                          )}
+                          className="h-6 w-6 p-0"
+                        >
+                          {copiedStates['console-url'] ? (
+                            <Check className="h-2 w-2 text-green-600" />
+                          ) : (
+                            <Copy className="h-2 w-2" />
+                          )}
+                        </Button>
+                      </div>
+                    </li>
                     <li>Click "New Project" and give it a name (e.g., "Indoor Jungle App")</li>
                     <li>Go to "APIs & Services" → "Library"</li>
                     <li>Search for "Google Drive API" and click "Enable"</li>
@@ -280,7 +354,27 @@ export function GoogleDriveSync() {
                     <li>Click "Create Credentials" → "OAuth 2.0 Client IDs"</li>
                     <li>Choose "Web application"</li>
                     <li>Add this exact URL to "Authorized redirect URIs":</li>
-                    <li><code className="bg-gray-100 px-1 rounded text-xs break-all">https://{window.location.hostname}/api/auth/google/callback</code></li>
+                    <li className="flex items-center gap-2 mt-2">
+                      <code className="bg-gray-100 px-2 py-1 rounded text-xs break-all flex-1">
+                        https://{window.location.hostname}/api/auth/google/callback
+                      </code>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => copyToClipboard(
+                          `https://${window.location.hostname}/api/auth/google/callback`,
+                          'redirect-uri',
+                          'Redirect URI'
+                        )}
+                        className="h-8 w-8 p-0"
+                      >
+                        {copiedStates['redirect-uri'] ? (
+                          <Check className="h-3 w-3 text-green-600" />
+                        ) : (
+                          <Copy className="h-3 w-3" />
+                        )}
+                      </Button>
+                    </li>
                     <li>Copy and save the Client ID and Client Secret</li>
                   </ol>
                 </div>
@@ -298,8 +392,31 @@ export function GoogleDriveSync() {
                 
                 <div className="border-t border-amber-300 pt-3">
                   <p><strong>Troubleshooting Connection Issues:</strong></p>
-                  <ul className="list-disc list-inside space-y-1 ml-2 text-xs">
-                    <li><strong>"Invalid redirect URI":</strong> Make sure the redirect URI in Google Cloud exactly matches: <code className="bg-gray-100 px-1 rounded">https://{window.location.hostname}/api/auth/google/callback</code></li>
+                  <ul className="list-disc list-inside space-y-2 ml-2 text-xs">
+                    <li>
+                      <strong>"Invalid redirect URI":</strong> Make sure the redirect URI in Google Cloud exactly matches:
+                      <div className="flex items-center gap-2 mt-1 ml-4">
+                        <code className="bg-gray-100 px-2 py-1 rounded text-xs break-all flex-1">
+                          https://{window.location.hostname}/api/auth/google/callback
+                        </code>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => copyToClipboard(
+                            `https://${window.location.hostname}/api/auth/google/callback`,
+                            'troubleshoot-uri',
+                            'Redirect URI'
+                          )}
+                          className="h-6 w-6 p-0"
+                        >
+                          {copiedStates['troubleshoot-uri'] ? (
+                            <Check className="h-2 w-2 text-green-600" />
+                          ) : (
+                            <Copy className="h-2 w-2" />
+                          )}
+                        </Button>
+                      </div>
+                    </li>
                     <li><strong>Popup blocked:</strong> Allow pop-ups for this site in your browser</li>
                     <li><strong>"Authorization error":</strong> Check that both Client ID and Client Secret are correctly set in Secrets</li>
                     <li><strong>"Access blocked":</strong> Make sure both Google Drive API and Google+ API are enabled</li>
