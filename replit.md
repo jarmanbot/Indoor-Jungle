@@ -34,7 +34,7 @@ Indoor Jungle is a Web3 plant care application that combines a traditional plant
 - **Token Economy**: LVS token for purchases, upgrades, and rewards
 
 ### Data Storage
-- **Local Storage**: Browser localStorage for offline capability (~45 plants)
+- **Local Storage**: Browser localStorage for offline capability (25 plants limit)
 - **Google Drive**: Unlimited cloud storage in user's personal Google Drive
 - **Plant Data**: JSON format stored in user's Google Drive folder
 - **Photos**: Full-resolution images stored in Google Drive
@@ -129,6 +129,7 @@ The app uses a robust local storage system that stores all data on each device:
 ```
 Changelog:
 - August 10, 2025. Removed PostgreSQL dependencies for cost efficiency - app now uses Google Drive + localStorage for unlimited plant storage
+- August 10, 2025. Updated plant limit to 25 plants for localStorage before requiring Google Drive upgrade
 - August 10, 2025. Implemented Google Drive integration with OAuth authentication for unlimited plant storage (250+ plants)
 - August 10, 2025. Created GoogleDriveSync component for cloud backup and restore functionality
 - August 10, 2025. Added GoogleDriveImageUpload for storing full-resolution plant photos in user's Google Drive

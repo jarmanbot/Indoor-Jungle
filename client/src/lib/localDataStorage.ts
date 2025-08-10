@@ -38,7 +38,12 @@ export const localStorage = {
       console.error('Failed to save to local storage:', error);
       if (error.name === 'QuotaExceededError') {
         const usage = getStorageUsage();
-        throw new Error(`Storage quota exceeded. Current usage: ${(usage.used / 1024 / 1024).toFixed(2)}MB / ${(usage.total / 1024 / 1024).toFixed(2)}MB. Try exporting your data and removing some plant images to free up space.`);
+        const plantUsage = getPlantCountUsage();
+        if (plantUsage.needsGoogleDrive) {
+          throw new Error(`Plant limit reached (${plantUsage.current}/${plantUsage.max}). Enable Google Drive storage for unlimited plants, or export data and remove some plants.`);
+        } else {
+          throw new Error(`Storage quota exceeded. Current usage: ${(usage.used / 1024 / 1024).toFixed(2)}MB / ${(usage.total / 1024 / 1024).toFixed(2)}MB. Try exporting your data and removing some plant images to free up space.`);
+        }
       }
       throw error;
     }
@@ -58,6 +63,12 @@ export const localStorage = {
   }
 };
 
+// Plant count limits for localStorage vs Google Drive
+export const STORAGE_LIMITS = {
+  LOCAL_STORAGE_MAX_PLANTS: 25, // Max plants before requiring Google Drive
+  GOOGLE_DRIVE_UNLIMITED: true
+};
+
 // Get localStorage usage statistics
 export function getStorageUsage() {
   let used = 0;
@@ -73,6 +84,21 @@ export function getStorageUsage() {
     used: used * 2, // JavaScript strings are UTF-16, so 2 bytes per character
     total: estimated,
     percentage: ((used * 2) / estimated) * 100
+  };
+}
+
+// Get plant count usage statistics  
+export function getPlantCountUsage() {
+  const plants = localStorage.get('plants') || [];
+  const currentCount = plants.length;
+  const maxCount = STORAGE_LIMITS.LOCAL_STORAGE_MAX_PLANTS;
+  
+  return {
+    current: currentCount,
+    max: maxCount,
+    percentage: (currentCount / maxCount) * 100,
+    isAtLimit: currentCount >= maxCount,
+    needsGoogleDrive: currentCount >= maxCount
   };
 }
 
