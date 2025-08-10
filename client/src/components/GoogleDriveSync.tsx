@@ -24,6 +24,7 @@ import { localStorage as localData } from "@/lib/localDataStorage";
 export function GoogleDriveSync() {
   const [syncProgress, setSyncProgress] = useState(0);
   const [syncStatus, setSyncStatus] = useState<'idle' | 'uploading' | 'downloading' | 'complete'>('idle');
+  const [showSetupGuide, setShowSetupGuide] = useState(false);
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
@@ -151,7 +152,17 @@ export function GoogleDriveSync() {
   });
 
   const handleGoogleSignIn = () => {
-    window.location.href = '/api/auth/google';
+    try {
+      // Check if Google auth is properly configured
+      window.location.href = '/api/auth/google';
+    } catch (error) {
+      toast({
+        title: "Connection Error",
+        description: "Unable to connect to Google Drive. Please check the setup guide below.",
+        variant: "destructive",
+      });
+      setShowSetupGuide(true);
+    }
   };
 
   const localPlants = localData.get('plants') || [];
@@ -194,7 +205,7 @@ export function GoogleDriveSync() {
             <ul className="text-sm text-blue-700 space-y-1">
               <li className="flex items-center gap-2">
                 <CheckCircle className="h-4 w-4" />
-                Store 250+ plants (vs ~45 with local storage)
+                Store 250+ plants (vs 25 with local storage)
               </li>
               <li className="flex items-center gap-2">
                 <CheckCircle className="h-4 w-4" />
@@ -215,7 +226,7 @@ export function GoogleDriveSync() {
             <div className="bg-muted rounded-lg p-3">
               <HardDrive className="h-8 w-8 mx-auto text-amber-600 mb-2" />
               <div className="text-sm font-medium">Local Storage</div>
-              <div className="text-xs text-muted-foreground">~45 plants max</div>
+              <div className="text-xs text-muted-foreground">25 plants max</div>
             </div>
             <div className="bg-green-50 border border-green-200 rounded-lg p-3">
               <Cloud className="h-8 w-8 mx-auto text-green-600 mb-2" />
@@ -232,6 +243,47 @@ export function GoogleDriveSync() {
             <Shield className="h-4 w-4 mr-2" />
             Connect Google Drive
           </Button>
+
+          <Button
+            onClick={() => setShowSetupGuide(!showSetupGuide)}
+            variant="outline"
+            className="w-full"
+            size="sm"
+          >
+            <ExternalLink className="h-4 w-4 mr-2" />
+            {showSetupGuide ? 'Hide Setup Guide' : 'Show Setup Guide'}
+          </Button>
+
+          {showSetupGuide && (
+            <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 space-y-3">
+              <h4 className="font-medium text-amber-900 flex items-center gap-2">
+                <AlertCircle className="h-4 w-4" />
+                Google Drive Setup Guide
+              </h4>
+              <div className="text-sm text-amber-800 space-y-2">
+                <p><strong>If you get an error when connecting:</strong></p>
+                <ol className="list-decimal list-inside space-y-1 ml-2">
+                  <li>Make sure you're using a valid Google account</li>
+                  <li>Allow pop-ups in your browser for this site</li>
+                  <li>Clear your browser cache and cookies</li>
+                  <li>Try using an incognito/private browser window</li>
+                  <li>Disable ad blockers temporarily</li>
+                </ol>
+                
+                <p className="mt-3"><strong>Common issues:</strong></p>
+                <ul className="list-disc list-inside space-y-1 ml-2">
+                  <li><strong>Popup blocked:</strong> Click the popup blocker icon in your address bar</li>
+                  <li><strong>Authorization error:</strong> Contact support if this persists</li>
+                  <li><strong>Network error:</strong> Check your internet connection</li>
+                </ul>
+                
+                <div className="bg-amber-100 rounded p-2 mt-3">
+                  <p className="text-xs font-medium">💡 Pro Tip:</p>
+                  <p className="text-xs">The app needs permission to create a private folder in your Google Drive. Your existing files are never accessed or modified.</p>
+                </div>
+              </div>
+            </div>
+          )}
 
           <p className="text-xs text-muted-foreground text-center">
             Your plant data stays private in your Google Drive folder
