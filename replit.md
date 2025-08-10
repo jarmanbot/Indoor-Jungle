@@ -9,7 +9,7 @@ Indoor Jungle is a Web3 plant care application that combines a traditional plant
 ### Full-Stack Architecture
 - **Frontend**: React/TypeScript with Vite for development and building
 - **Backend**: Express.js server with TypeScript
-- **Database**: PostgreSQL with Drizzle ORM for data management
+- **Storage**: Google Drive integration for unlimited plant storage + Local storage for offline capability
 - **UI Components**: Shadcn/ui with Tailwind CSS for styling
 - **State Management**: TanStack Query for server state management
 
@@ -33,12 +33,12 @@ Indoor Jungle is a Web3 plant care application that combines a traditional plant
 - **Marketplace**: Player-to-player trading of virtual plants and items
 - **Token Economy**: LVS token for purchases, upgrades, and rewards
 
-### Database Schema
-- **Users**: Authentication and user management
-- **Plants**: Real plant data with care tracking
-- **Game Players**: Virtual game profiles linked to wallet addresses
-- **Virtual Plants**: NFT plant data with game attributes
-- **Care Logs**: Historical watering and feeding records
+### Data Storage
+- **Local Storage**: Browser localStorage for offline capability (~45 plants)
+- **Google Drive**: Unlimited cloud storage in user's personal Google Drive
+- **Plant Data**: JSON format stored in user's Google Drive folder
+- **Photos**: Full-resolution images stored in Google Drive
+- **Care Logs**: Historical watering and feeding records synced to cloud
 
 ## Data Flow
 
@@ -128,6 +128,11 @@ The app uses a robust local storage system that stores all data on each device:
 
 ```
 Changelog:
+- August 10, 2025. Removed PostgreSQL dependencies for cost efficiency - app now uses Google Drive + localStorage for unlimited plant storage
+- August 10, 2025. Implemented Google Drive integration with OAuth authentication for unlimited plant storage (250+ plants)
+- August 10, 2025. Created GoogleDriveSync component for cloud backup and restore functionality
+- August 10, 2025. Added GoogleDriveImageUpload for storing full-resolution plant photos in user's Google Drive
+- August 10, 2025. Simplified server architecture to remove database costs while maintaining scalability
 - July 29, 2025. Enhanced plant list navigation - added custom scrollbar, search functionality, and visual indicators for better browsing with many plants
 - July 29, 2025. Fixed "Set Reminder" functionality - now properly updates nextCheck date in local storage instead of attempting server API calls
 - July 29, 2025. Enhanced plant deletion and demo plant toggle with immediate cache refresh - plants now appear/disappear instantly without page refresh
