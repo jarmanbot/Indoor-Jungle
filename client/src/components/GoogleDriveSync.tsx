@@ -255,31 +255,56 @@ export function GoogleDriveSync() {
           </Button>
 
           {showSetupGuide && (
-            <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 space-y-3">
+            <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 space-y-4">
               <h4 className="font-medium text-amber-900 flex items-center gap-2">
                 <AlertCircle className="h-4 w-4" />
                 Google Drive Setup Guide
               </h4>
-              <div className="text-sm text-amber-800 space-y-2">
-                <p><strong>If you get an error when connecting:</strong></p>
-                <ol className="list-decimal list-inside space-y-1 ml-2">
-                  <li>Make sure you're using a valid Google account</li>
-                  <li>Allow pop-ups in your browser for this site</li>
-                  <li>Clear your browser cache and cookies</li>
-                  <li>Try using an incognito/private browser window</li>
-                  <li>Disable ad blockers temporarily</li>
-                </ol>
+              
+              <div className="text-sm text-amber-800 space-y-4">
+                <div className="bg-white rounded p-3 border border-amber-200">
+                  <h5 className="font-semibold text-amber-900 mb-2">Step 1: Create Google Cloud Project</h5>
+                  <ol className="list-decimal list-inside space-y-1 ml-2 text-xs">
+                    <li>Go to <a href="https://console.cloud.google.com/" target="_blank" rel="noopener noreferrer" className="text-blue-600 underline">Google Cloud Console</a></li>
+                    <li>Create a new project or select an existing one</li>
+                    <li>Enable the Google Drive API</li>
+                  </ol>
+                </div>
+
+                <div className="bg-white rounded p-3 border border-amber-200">
+                  <h5 className="font-semibold text-amber-900 mb-2">Step 2: Create OAuth Credentials</h5>
+                  <ol className="list-decimal list-inside space-y-1 ml-2 text-xs">
+                    <li>Go to "Credentials" in the left sidebar</li>
+                    <li>Click "Create Credentials" → "OAuth 2.0 Client IDs"</li>
+                    <li>Choose "Web application"</li>
+                    <li>Add your app URL to "Authorized redirect URIs"</li>
+                    <li>Format: <code className="bg-gray-100 px-1 rounded">https://your-app-url/api/auth/google/callback</code></li>
+                  </ol>
+                </div>
+
+                <div className="bg-white rounded p-3 border border-amber-200">
+                  <h5 className="font-semibold text-amber-900 mb-2">Step 3: Configure App</h5>
+                  <ol className="list-decimal list-inside space-y-1 ml-2 text-xs">
+                    <li>Copy the Client ID and Client Secret</li>
+                    <li>Add them to your app's environment variables</li>
+                    <li>Set GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET</li>
+                    <li>Restart the app to apply changes</li>
+                  </ol>
+                </div>
                 
-                <p className="mt-3"><strong>Common issues:</strong></p>
-                <ul className="list-disc list-inside space-y-1 ml-2">
-                  <li><strong>Popup blocked:</strong> Click the popup blocker icon in your address bar</li>
-                  <li><strong>Authorization error:</strong> Contact support if this persists</li>
-                  <li><strong>Network error:</strong> Check your internet connection</li>
-                </ul>
+                <div className="border-t border-amber-300 pt-3">
+                  <p><strong>Troubleshooting Connection Issues:</strong></p>
+                  <ul className="list-disc list-inside space-y-1 ml-2 text-xs">
+                    <li><strong>Popup blocked:</strong> Allow pop-ups for this site</li>
+                    <li><strong>Authorization error:</strong> Check credentials are correctly set</li>
+                    <li><strong>Redirect error:</strong> Verify redirect URI matches exactly</li>
+                    <li><strong>Network error:</strong> Try incognito mode or clear cache</li>
+                  </ul>
+                </div>
                 
-                <div className="bg-amber-100 rounded p-2 mt-3">
-                  <p className="text-xs font-medium">💡 Pro Tip:</p>
-                  <p className="text-xs">The app needs permission to create a private folder in your Google Drive. Your existing files are never accessed or modified.</p>
+                <div className="bg-amber-100 rounded p-2">
+                  <p className="text-xs font-medium">🔒 Privacy Note:</p>
+                  <p className="text-xs">The app only creates a private "IndoorJungle" folder in your Google Drive. Your existing files are never accessed or modified.</p>
                 </div>
               </div>
             </div>

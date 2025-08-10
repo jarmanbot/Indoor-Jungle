@@ -131,6 +131,9 @@ Changelog:
 - August 10, 2025. Removed PostgreSQL dependencies for cost efficiency - app now uses Google Drive + localStorage for unlimited plant storage
 - August 10, 2025. Updated plant limit to 25 plants for localStorage before requiring Google Drive upgrade
 - August 10, 2025. Added plant limit warning banner that appears on Home page when displaying the 25th plant
+- August 10, 2025. Changed warning banner to red color when plant limit is reached for better visibility
+- August 10, 2025. Added auto-scrolling functionality to Google Drive section when clicking warning links
+- August 10, 2025. Created comprehensive Google Drive setup guide with step-by-step OAuth configuration
 - August 10, 2025. Implemented Google Drive integration with OAuth authentication for unlimited plant storage (250+ plants)
 - August 10, 2025. Created GoogleDriveSync component for cloud backup and restore functionality
 - August 10, 2025. Added GoogleDriveImageUpload for storing full-resolution plant photos in user's Google Drive
