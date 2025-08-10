@@ -7,8 +7,8 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
-import { Plus, Leaf, Droplet, Package, ImageIcon, Thermometer, Search, Award, CalendarRange, X } from "lucide-react";
-import { localStorage as localData, initializeLocalStorage } from "@/lib/localDataStorage";
+import { Plus, Leaf, Droplet, Package, ImageIcon, Thermometer, Search, Award, CalendarRange, X, AlertTriangle, Cloud } from "lucide-react";
+import { localStorage as localData, initializeLocalStorage, getPlantCountUsage, STORAGE_LIMITS } from "@/lib/localDataStorage";
 import { useState } from "react";
 
 const Home = () => {
@@ -69,6 +69,9 @@ const Home = () => {
     return needsWater || needsFeeding;
   }).length || 0;
 
+  // Get plant count usage for limit warnings
+  const plantUsage = getPlantCountUsage();
+
   return (
     <div className="pb-20">
       {/* Header with stats */}
@@ -99,6 +102,64 @@ const Home = () => {
                     </div>
                   </div>
                   <div className="text-orange-600">
+                    <svg className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                    </svg>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </Link>
+        )}
+
+        {/* Plant Limit Warning Banner */}
+        {plantUsage.needsGoogleDrive && (
+          <Link href="/settings">
+            <Card className="bg-orange-100 border-orange-200 hover:bg-orange-200 transition-colors cursor-pointer mt-3">
+              <CardContent className="px-3 py-2">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <div className="bg-orange-200 rounded-full p-1">
+                      <AlertTriangle className="h-3 w-3 text-orange-700" />
+                    </div>
+                    <div>
+                      <div className="text-sm font-bold text-orange-900">Plant Limit Reached</div>
+                      <p className="text-xs text-orange-700">
+                        {plantUsage.current}/{plantUsage.max} plants • Enable Google Drive for unlimited storage
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-1 text-orange-600">
+                    <Cloud className="h-3 w-3" />
+                    <svg className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                    </svg>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </Link>
+        )}
+
+        {/* Near Limit Warning Banner */}
+        {plantUsage.percentage >= 80 && !plantUsage.needsGoogleDrive && (
+          <Link href="/settings">
+            <Card className="bg-yellow-50 border-yellow-200 hover:bg-yellow-100 transition-colors cursor-pointer mt-3">
+              <CardContent className="px-3 py-2">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <div className="bg-yellow-200 rounded-full p-1">
+                      <AlertTriangle className="h-3 w-3 text-yellow-700" />
+                    </div>
+                    <div>
+                      <div className="text-sm font-bold text-yellow-900">Nearly at Plant Limit</div>
+                      <p className="text-xs text-yellow-700">
+                        {plantUsage.current}/{plantUsage.max} plants • Consider Google Drive for more plants
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-1 text-yellow-600">
+                    <Cloud className="h-3 w-3" />
                     <svg className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                     </svg>
