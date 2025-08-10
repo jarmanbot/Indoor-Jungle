@@ -266,8 +266,10 @@ export function GoogleDriveSync() {
                   <h5 className="font-semibold text-amber-900 mb-2">Step 1: Create Google Cloud Project</h5>
                   <ol className="list-decimal list-inside space-y-1 ml-2 text-xs">
                     <li>Go to <a href="https://console.cloud.google.com/" target="_blank" rel="noopener noreferrer" className="text-blue-600 underline">Google Cloud Console</a></li>
-                    <li>Create a new project or select an existing one</li>
-                    <li>Enable the Google Drive API</li>
+                    <li>Click "New Project" and give it a name (e.g., "Indoor Jungle App")</li>
+                    <li>Go to "APIs & Services" → "Library"</li>
+                    <li>Search for "Google Drive API" and click "Enable"</li>
+                    <li>Also search for "Google+ API" and enable it (for user info)</li>
                   </ol>
                 </div>
 
@@ -277,28 +279,31 @@ export function GoogleDriveSync() {
                     <li>Go to "Credentials" in the left sidebar</li>
                     <li>Click "Create Credentials" → "OAuth 2.0 Client IDs"</li>
                     <li>Choose "Web application"</li>
-                    <li>Add your app URL to "Authorized redirect URIs"</li>
-                    <li>Format: <code className="bg-gray-100 px-1 rounded">https://your-app-url/api/auth/google/callback</code></li>
+                    <li>Add this exact URL to "Authorized redirect URIs":</li>
+                    <li><code className="bg-gray-100 px-1 rounded text-xs break-all">https://{window.location.hostname}/api/auth/google/callback</code></li>
+                    <li>Copy and save the Client ID and Client Secret</li>
                   </ol>
                 </div>
 
                 <div className="bg-white rounded p-3 border border-amber-200">
-                  <h5 className="font-semibold text-amber-900 mb-2">Step 3: Configure App</h5>
+                  <h5 className="font-semibold text-amber-900 mb-2">Step 3: Configure App (For Developers)</h5>
                   <ol className="list-decimal list-inside space-y-1 ml-2 text-xs">
-                    <li>Copy the Client ID and Client Secret</li>
-                    <li>Add them to your app's environment variables</li>
-                    <li>Set GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET</li>
-                    <li>Restart the app to apply changes</li>
+                    <li>Copy the Client ID and Client Secret from Step 2</li>
+                    <li>Go to the Replit Secrets tab in your project</li>
+                    <li>Add secret: <code className="bg-gray-100 px-1 rounded">GOOGLE_CLIENT_ID</code> with your Client ID</li>
+                    <li>Add secret: <code className="bg-gray-100 px-1 rounded">GOOGLE_CLIENT_SECRET</code> with your Client Secret</li>
+                    <li>Restart the app (stop and run again) to apply changes</li>
                   </ol>
                 </div>
                 
                 <div className="border-t border-amber-300 pt-3">
                   <p><strong>Troubleshooting Connection Issues:</strong></p>
                   <ul className="list-disc list-inside space-y-1 ml-2 text-xs">
-                    <li><strong>Popup blocked:</strong> Allow pop-ups for this site</li>
-                    <li><strong>Authorization error:</strong> Check credentials are correctly set</li>
-                    <li><strong>Redirect error:</strong> Verify redirect URI matches exactly</li>
-                    <li><strong>Network error:</strong> Try incognito mode or clear cache</li>
+                    <li><strong>"Invalid redirect URI":</strong> Make sure the redirect URI in Google Cloud exactly matches: <code className="bg-gray-100 px-1 rounded">https://{window.location.hostname}/api/auth/google/callback</code></li>
+                    <li><strong>Popup blocked:</strong> Allow pop-ups for this site in your browser</li>
+                    <li><strong>"Authorization error":</strong> Check that both Client ID and Client Secret are correctly set in Secrets</li>
+                    <li><strong>"Access blocked":</strong> Make sure both Google Drive API and Google+ API are enabled</li>
+                    <li><strong>Network error:</strong> Try incognito mode or clear browser cache</li>
                   </ul>
                 </div>
                 
