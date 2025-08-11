@@ -1,27 +1,15 @@
 import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
-import session from "express-session";
+import { storage } from "./storage";
 import path from "path";
 
 const app = express();
-app.use(express.json({ limit: '10mb' })); // Increase limit for backup files
-app.use(express.urlencoded({ extended: false, limit: '10mb' }));
+app.use(express.json());
+app.use(express.urlencoded({ extended: false }));
 
 // Serve static files from public folder
 app.use(express.static(path.join(process.cwd(), "public")));
-
-// Simple session configuration for Google OAuth
-app.use(session({
-  secret: process.env.SESSION_SECRET || 'development-secret-key',
-  resave: false,
-  saveUninitialized: false,
-  cookie: {
-    httpOnly: true,
-    secure: false, // Set to true in production with HTTPS
-    maxAge: 24 * 60 * 60 * 1000, // 24 hours
-  },
-}));
 
 app.use((req, res, next) => {
   const start = Date.now();
@@ -54,7 +42,15 @@ app.use((req, res, next) => {
 });
 
 (async () => {
-  console.log("Starting Indoor Jungle app with Google Drive storage...");
+  try {
+    // Try to initialize database, but don't fail if it's not available
+    // (Alpha testing mode uses local storage instead)
+    await storage.initialize();
+    console.log("Database initialized successfully");
+  } catch (error) {
+    console.warn("Database initialization failed - app will run in alpha testing mode:", error.message);
+    console.log("Note: Alpha testing mode uses local storage and doesn't require a database connection");
+  }
 
   const server = await registerRoutes(app);
 
