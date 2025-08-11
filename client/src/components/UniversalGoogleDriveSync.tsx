@@ -56,10 +56,10 @@ export function UniversalGoogleDriveSync() {
     setAutoBackupEnabled(savedAutoBackup);
     setLastSyncTime(savedLastSync);
 
-    // Calculate next sync time (weekly)
+    // Calculate next sync time (every 4 hours)
     if (savedLastSync) {
       const lastSync = new Date(savedLastSync);
-      const nextSync = new Date(lastSync.getTime() + (7 * 24 * 60 * 60 * 1000));
+      const nextSync = new Date(lastSync.getTime() + (4 * 60 * 60 * 1000));
       setNextSyncTime(nextSync.toLocaleString());
     }
   }, []);
@@ -177,7 +177,7 @@ export function UniversalGoogleDriveSync() {
       localStorage.setItem('lastSyncTime', now.toISOString());
 
       // Calculate next sync time
-      const nextSync = new Date(now.getTime() + (7 * 24 * 60 * 60 * 1000));
+      const nextSync = new Date(now.getTime() + (4 * 60 * 60 * 1000));
       setNextSyncTime(nextSync.toLocaleString());
 
       toast({
@@ -208,22 +208,13 @@ export function UniversalGoogleDriveSync() {
       setSyncProgress(60);
 
       const jsonString = JSON.stringify(exportData, null, 2);
-      const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
-      const filename = `indoor-jungle-backup-${timestamp}.json`;
+      const date = new Date().toISOString().split('T')[0];
+      const filename = `indoor-jungle-backup-${date}.json`;
       
       downloadFile(jsonString, filename);
 
       setSyncProgress(100);
       setSyncStatus('complete');
-
-      // Update last sync time (same as auto backup)
-      const now = new Date();
-      setLastSyncTime(now.toLocaleString());
-      localStorage.setItem('lastSyncTime', now.toISOString());
-
-      // Calculate next sync time
-      const nextSync = new Date(now.getTime() + (7 * 24 * 60 * 60 * 1000));
-      setNextSyncTime(nextSync.toLocaleString());
 
       toast({
         title: "Backup Created",
@@ -233,13 +224,12 @@ export function UniversalGoogleDriveSync() {
       setTimeout(() => setSyncStatus('idle'), 2000);
 
     } catch (error: any) {
-      console.error('Manual backup failed:', error);
-      setSyncStatus('idle');
       toast({
         title: "Backup Failed",
-        description: "Could not create backup file. Please try again.",
+        description: "Could not create backup file",
         variant: "destructive",
       });
+      setSyncStatus('idle');
     }
   };
 
@@ -379,7 +369,7 @@ export function UniversalGoogleDriveSync() {
     }
   };
 
-  // Auto backup interval (weekly)
+  // Auto backup interval (every 4 hours when enabled)
   useEffect(() => {
     if (!autoBackupEnabled) return;
 
@@ -394,15 +384,15 @@ export function UniversalGoogleDriveSync() {
       const lastSyncDate = new Date(lastSync);
       const now = new Date();
       const timeDiff = now.getTime() - lastSyncDate.getTime();
-      const oneWeek = 7 * 24 * 60 * 60 * 1000;
+      const fourHours = 4 * 60 * 60 * 1000;
 
-      if (timeDiff >= oneWeek) {
+      if (timeDiff >= fourHours) {
         performAutoBackup();
       }
     };
 
-    // Check every 4 hours
-    const interval = setInterval(checkAutoBackup, 4 * 60 * 60 * 1000);
+    // Check every 15 minutes
+    const interval = setInterval(checkAutoBackup, 15 * 60 * 1000);
 
     // Check immediately
     checkAutoBackup();
@@ -448,7 +438,7 @@ export function UniversalGoogleDriveSync() {
               <div>
                 <strong>Auto backup creates files</strong>
                 <br />
-                <span className="text-xs">When enabled, backup files are automatically created weekly</span>
+                <span className="text-xs">When enabled, backup files are automatically created every 4 hours</span>
               </div>
             </li>
             <li className="flex items-start gap-2">
@@ -473,7 +463,7 @@ export function UniversalGoogleDriveSync() {
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Timer className="h-4 w-4 text-green-600" />
-            <Label htmlFor="auto-backup">Auto Backup (Weekly)</Label>
+            <Label htmlFor="auto-backup">Auto Backup (Every 4 Hours)</Label>
           </div>
           <Switch 
             id="auto-backup"

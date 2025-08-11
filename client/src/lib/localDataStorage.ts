@@ -39,49 +39,8 @@ export const localStorage = {
       if (error.name === 'QuotaExceededError') {
         const usage = getStorageUsage();
         const plantUsage = getPlantCountUsage();
-        
-        // If user has unlimited mode enabled, try to free up space by compressing older plants
-        if (plantUsage.hasUnlimitedMode && key === 'plants') {
-          console.log('Unlimited mode active - attempting to compress older plant data');
-          try {
-            // Keep images for recent plants (last 10), compress older ones
-            // Sort by ID (newer IDs are higher) as fallback for timestamp sorting
-            const sortedPlants = [...value].sort((a, b) => {
-              // Try timestamp first
-              const aTime = new Date(b.createdAt || b.updatedAt || 0).getTime();
-              const bTime = new Date(a.createdAt || a.updatedAt || 0).getTime();
-              if (aTime !== bTime) return aTime - bTime;
-              
-              // Fallback to ID (higher ID = newer plant)
-              return (b.id || 0) - (a.id || 0);
-            });
-            
-            const optimizedPlants = sortedPlants.map((plant: any, index: number) => {
-              if (index < 10) {
-                // Keep full data for recent plants (top 10 by ID/timestamp)
-                return plant;
-              } else {
-                // Compress older plants by removing images but keep compressed marker
-                return {
-                  ...plant,
-                  imageUrl: plant.imageUrl && plant.imageUrl !== 'compressed_for_backup' ? 'compressed_for_backup' : plant.imageUrl
-                };
-              }
-            });
-            
-            const compressedSerialized = JSON.stringify(optimizedPlants);
-            window.localStorage.setItem(LOCAL_DATA_PREFIX + key, compressedSerialized);
-            console.log('Successfully saved plants with selective compression to localStorage');
-            return;
-          } catch (compressionError) {
-            console.log('Even compressed data too large for localStorage');
-          }
-        }
-        
-        if (plantUsage.hasUnlimitedMode) {
-          throw new Error(`Browser storage limit reached. Your data is safely backed up via cloud backup. Consider exporting older data and removing some plants locally if needed.`);
-        } else if (plantUsage.needsGoogleDrive) {
-          throw new Error(`Plant limit reached (${plantUsage.current}/${plantUsage.max}). Enable cloud backup for unlimited plants, or export data and remove some plants.`);
+        if (plantUsage.needsGoogleDrive) {
+          throw new Error(`Plant limit reached (${plantUsage.current}/${plantUsage.max}). Enable Google Drive storage for unlimited plants, or export data and remove some plants.`);
         } else {
           throw new Error(`Storage quota exceeded. Current usage: ${(usage.used / 1024 / 1024).toFixed(2)}MB / ${(usage.total / 1024 / 1024).toFixed(2)}MB. Try exporting your data and removing some plant images to free up space.`);
         }
@@ -109,47 +68,6 @@ export const STORAGE_LIMITS = {
   LOCAL_STORAGE_MAX_PLANTS: 25, // Max plants before requiring Google Drive
   GOOGLE_DRIVE_UNLIMITED: true
 };
-
-// Apply selective compression to existing plants (keeps recent 10 with images)
-export function optimizeExistingPlants() {
-  try {
-    const plants = localStorage.get('plants') || [];
-    if (plants.length === 0) return;
-
-    console.log('Optimizing existing plants...');
-    
-    // Sort by ID (newer IDs are higher) as primary method since timestamps may not exist
-    const sortedPlants = [...plants].sort((a, b) => {
-      // Try timestamp first if available
-      const aTime = new Date(b.createdAt || b.updatedAt || 0).getTime();
-      const bTime = new Date(a.createdAt || a.updatedAt || 0).getTime();
-      if (aTime !== bTime && aTime > 0 && bTime > 0) return aTime - bTime;
-      
-      // Fallback to ID (higher ID = newer plant)
-      return (b.id || 0) - (a.id || 0);
-    });
-    
-    const optimizedPlants = sortedPlants.map((plant, index) => {
-      if (index < 10) {
-        // Keep full data for recent plants (top 10 by ID/timestamp)
-        return plant;
-      } else {
-        // Compress older plants by removing images
-        return {
-          ...plant,
-          imageUrl: plant.imageUrl && plant.imageUrl !== 'compressed_for_backup' ? 'compressed_for_backup' : plant.imageUrl
-        };
-      }
-    });
-    
-    localStorage.set('plants', optimizedPlants);
-    console.log(`Optimized ${plants.length} plants - kept images for top 10 recent plants`);
-    return true;
-  } catch (error) {
-    console.error('Failed to optimize plants:', error);
-    return false;
-  }
-}
 
 // Get localStorage usage statistics
 export function getStorageUsage() {
