@@ -147,73 +147,83 @@ export function UniversalGoogleDriveSync() {
     reader.readAsText(blob);
   };
 
-  // Data URI download method - more reliable than blob URLs
+  // Data URI download method using the proven legacy approach
   const dataUriDownload = (dataText: string, filename: string) => {
-    console.log('Using data URI download method');
+    console.log('Using proven legacy download method');
     
     try {
-      // Create data URI
-      const dataUri = 'data:application/json;charset=utf-8,' + encodeURIComponent(dataText);
+      // Create data URL
+      const dataUrl = 'data:application/json;charset=utf-8,' + encodeURIComponent(dataText);
       
-      // Create download link
+      // Create download link (same as legacy code)
       const link = document.createElement('a');
-      link.href = dataUri;
+      link.href = dataUrl;
       link.download = filename;
-      
-      // Force the download by making it visible and requiring user interaction
-      link.style.cssText = `
-        position: fixed;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        z-index: 10000;
-        background: #22c55e;
-        color: white;
-        padding: 16px 24px;
-        border-radius: 8px;
-        font-family: system-ui, -apple-system, sans-serif;
-        font-size: 16px;
-        font-weight: 600;
-        text-decoration: none;
-        box-shadow: 0 8px 24px rgba(0,0,0,0.3);
-        border: 2px solid #16a34a;
-      `;
-      
-      link.textContent = `📥 Click to Download ${filename}`;
-      
-      // Add click handler to remove link
-      link.onclick = () => {
-        setTimeout(() => {
-          if (document.body.contains(link)) {
-            document.body.removeChild(link);
-          }
-        }, 1000);
-        
-        console.log('Backup downloaded via data URI method');
-        toast({
-          title: "Backup Downloaded",
-          description: `${filename} has been downloaded. Check your Downloads folder.`,
-        });
-      };
-      
-      // Add to document
+      link.style.display = 'none';
       document.body.appendChild(link);
       
-      // Auto-remove after 60 seconds if not clicked
+      // Force user interaction with MouseEvent (same as legacy)
+      const clickEvent = new MouseEvent('click', {
+        view: window,
+        bubbles: true,
+        cancelable: true
+      });
+      
+      link.dispatchEvent(clickEvent);
+      console.log('Triggered download with MouseEvent');
+      
+      // Fallback: open in new window (same as legacy)
       setTimeout(() => {
+        const newWindow = window.open(dataUrl, '_blank');
+        if (newWindow) {
+          // Add instructions to the new window
+          setTimeout(() => {
+            try {
+              newWindow.document.body.innerHTML = `
+                <div style="font-family: Arial, sans-serif; padding: 20px; max-width: 600px;">
+                  <h2>Indoor Jungle Backup</h2>
+                  <p>Your plant backup is ready for download. If the download didn't start automatically:</p>
+                  <ol>
+                    <li>Right-click on this page</li>
+                    <li>Select "Save As..." or "Save Page As..."</li>
+                    <li>Save the file as: <strong>${filename}</strong></li>
+                  </ol>
+                  <p><strong>Or copy the data below and save it manually:</strong></p>
+                  <textarea style="width: 100%; height: 300px; font-family: monospace; font-size: 12px;" readonly>${dataText}</textarea>
+                  <br><br>
+                  <button onclick="window.close();" style="padding: 10px 20px; background: #22c55e; color: white; border: none; border-radius: 4px; cursor: pointer;">Close</button>
+                </div>
+              `;
+            } catch (e) {
+              console.log('Could not modify new window content');
+            }
+          }, 500);
+          console.log('Opened backup data in new window for manual saving');
+          
+          toast({
+            title: "Backup Window Opened",
+            description: "A new window opened with your backup. Save it manually if download didn't start.",
+            duration: 8000,
+          });
+        } else {
+          console.error('Could not open new window - popup blocked');
+          toast({
+            title: "Popup Blocked",
+            description: "Please allow popups and try again, or copy backup data to clipboard.",
+            variant: "destructive",
+          });
+        }
+        
+        // Clean up
         if (document.body.contains(link)) {
           document.body.removeChild(link);
         }
-      }, 60000);
+      }, 1000);
       
-      toast({
-        title: "Backup Ready",
-        description: "Click the green download button in the center of your screen to save the backup file.",
-        duration: 10000,
-      });
+      console.log('Plant data exported successfully using legacy method');
       
     } catch (error) {
-      console.error('Data URI download failed:', error);
+      console.error('Legacy download method failed:', error);
       
       // Final fallback - copy to clipboard
       try {
