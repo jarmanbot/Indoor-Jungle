@@ -91,124 +91,79 @@ export function UniversalGoogleDriveSync() {
     };
   };
 
-  // Helper function to trigger download
+  // Helper function to trigger download with Save As dialog
   const downloadFile = (blob: Blob, filename: string) => {
-    console.log('Starting download for:', filename, 'Size:', blob.size, 'bytes');
-    
     try {
-      // Check if File System Access API is available and user wants Save As dialog
-      const hasFileSystemAccess = 'showSaveFilePicker' in window;
-      console.log('File System Access API available:', hasFileSystemAccess);
-      
-      if (hasFileSystemAccess) {
-        console.log('Using File System Access API for Save As dialog');
-        // Modern File System Access API with Save As dialog
+      // Try the File System Access API first (Chrome/Edge)
+      if ('showSaveFilePicker' in window) {
+        // Modern File System Access API
         (window as any).showSaveFilePicker({
           suggestedName: filename,
           types: [{
-            description: 'JSON backup files',
+            description: 'JSON files',
             accept: { 'application/json': ['.json'] },
           }],
         }).then((fileHandle: any) => {
-          console.log('File handle obtained, creating writable stream');
           return fileHandle.createWritable();
         }).then((writable: any) => {
-          console.log('Writing blob to file');
-          return writable.write(blob).then(() => writable);
+          return writable.write(blob);
         }).then((writable: any) => {
-          console.log('Closing file');
           return writable.close();
         }).then(() => {
-          console.log('Plant data exported successfully via File System Access API');
+          console.log('Plant data exported successfully');
           toast({
             title: "Backup Saved",
-            description: `Your backup has been saved to the location you selected!`,
+            description: `Your backup has been saved successfully!`,
           });
         }).catch((error: any) => {
-          console.log('File System Access API error:', error.name, error.message);
-          if (error.name === 'AbortError') {
-            console.log('User cancelled the save dialog');
-            return; // User cancelled, don't show error
+          if (error.name !== 'AbortError') {
+            console.error('Save failed:', error);
+            fallbackDownload(blob, filename);
           }
-          console.log('Falling back to standard download');
-          fallbackDownload(blob, filename);
         });
       } else {
-        console.log('File System Access API not available, using fallback');
+        // Fallback for other browsers
         fallbackDownload(blob, filename);
       }
     } catch (error) {
-      console.error('Download function error:', error);
+      console.error('Could not download file:', error);
       fallbackDownload(blob, filename);
     }
   };
 
-  // Fallback download method for browsers without File System Access API
+  // Fallback download method
   const fallbackDownload = (blob: Blob, filename: string) => {
-    console.log('Using fallback download method');
     try {
       const url = URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.href = url;
       link.download = filename;
       
-      console.log('Created download link with URL:', url);
-      
-      // Ensure link is added to document and clicked with user interaction
+      // Hide the link and click it immediately to trigger download
       link.style.display = 'none';
       document.body.appendChild(link);
+      link.click();
       
-      // Force click with timeout to ensure it works
+      // Cleanup
       setTimeout(() => {
-        console.log('Triggering download click');
-        link.click();
-        
-        // Cleanup after delay
-        setTimeout(() => {
-          if (document.body.contains(link)) {
-            document.body.removeChild(link);
-          }
-          URL.revokeObjectURL(url);
-          console.log('Download cleanup completed');
-        }, 1000);
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
       }, 100);
       
-      console.log('Plant data exported successfully via fallback method');
+      console.log('Plant data exported successfully');
       
       toast({
         title: "Backup Downloaded",
-        description: `${filename} should download to your Downloads folder shortly.`,
+        description: `${filename} has been downloaded to your default Downloads folder.`,
       });
       
     } catch (error) {
       console.error('Fallback download failed:', error);
-      
-      // Last resort: offer to copy data to clipboard
-      try {
-        const reader = new FileReader();
-        reader.onload = () => {
-          const textData = reader.result as string;
-          navigator.clipboard.writeText(textData).then(() => {
-            toast({
-              title: "Backup Copied to Clipboard",
-              description: "Download failed, but backup data is now in your clipboard. Paste it into a text file and save as .json",
-            });
-          }).catch(() => {
-            toast({
-              title: "Download Failed",
-              description: "Could not download or copy backup. Please check browser settings and try again.",
-              variant: "destructive"
-            });
-          });
-        };
-        reader.readAsText(blob);
-      } catch (clipboardError) {
-        toast({
-          title: "Download Failed",
-          description: "Could not download backup file. Please check browser settings and allow downloads.",
-          variant: "destructive"
-        });
-      }
+      toast({
+        title: "Download Failed",
+        description: "Could not download backup file. Please check browser settings.",
+        variant: "destructive"
+      });
     }
   };
 
