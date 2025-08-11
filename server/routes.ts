@@ -10,6 +10,28 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Setup Google Drive routes for plant storage  
   setupGoogleDriveRoutes(app);
   
+  // Backup download endpoint
+  app.post('/api/backup/download', (req, res) => {
+    try {
+      const { data, filename } = req.body;
+      
+      if (!data || !filename) {
+        return res.status(400).json({ error: 'Missing data or filename' });
+      }
+      
+      // Set headers for file download
+      res.setHeader('Content-Type', 'application/json');
+      res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+      res.setHeader('Content-Length', Buffer.byteLength(data, 'utf8'));
+      
+      // Send the data as downloadable file
+      res.send(data);
+    } catch (error) {
+      console.error('Backup download error:', error);
+      res.status(500).json({ error: 'Failed to create backup download' });
+    }
+  });
+
   // Health check endpoint
   app.get('/api/health', (req, res) => {
     res.json({ 

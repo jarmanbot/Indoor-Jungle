@@ -135,8 +135,8 @@ export function UniversalGoogleDriveSync() {
             dataUriDownload(dataText, filename);
           });
         } else {
-          console.log('Using data URI download method');
-          dataUriDownload(dataText, filename);
+          console.log('Using server-side download endpoint');
+          serverSideDownload(dataText, filename);
         }
       } catch (error) {
         console.error('Download function error:', error);
@@ -145,6 +145,51 @@ export function UniversalGoogleDriveSync() {
     };
     
     reader.readAsText(blob);
+  };
+
+  // Server-side download method - most reliable
+  const serverSideDownload = async (dataText: string, filename: string) => {
+    console.log('Using server-side download method');
+    
+    try {
+      const response = await fetch('/api/backup/download', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          data: dataText,
+          filename: filename
+        })
+      });
+      
+      if (!response.ok) {
+        throw new Error('Server download failed');
+      }
+      
+      // Create blob from response and trigger download
+      const blob = await response.blob();
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = filename;
+      link.style.display = 'none';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+      
+      console.log('Server-side download completed');
+      toast({
+        title: "Backup Downloaded",
+        description: `${filename} has been downloaded via server. Check your Downloads folder.`,
+      });
+      
+    } catch (error) {
+      console.error('Server-side download failed:', error);
+      // Fallback to data URI method
+      dataUriDownload(dataText, filename);
+    }
   };
 
   // Data URI download method using the proven legacy approach
@@ -171,6 +216,15 @@ export function UniversalGoogleDriveSync() {
       
       link.dispatchEvent(clickEvent);
       console.log('Triggered download with MouseEvent');
+      
+      // Add immediate success feedback for the MouseEvent attempt
+      setTimeout(() => {
+        toast({
+          title: "Download Triggered",
+          description: `Check Downloads folder for: ${filename} (2.6MB file). If not found, a backup window will open.`,
+          duration: 5000,
+        });
+      }, 500);
       
       // Fallback: open in new window (same as legacy)
       setTimeout(() => {
