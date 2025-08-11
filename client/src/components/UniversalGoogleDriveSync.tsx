@@ -451,6 +451,29 @@ export function UniversalGoogleDriveSync() {
           </div>
         )}
 
+        {/* Unlimited Plants Mode Banner */}
+        {(autoBackupEnabled || localStorage.getItem('googleDriveUnlimited') === 'true') && (
+          <div className="bg-gradient-to-r from-green-400 to-blue-500 text-white rounded-lg p-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="bg-white/20 rounded-full p-2">
+                  <Cloud className="h-5 w-5" />
+                </div>
+                <div>
+                  <div className="font-bold text-lg">Unlimited Plants Mode</div>
+                  <p className="text-sm opacity-90">
+                    Google Drive backup enabled • {localPlants.length} plants stored
+                  </p>
+                </div>
+              </div>
+              <div className="text-3xl font-bold">∞</div>
+            </div>
+            <div className="mt-3 text-xs opacity-80">
+              Add 250+, 500+, or thousands of plants without restrictions
+            </div>
+          </div>
+        )}
+
         <div className="grid grid-cols-2 gap-4">
           <div className="text-center">
             <div className="flex items-center justify-center gap-2 mb-2">

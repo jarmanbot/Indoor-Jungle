@@ -169,28 +169,6 @@ const Home = () => {
             </Card>
           </Link>
         )}
-        
-        {/* Unlimited mode indicator */}
-        {plantUsage.hasUnlimitedMode && (
-          <div className="mb-2">
-            <Card className="bg-gradient-to-r from-green-400 to-blue-500 text-white">
-              <CardContent className="p-3">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <Cloud className="h-5 w-5" />
-                    <div>
-                      <div className="text-sm font-bold">Unlimited Plants Mode</div>
-                      <p className="text-xs opacity-90">
-                        Google Drive backup enabled • {plants?.length || 0} plants stored
-                      </p>
-                    </div>
-                  </div>
-                  <div className="text-2xl font-bold">∞</div>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-        )}
       </div>
 
       {/* Search bar for many plants */}
