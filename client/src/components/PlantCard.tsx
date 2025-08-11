@@ -133,11 +133,17 @@ const PlantCard = ({ plant, index = 0 }: PlantCardProps) => {
         <Link href={`/plant/${plant.id}`} className="flex flex-1">
           {/* Plant Image - keeping same size */}
           <div className="w-16 h-16 mr-2.5 rounded-md overflow-hidden flex-shrink-0">
-            <img 
-              src={plant.imageUrl || "https://via.placeholder.com/100x100?text=No+Image"} 
-              alt={plant.babyName} 
-              className="w-full h-full object-cover"
-            />
+            {plant.imageUrl === 'compressed_for_backup' ? (
+              <div className="w-full h-full bg-gradient-to-br from-green-100 to-green-200 flex items-center justify-center">
+                <Package className="h-6 w-6 text-green-600" />
+              </div>
+            ) : (
+              <img 
+                src={plant.imageUrl || "https://via.placeholder.com/100x100?text=No+Image"} 
+                alt={plant.babyName} 
+                className="w-full h-full object-cover"
+              />
+            )}
           </div>
           
           {/* Plant Information - more compact */}

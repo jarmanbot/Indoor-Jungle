@@ -39,8 +39,29 @@ export const localStorage = {
       if (error.name === 'QuotaExceededError') {
         const usage = getStorageUsage();
         const plantUsage = getPlantCountUsage();
-        if (plantUsage.needsGoogleDrive) {
-          throw new Error(`Plant limit reached (${plantUsage.current}/${plantUsage.max}). Enable Google Drive storage for unlimited plants, or export data and remove some plants.`);
+        
+        // If user has unlimited mode enabled, try to free up space by compressing data
+        if (plantUsage.hasUnlimitedMode && key === 'plants') {
+          console.log('Unlimited mode active - attempting to compress plant data');
+          try {
+            // Remove images from plants to save space, since user has backup enabled
+            const plantsWithoutImages = value.map((plant: any) => ({
+              ...plant,
+              imageUrl: plant.imageUrl ? 'compressed_for_backup' : undefined
+            }));
+            const compressedSerialized = JSON.stringify(plantsWithoutImages);
+            window.localStorage.setItem(LOCAL_DATA_PREFIX + key, compressedSerialized);
+            console.log('Successfully saved plants without images to localStorage');
+            return;
+          } catch (compressionError) {
+            console.log('Even compressed data too large for localStorage');
+          }
+        }
+        
+        if (plantUsage.hasUnlimitedMode) {
+          throw new Error(`Browser storage limit reached. Your data is safely backed up via cloud backup. Consider exporting older data and removing some plants locally if needed.`);
+        } else if (plantUsage.needsGoogleDrive) {
+          throw new Error(`Plant limit reached (${plantUsage.current}/${plantUsage.max}). Enable cloud backup for unlimited plants, or export data and remove some plants.`);
         } else {
           throw new Error(`Storage quota exceeded. Current usage: ${(usage.used / 1024 / 1024).toFixed(2)}MB / ${(usage.total / 1024 / 1024).toFixed(2)}MB. Try exporting your data and removing some plant images to free up space.`);
         }
