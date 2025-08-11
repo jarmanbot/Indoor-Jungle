@@ -91,83 +91,79 @@ export function UniversalGoogleDriveSync() {
     };
   };
 
-  // Helper function to download files with visible download link
+  // Helper function to trigger download with Save As dialog
   const downloadFile = (blob: Blob, filename: string) => {
+    try {
+      // Try the File System Access API first (Chrome/Edge)
+      if ('showSaveFilePicker' in window) {
+        // Modern File System Access API
+        (window as any).showSaveFilePicker({
+          suggestedName: filename,
+          types: [{
+            description: 'JSON files',
+            accept: { 'application/json': ['.json'] },
+          }],
+        }).then((fileHandle: any) => {
+          return fileHandle.createWritable();
+        }).then((writable: any) => {
+          return writable.write(blob);
+        }).then((writable: any) => {
+          return writable.close();
+        }).then(() => {
+          console.log('Plant data exported successfully');
+          toast({
+            title: "Backup Saved",
+            description: `Your backup has been saved successfully!`,
+          });
+        }).catch((error: any) => {
+          if (error.name !== 'AbortError') {
+            console.error('Save failed:', error);
+            fallbackDownload(blob, filename);
+          }
+        });
+      } else {
+        // Fallback for other browsers
+        fallbackDownload(blob, filename);
+      }
+    } catch (error) {
+      console.error('Could not download file:', error);
+      fallbackDownload(blob, filename);
+    }
+  };
+
+  // Fallback download method
+  const fallbackDownload = (blob: Blob, filename: string) => {
     try {
       const url = URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.href = url;
       link.download = filename;
       
-      // Create visible download button
-      link.style.cssText = `
-        position: fixed;
-        top: 20px;
-        right: 20px;
-        z-index: 10000;
-        padding: 12px 20px;
-        background: #22c55e;
-        color: white;
-        text-decoration: none;
-        border-radius: 8px;
-        font-family: system-ui, -apple-system, sans-serif;
-        font-size: 14px;
-        font-weight: 500;
-        cursor: pointer;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-        transition: all 0.2s ease;
-      `;
-      
-      link.textContent = '📥 Download ' + filename;
-      
-      // Add hover effects
-      link.onmouseenter = () => {
-        link.style.background = '#16a34a';
-        link.style.transform = 'translateY(-1px)';
-      };
-      
-      link.onmouseleave = () => {
-        link.style.background = '#22c55e';
-        link.style.transform = 'translateY(0)';
-      };
-      
-      // Handle click to remove button
-      link.onclick = () => {
-        setTimeout(() => {
-          if (document.body.contains(link)) {
-            document.body.removeChild(link);
-            URL.revokeObjectURL(url);
-          }
-        }, 1000);
-      };
-      
-      // Add to document
+      // Hide the link and click it immediately to trigger download
+      link.style.display = 'none';
       document.body.appendChild(link);
+      link.click();
       
-      // Auto-remove after 30 seconds
+      // Cleanup
       setTimeout(() => {
-        if (document.body.contains(link)) {
-          document.body.removeChild(link);
-          URL.revokeObjectURL(url);
-        }
-      }, 30000);
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+      }, 100);
       
       console.log('Plant data exported successfully');
       
       toast({
-        title: "Backup Ready",
-        description: "Click the green download button in the top-right corner to save your backup.",
-        duration: 5000,
+        title: "Backup Downloaded",
+        description: `${filename} has been downloaded to your default Downloads folder.`,
       });
       
     } catch (error) {
-      console.error('Could not download file:', error);
+      console.error('Fallback download failed:', error);
       toast({
         title: "Download Failed",
-        description: "Could not create download. Please check browser settings.",
+        description: "Could not download backup file. Please check browser settings.",
         variant: "destructive"
       });
-      throw error;
     }
   };
 
