@@ -87,69 +87,28 @@ export function UniversalGoogleDriveSync() {
     };
   };
 
-  // Robust download function using the working method from data management
-  const downloadFile = (jsonData: string, filename: string) => {
+  // Helper function to download files safely
+  const downloadFile = (blob: Blob, filename: string) => {
     try {
-      // Create a data URL that opens in a new tab for manual saving
-      const dataUrl = 'data:application/json;charset=utf-8,' + encodeURIComponent(jsonData);
-      
-      // Try to trigger download first
+      const url = URL.createObjectURL(blob);
       const link = document.createElement('a');
-      link.href = dataUrl;
+      link.href = url;
       link.download = filename;
       link.style.display = 'none';
+      
+      // Add to document and trigger click immediately
       document.body.appendChild(link);
       
-      // Force user interaction by requiring them to click
-      const clickEvent = new MouseEvent('click', {
-        view: window,
-        bubbles: true,
-        cancelable: true
-      });
-      
-      link.dispatchEvent(clickEvent);
-      
-      // If that doesn't work, open in new window
+      // Use setTimeout to avoid popup blockers
       setTimeout(() => {
-        const newWindow = window.open(dataUrl, '_blank');
-        if (newWindow) {
-          // Add instructions to the new window
-          setTimeout(() => {
-            try {
-              newWindow.document.body.innerHTML = `
-                <div style="font-family: Arial, sans-serif; padding: 20px; max-width: 600px;">
-                  <h2>Indoor Jungle Backup</h2>
-                  <p>Your plant backup is ready for download. If the download didn't start automatically:</p>
-                  <ol>
-                    <li>Right-click on this page</li>
-                    <li>Select "Save As..." or "Save Page As..."</li>
-                    <li>Save the file as: <strong>${filename}</strong></li>
-                  </ol>
-                  <p><strong>Or copy the data below and save it manually:</strong></p>
-                  <textarea style="width: 100%; height: 300px; font-family: monospace; font-size: 12px;" readonly>${jsonData}</textarea>
-                  <br><br>
-                  <button onclick="window.close();" style="padding: 10px 20px; background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer;">Close</button>
-                </div>
-              `;
-            } catch (e) {
-              console.log('Could not modify new window content');
-            }
-          }, 500);
-          console.log('Opened export data in new window for manual saving');
-        } else {
-          console.error('Could not open new window - popup blocked');
-          alert(`Backup ready! The download may be blocked. Check your Downloads folder, or if that doesn't work, try enabling popups for this site.`);
-        }
-        
-        // Clean up
-        if (document.body.contains(link)) {
-          document.body.removeChild(link);
-        }
-      }, 1000);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+      }, 100);
       
       console.log('Plant data exported successfully');
     } catch (error) {
-      console.error('Download failed:', error);
+      console.error('Could not download file:', error);
       throw error;
     }
   };
@@ -167,7 +126,8 @@ export function UniversalGoogleDriveSync() {
       const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
       const filename = `indoor-jungle-auto-backup-${timestamp}.json`;
       
-      downloadFile(jsonString, filename);
+      const blob = new Blob([jsonString], { type: 'application/json' });
+      downloadFile(blob, filename);
 
       setSyncProgress(100);
       setSyncStatus('complete');
@@ -182,12 +142,12 @@ export function UniversalGoogleDriveSync() {
 
       toast({
         title: "Auto Backup Created",
-        description: `Backup file downloaded with ${localPlants.length} plants. Check your downloads folder.`,
+        description: `Backup file created with ${localPlants.length} plants. Check your downloads folder.`,
       });
 
-      setTimeout(() => setSyncStatus('idle'), 2000);
+      setTimeout(() => setSyncStatus('idle'), 3000);
 
-    } catch (error: any) {
+    } catch (error) {
       console.error('Auto backup failed:', error);
       setSyncStatus('idle');
       toast({
@@ -211,19 +171,20 @@ export function UniversalGoogleDriveSync() {
       const date = new Date().toISOString().split('T')[0];
       const filename = `indoor-jungle-backup-${date}.json`;
       
-      downloadFile(jsonString, filename);
+      const blob = new Blob([jsonString], { type: 'application/json' });
+      downloadFile(blob, filename);
 
       setSyncProgress(100);
       setSyncStatus('complete');
 
       toast({
         title: "Backup Created",
-        description: `Backup file downloaded with ${localPlants.length} plants. Check your downloads folder.`,
+        description: `Backup created with ${localPlants.length} plants. Check your downloads folder.`,
       });
 
       setTimeout(() => setSyncStatus('idle'), 2000);
 
-    } catch (error: any) {
+    } catch (error) {
       toast({
         title: "Backup Failed",
         description: "Could not create backup file",
@@ -405,13 +366,13 @@ export function UniversalGoogleDriveSync() {
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Cloud className="h-5 w-5" />
-          Universal Cloud Backup
+          Universal Google Drive Sync
           <Badge variant="secondary" className="bg-blue-100 text-blue-800">
             Universal
           </Badge>
         </CardTitle>
         <CardDescription>
-          Automatic backup file creation - save to any cloud service or local folder of your choice
+          Automatic backup creation with manual Google Drive upload - works on any domain without setup
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
@@ -431,22 +392,22 @@ export function UniversalGoogleDriveSync() {
         )}
 
         <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-          <h4 className="font-medium text-blue-900 mb-2">How Universal Backup Works:</h4>
+          <h4 className="font-medium text-blue-900 mb-2">How Universal Sync Works:</h4>
           <ol className="text-sm text-blue-700 space-y-2">
             <li className="flex items-start gap-2">
               <span className="bg-blue-600 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold mt-0.5">1</span>
               <div>
                 <strong>Auto backup creates files</strong>
                 <br />
-                <span className="text-xs">When enabled, backup files are automatically created every 4 hours</span>
+                <span className="text-xs">When enabled, backup files are automatically downloaded every 4 hours</span>
               </div>
             </li>
             <li className="flex items-start gap-2">
               <span className="bg-blue-600 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold mt-0.5">2</span>
               <div>
-                <strong>Save anywhere you want</strong>
+                <strong>You upload to Google Drive</strong>
                 <br />
-                <span className="text-xs">Upload to Google Drive, Dropbox, OneDrive, or save to any local folder</span>
+                <span className="text-xs">Upload the downloaded backup files to any folder in your Google Drive</span>
               </div>
             </li>
             <li className="flex items-start gap-2">
@@ -454,7 +415,7 @@ export function UniversalGoogleDriveSync() {
               <div>
                 <strong>Restore on any device</strong>
                 <br />
-                <span className="text-xs">Load backup files from anywhere and restore on any device</span>
+                <span className="text-xs">Download backup files from Google Drive and restore on any device</span>
               </div>
             </li>
           </ol>
@@ -501,7 +462,7 @@ export function UniversalGoogleDriveSync() {
                 <div>
                   <div className="font-bold text-lg">Unlimited Plants Mode</div>
                   <p className="text-sm opacity-90">
-                    Cloud backup enabled • {localPlants.length} plants stored
+                    Google Drive backup enabled • {localPlants.length} plants stored
                   </p>
                 </div>
               </div>
@@ -526,11 +487,11 @@ export function UniversalGoogleDriveSync() {
           <div className="text-center">
             <div className="flex items-center justify-center gap-2 mb-2">
               <Cloud className="h-5 w-5 text-green-600" />
-              <span className="font-medium">Cloud Storage</span>
+              <span className="font-medium">Google Drive</span>
             </div>
             <div className="text-2xl font-bold text-green-600">∞</div>
             <div className="text-xs text-muted-foreground">Unlimited</div>
-            <div className="text-sm text-muted-foreground">Any service</div>
+            <div className="text-sm text-muted-foreground">Manual upload</div>
           </div>
         </div>
 
@@ -567,12 +528,22 @@ export function UniversalGoogleDriveSync() {
                 <li>• Works on any domain - no API setup needed</li>
                 <li>• Supports unlimited plants (250+, 500+, thousands)</li>
                 <li>• Auto creates backup files every 4 hours</li>
-                <li>• Save anywhere - any cloud service or local folder</li>
+                <li>• Cross-device sync via Google Drive</li>
                 <li>• No account registration or paid services required</li>
               </ul>
             </div>
           </div>
         </div>
+
+        <Button
+          onClick={() => window.open('https://drive.google.com', '_blank')}
+          variant="ghost"
+          size="sm"
+          className="w-full text-muted-foreground"
+        >
+          <ExternalLink className="h-4 w-4 mr-2" />
+          Open Google Drive
+        </Button>
       </CardContent>
     </Card>
   );
