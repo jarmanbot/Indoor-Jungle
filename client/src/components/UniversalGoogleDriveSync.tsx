@@ -87,29 +87,67 @@ export function UniversalGoogleDriveSync() {
     };
   };
 
-  // Simple download function that works reliably
-  const downloadFile = (blob: Blob, filename: string) => {
+  // Robust download function using the working method from data management
+  const downloadFile = (jsonData: string, filename: string) => {
     try {
-      // Create blob URL
-      const url = URL.createObjectURL(blob);
+      // Create a data URL that opens in a new tab for manual saving
+      const dataUrl = 'data:application/json;charset=utf-8,' + encodeURIComponent(jsonData);
       
-      // Create temporary link element
+      // Try to trigger download first
       const link = document.createElement('a');
-      link.href = url;
+      link.href = dataUrl;
       link.download = filename;
       link.style.display = 'none';
-      
-      // Add to DOM, click, and remove
       document.body.appendChild(link);
-      link.click();
       
-      // Cleanup
+      // Force user interaction by requiring them to click
+      const clickEvent = new MouseEvent('click', {
+        view: window,
+        bubbles: true,
+        cancelable: true
+      });
+      
+      link.dispatchEvent(clickEvent);
+      
+      // If that doesn't work, open in new window
       setTimeout(() => {
-        document.body.removeChild(link);
-        URL.revokeObjectURL(url);
-      }, 100);
+        const newWindow = window.open(dataUrl, '_blank');
+        if (newWindow) {
+          // Add instructions to the new window
+          setTimeout(() => {
+            try {
+              newWindow.document.body.innerHTML = `
+                <div style="font-family: Arial, sans-serif; padding: 20px; max-width: 600px;">
+                  <h2>Indoor Jungle Backup</h2>
+                  <p>Your plant backup is ready for download. If the download didn't start automatically:</p>
+                  <ol>
+                    <li>Right-click on this page</li>
+                    <li>Select "Save As..." or "Save Page As..."</li>
+                    <li>Save the file as: <strong>${filename}</strong></li>
+                  </ol>
+                  <p><strong>Or copy the data below and save it manually:</strong></p>
+                  <textarea style="width: 100%; height: 300px; font-family: monospace; font-size: 12px;" readonly>${jsonData}</textarea>
+                  <br><br>
+                  <button onclick="window.close();" style="padding: 10px 20px; background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer;">Close</button>
+                </div>
+              `;
+            } catch (e) {
+              console.log('Could not modify new window content');
+            }
+          }, 500);
+          console.log('Opened export data in new window for manual saving');
+        } else {
+          console.error('Could not open new window - popup blocked');
+          alert(`Backup ready! The download may be blocked. Check your Downloads folder, or if that doesn't work, try enabling popups for this site.`);
+        }
+        
+        // Clean up
+        if (document.body.contains(link)) {
+          document.body.removeChild(link);
+        }
+      }, 1000);
       
-      console.log('Export successful:', filename);
+      console.log('Plant data exported successfully');
     } catch (error) {
       console.error('Download failed:', error);
       throw error;
@@ -129,8 +167,7 @@ export function UniversalGoogleDriveSync() {
       const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
       const filename = `indoor-jungle-auto-backup-${timestamp}.json`;
       
-      const blob = new Blob([jsonString], { type: 'application/json' });
-      downloadFile(blob, filename);
+      downloadFile(jsonString, filename);
 
       setSyncProgress(100);
       setSyncStatus('complete');
@@ -174,8 +211,7 @@ export function UniversalGoogleDriveSync() {
       const date = new Date().toISOString().split('T')[0];
       const filename = `indoor-jungle-backup-${date}.json`;
       
-      const blob = new Blob([jsonString], { type: 'application/json' });
-      downloadFile(blob, filename);
+      downloadFile(jsonString, filename);
 
       setSyncProgress(100);
       setSyncStatus('complete');
