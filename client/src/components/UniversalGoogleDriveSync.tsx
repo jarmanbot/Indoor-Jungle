@@ -405,13 +405,13 @@ export function UniversalGoogleDriveSync() {
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Cloud className="h-5 w-5" />
-          Universal Google Drive Sync
+          Universal Cloud Backup
           <Badge variant="secondary" className="bg-blue-100 text-blue-800">
             Universal
           </Badge>
         </CardTitle>
         <CardDescription>
-          Automatic backup creation with manual Google Drive upload - works on any domain without setup
+          Automatic backup file creation - save to any cloud service or local folder of your choice
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
@@ -431,22 +431,22 @@ export function UniversalGoogleDriveSync() {
         )}
 
         <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-          <h4 className="font-medium text-blue-900 mb-2">How Universal Sync Works:</h4>
+          <h4 className="font-medium text-blue-900 mb-2">How Universal Backup Works:</h4>
           <ol className="text-sm text-blue-700 space-y-2">
             <li className="flex items-start gap-2">
               <span className="bg-blue-600 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold mt-0.5">1</span>
               <div>
                 <strong>Auto backup creates files</strong>
                 <br />
-                <span className="text-xs">When enabled, backup files are automatically downloaded every 4 hours</span>
+                <span className="text-xs">When enabled, backup files are automatically created every 4 hours</span>
               </div>
             </li>
             <li className="flex items-start gap-2">
               <span className="bg-blue-600 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold mt-0.5">2</span>
               <div>
-                <strong>You upload to Google Drive</strong>
+                <strong>Save anywhere you want</strong>
                 <br />
-                <span className="text-xs">Upload the downloaded backup files to any folder in your Google Drive</span>
+                <span className="text-xs">Upload to Google Drive, Dropbox, OneDrive, or save to any local folder</span>
               </div>
             </li>
             <li className="flex items-start gap-2">
@@ -454,7 +454,7 @@ export function UniversalGoogleDriveSync() {
               <div>
                 <strong>Restore on any device</strong>
                 <br />
-                <span className="text-xs">Download backup files from Google Drive and restore on any device</span>
+                <span className="text-xs">Load backup files from anywhere and restore on any device</span>
               </div>
             </li>
           </ol>
@@ -501,7 +501,7 @@ export function UniversalGoogleDriveSync() {
                 <div>
                   <div className="font-bold text-lg">Unlimited Plants Mode</div>
                   <p className="text-sm opacity-90">
-                    Google Drive backup enabled • {localPlants.length} plants stored
+                    Cloud backup enabled • {localPlants.length} plants stored
                   </p>
                 </div>
               </div>
@@ -526,11 +526,11 @@ export function UniversalGoogleDriveSync() {
           <div className="text-center">
             <div className="flex items-center justify-center gap-2 mb-2">
               <Cloud className="h-5 w-5 text-green-600" />
-              <span className="font-medium">Google Drive</span>
+              <span className="font-medium">Cloud Storage</span>
             </div>
             <div className="text-2xl font-bold text-green-600">∞</div>
             <div className="text-xs text-muted-foreground">Unlimited</div>
-            <div className="text-sm text-muted-foreground">Manual upload</div>
+            <div className="text-sm text-muted-foreground">Any service</div>
           </div>
         </div>
 
@@ -567,22 +567,12 @@ export function UniversalGoogleDriveSync() {
                 <li>• Works on any domain - no API setup needed</li>
                 <li>• Supports unlimited plants (250+, 500+, thousands)</li>
                 <li>• Auto creates backup files every 4 hours</li>
-                <li>• Cross-device sync via Google Drive</li>
+                <li>• Save anywhere - any cloud service or local folder</li>
                 <li>• No account registration or paid services required</li>
               </ul>
             </div>
           </div>
         </div>
-
-        <Button
-          onClick={() => window.open('https://drive.google.com', '_blank')}
-          variant="ghost"
-          size="sm"
-          className="w-full text-muted-foreground"
-        >
-          <ExternalLink className="h-4 w-4 mr-2" />
-          Open Google Drive
-        </Button>
       </CardContent>
     </Card>
   );

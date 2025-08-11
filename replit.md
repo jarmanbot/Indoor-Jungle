@@ -128,6 +128,9 @@ The app uses a robust local storage system that stores all data on each device:
 
 ```
 Changelog:
+- August 11, 2025. FIXED EXPORT FUNCTIONALITY: Rebuilt backup download system using proven data URL method from old data management system - now works with popup fallbacks and manual save options
+- August 11, 2025. IMPLEMENTED UNLIMITED PLANTS MODE: Removed 25-plant limit when Google Drive backup is enabled, added unlimited mode detection and beautiful status banner in Settings
+- August 11, 2025. RELOCATED UNLIMITED BANNER: Moved unlimited plants mode indicator from Home page to Settings section under auto backup toggle for better organization
 - August 10, 2025. IMPLEMENTED UNIVERSAL GOOGLE DRIVE SYNC: Added UniversalGoogleDriveSync component with auto backup file creation every 4 hours, unlimited plants support, cross-device sync, and zero API configuration - works on any domain
 - August 10, 2025. IMPLEMENTED AUTO GOOGLE DRIVE SYNC: Added AutoGoogleDriveSync component with automatic backup every 6 hours, unlimited plants support, cross-device sync, and zero-setup authorization
 - August 10, 2025. MAJOR SIMPLIFICATION: Replaced complex Google Cloud OAuth setup with simple backup/restore system - no API keys needed

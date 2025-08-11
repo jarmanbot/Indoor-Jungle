@@ -32,9 +32,9 @@ const Settings = () => {
   useEffect(() => {
     // Check for hash in URL and scroll to section
     const hash = window.location.hash;
-    if (hash === '#google-drive') {
+    if (hash === '#cloud-backup') {
       setTimeout(() => {
-        const element = document.getElementById('google-drive');
+        const element = document.getElementById('cloud-backup');
         if (element) {
           element.scrollIntoView({ behavior: 'smooth' });
         }
@@ -357,8 +357,8 @@ const Settings = () => {
           </CardContent>
         </Card>
 
-        {/* 3. Google Drive Cloud Storage */}
-        <div id="google-drive">
+        {/* 3. Universal Cloud Backup */}
+        <div id="cloud-backup">
           <UniversalGoogleDriveSync />
         </div>
 
@@ -407,12 +407,12 @@ const Settings = () => {
                   {getPlantCountUsage().percentage.toFixed(1)}% used
                   {getPlantCountUsage().needsGoogleDrive && (
                     <span className="text-orange-600 ml-2">
-                      • Limit reached - enable Google Drive for unlimited plants
+                      • Limit reached - enable cloud backup for unlimited plants
                     </span>
                   )}
                   {getPlantCountUsage().percentage >= 80 && !getPlantCountUsage().needsGoogleDrive && (
                     <span className="text-amber-600 ml-2">
-                      • Nearly at limit - consider Google Drive for more plants
+                      • Nearly at limit - consider cloud backup for more plants
                     </span>
                   )}
                 </div>
