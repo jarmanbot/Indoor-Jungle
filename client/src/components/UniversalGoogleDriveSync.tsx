@@ -26,7 +26,8 @@ import {
   Upload,
   FileText,
   Clock,
-  Zap
+  Zap,
+  Database
 } from "lucide-react";
 import { localStorage as localData } from "@/lib/localDataStorage";
 
@@ -38,6 +39,9 @@ export function UniversalGoogleDriveSync() {
   const [nextSyncTime, setNextSyncTime] = useState<string | null>(null);
   const [autoBackupPending, setAutoBackupPending] = useState(false);
   const { toast } = useToast();
+
+  // Smart backup management settings
+  const MAX_BACKUP_FILES = 5; // Keep only the last 5 backups
 
   // Get local data counts
   const localPlants = localData.get('plants') || [];
@@ -113,6 +117,108 @@ export function UniversalGoogleDriveSync() {
     }
   };
 
+  // Backup file management functions
+  const getBackupFileList = () => {
+    const backupFiles = JSON.parse(localStorage.getItem('backupFileHistory') || '[]');
+    return backupFiles.sort((a: any, b: any) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
+  };
+
+  const addToBackupHistory = (filename: string) => {
+    const backupFiles = getBackupFileList();
+    const newBackup = {
+      filename,
+      timestamp: new Date().toISOString(),
+      size: JSON.stringify(createBackupData()).length
+    };
+    
+    // Add new backup and keep only the last MAX_BACKUP_FILES
+    const updatedFiles = [newBackup, ...backupFiles].slice(0, MAX_BACKUP_FILES);
+    localStorage.setItem('backupFileHistory', JSON.stringify(updatedFiles));
+    
+    // Clean up old backup files notification
+    const removedFiles = backupFiles.slice(MAX_BACKUP_FILES - 1);
+    if (removedFiles.length > 0) {
+      console.log(`Smart cleanup: Tracking ${MAX_BACKUP_FILES} most recent backup files`);
+    }
+  };
+
+  const cleanupOrphanedData = () => {
+    try {
+      // Get all plants
+      const plants = localData.get('plants') || [];
+      const plantIds = plants.map((plant: any) => plant.id);
+
+      // Clean up logs that reference non-existent plants
+      const logTypes = ['wateringLogs', 'feedingLogs', 'repottingLogs', 'soilTopUpLogs', 'pruningLogs'];
+      let cleanedCount = 0;
+
+      logTypes.forEach(logType => {
+        const logs = localData.get(logType) || [];
+        const cleanLogs = logs.filter((log: any) => plantIds.includes(log.plantId));
+        
+        if (cleanLogs.length !== logs.length) {
+          const removed = logs.length - cleanLogs.length;
+          cleanedCount += removed;
+          localData.set(logType, cleanLogs);
+        }
+      });
+
+      if (cleanedCount > 0) {
+        toast({
+          title: "Cleanup Complete",
+          description: `Removed ${cleanedCount} orphaned care log${cleanedCount !== 1 ? 's' : ''}.`,
+        });
+      } else {
+        toast({
+          title: "No Cleanup Needed",
+          description: "All care logs are properly linked to existing plants.",
+        });
+      }
+    } catch (error) {
+      toast({
+        title: "Cleanup Failed",
+        description: "There was an error cleaning up orphaned data.",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const clearAllData = () => {
+    const adminPassword = "digipl@nts";
+    const userPassword = prompt("Enter admin password to clear all data:");
+    
+    if (userPassword === adminPassword) {
+      if (confirm("Are you absolutely sure? This will delete ALL plants, care logs, and settings. This cannot be undone!")) {
+        try {
+          localData.clear();
+          localStorage.removeItem('autoBackupEnabled');
+          localStorage.removeItem('googleDriveUnlimited');
+          localStorage.removeItem('lastSyncTime');
+          localStorage.removeItem('backupFileHistory');
+          
+          toast({
+            title: "All Data Cleared",
+            description: "All plants, care logs, and settings have been deleted.",
+          });
+          
+          setTimeout(() => window.location.reload(), 2000);
+        } catch (error) {
+          toast({
+            title: "Clear Failed",
+            description: "There was an error clearing the data.",
+            variant: "destructive"
+          });
+        }
+      }
+    } else if (userPassword !== null) {
+      toast({
+        title: "Access Denied",
+        description: "Incorrect admin password.",
+        variant: "destructive"
+      });
+    }
+  };
+
   // Auto backup - creates downloadable backup file when changes detected
   const performAutoBackup = () => {
     try {
@@ -128,6 +234,9 @@ export function UniversalGoogleDriveSync() {
       
       const blob = new Blob([jsonString], { type: 'application/json' });
       downloadFile(blob, filename);
+      
+      // Track this backup file
+      addToBackupHistory(filename);
 
       setSyncProgress(100);
       setSyncStatus('complete');
@@ -173,13 +282,16 @@ export function UniversalGoogleDriveSync() {
       
       const blob = new Blob([jsonString], { type: 'application/json' });
       downloadFile(blob, filename);
+      
+      // Track this backup file
+      addToBackupHistory(filename);
 
       setSyncProgress(100);
       setSyncStatus('complete');
 
       toast({
         title: "Backup Created",
-        description: `Backup created with ${localPlants.length} plants. Check your downloads folder.`,
+        description: `Backup created with ${localPlants.length} plants. Tracking last ${MAX_BACKUP_FILES} backups.`,
       });
 
       setTimeout(() => setSyncStatus('idle'), 2000);
@@ -517,6 +629,46 @@ export function UniversalGoogleDriveSync() {
             <Upload className="h-4 w-4 mr-2" />
             {syncStatus === 'downloading' ? 'Restoring...' : 'Restore from Backup'}
           </Button>
+        </div>
+
+        <Separator />
+
+        {/* Data Management Section */}
+        <div className="space-y-3">
+          <div className="flex items-center gap-2 mb-3">
+            <Database className="h-5 w-5 text-gray-600" />
+            <span className="font-semibold text-gray-800">Data Management</span>
+          </div>
+          
+          <div className="grid grid-cols-1 gap-2">
+            <Button
+              onClick={cleanupOrphanedData}
+              variant="outline"
+              size="sm"
+              className="w-full text-left justify-start"
+            >
+              <RefreshCw className="h-4 w-4 mr-2" />
+              Clean Up Orphaned Data
+            </Button>
+            
+            <Button
+              onClick={clearAllData}
+              variant="destructive"
+              size="sm"
+              className="w-full text-left justify-start"
+            >
+              <Shield className="h-4 w-4 mr-2" />
+              Clear All Data (Admin)
+            </Button>
+          </div>
+
+          <div className="bg-gray-50 border border-gray-200 rounded-lg p-3">
+            <div className="text-xs text-gray-600 space-y-1">
+              <p><strong>Smart Backup Management:</strong> Keeps last {MAX_BACKUP_FILES} backup files</p>
+              <p><strong>Cleanup:</strong> Removes care logs for deleted plants</p>
+              <p><strong>Clear All:</strong> Requires admin password (digipl@nts)</p>
+            </div>
+          </div>
         </div>
 
         <div className="bg-amber-50 border border-amber-200 rounded-lg p-3">
