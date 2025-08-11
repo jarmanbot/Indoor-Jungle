@@ -26,8 +26,7 @@ import {
   Upload,
   FileText,
   Clock,
-  Zap,
-  Database
+  Zap
 } from "lucide-react";
 import { localStorage as localData } from "@/lib/localDataStorage";
 
@@ -39,9 +38,6 @@ export function UniversalGoogleDriveSync() {
   const [nextSyncTime, setNextSyncTime] = useState<string | null>(null);
   const [autoBackupPending, setAutoBackupPending] = useState(false);
   const { toast } = useToast();
-
-  // Smart backup management settings
-  const MAX_BACKUP_FILES = 5; // Keep only the last 5 backups
 
   // Get local data counts
   const localPlants = localData.get('plants') || [];
@@ -91,226 +87,29 @@ export function UniversalGoogleDriveSync() {
     };
   };
 
-  // Helper function to trigger download
+  // Helper function to download files safely
   const downloadFile = (blob: Blob, filename: string) => {
-    console.log('Starting download for:', filename, 'Size:', blob.size, 'bytes');
-    
-    try {
-      // Check if File System Access API is available and user wants Save As dialog
-      const hasFileSystemAccess = 'showSaveFilePicker' in window;
-      console.log('File System Access API available:', hasFileSystemAccess);
-      
-      if (hasFileSystemAccess) {
-        console.log('Using File System Access API for Save As dialog');
-        // Modern File System Access API with Save As dialog
-        (window as any).showSaveFilePicker({
-          suggestedName: filename,
-          types: [{
-            description: 'JSON backup files',
-            accept: { 'application/json': ['.json'] },
-          }],
-        }).then((fileHandle: any) => {
-          console.log('File handle obtained, creating writable stream');
-          return fileHandle.createWritable();
-        }).then((writable: any) => {
-          console.log('Writing blob to file');
-          return writable.write(blob).then(() => writable);
-        }).then((writable: any) => {
-          console.log('Closing file');
-          return writable.close();
-        }).then(() => {
-          console.log('Plant data exported successfully via File System Access API');
-          toast({
-            title: "Backup Saved",
-            description: `Your backup has been saved to the location you selected!`,
-          });
-        }).catch((error: any) => {
-          console.log('File System Access API error:', error.name, error.message);
-          if (error.name === 'AbortError') {
-            console.log('User cancelled the save dialog');
-            return; // User cancelled, don't show error
-          }
-          console.log('Falling back to standard download');
-          fallbackDownload(blob, filename);
-        });
-      } else {
-        console.log('File System Access API not available, using fallback');
-        fallbackDownload(blob, filename);
-      }
-    } catch (error) {
-      console.error('Download function error:', error);
-      fallbackDownload(blob, filename);
-    }
-  };
-
-  // Fallback download method for browsers without File System Access API
-  const fallbackDownload = (blob: Blob, filename: string) => {
-    console.log('Using fallback download method');
     try {
       const url = URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.href = url;
       link.download = filename;
-      
-      console.log('Created download link with URL:', url);
-      
-      // Ensure link is added to document and clicked with user interaction
       link.style.display = 'none';
+      
+      // Add to document and trigger click immediately
       document.body.appendChild(link);
       
-      // Force click with timeout to ensure it works
+      // Use setTimeout to avoid popup blockers
       setTimeout(() => {
-        console.log('Triggering download click');
         link.click();
-        
-        // Cleanup after delay
-        setTimeout(() => {
-          if (document.body.contains(link)) {
-            document.body.removeChild(link);
-          }
-          URL.revokeObjectURL(url);
-          console.log('Download cleanup completed');
-        }, 1000);
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
       }, 100);
       
-      console.log('Plant data exported successfully via fallback method');
-      
-      toast({
-        title: "Backup Downloaded",
-        description: `${filename} should download to your Downloads folder shortly.`,
-      });
-      
+      console.log('Plant data exported successfully');
     } catch (error) {
-      console.error('Fallback download failed:', error);
-      
-      // Last resort: offer to copy data to clipboard
-      try {
-        const reader = new FileReader();
-        reader.onload = () => {
-          const textData = reader.result as string;
-          navigator.clipboard.writeText(textData).then(() => {
-            toast({
-              title: "Backup Copied to Clipboard",
-              description: "Download failed, but backup data is now in your clipboard. Paste it into a text file and save as .json",
-            });
-          }).catch(() => {
-            toast({
-              title: "Download Failed",
-              description: "Could not download or copy backup. Please check browser settings and try again.",
-              variant: "destructive"
-            });
-          });
-        };
-        reader.readAsText(blob);
-      } catch (clipboardError) {
-        toast({
-          title: "Download Failed",
-          description: "Could not download backup file. Please check browser settings and allow downloads.",
-          variant: "destructive"
-        });
-      }
-    }
-  };
-
-  // Backup file management functions
-  const getBackupFileList = () => {
-    const backupFiles = JSON.parse(localStorage.getItem('backupFileHistory') || '[]');
-    return backupFiles.sort((a: any, b: any) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
-  };
-
-  const addToBackupHistory = (filename: string) => {
-    const backupFiles = getBackupFileList();
-    const newBackup = {
-      filename,
-      timestamp: new Date().toISOString(),
-      size: JSON.stringify(createBackupData()).length
-    };
-    
-    // Add new backup and keep only the last MAX_BACKUP_FILES
-    const updatedFiles = [newBackup, ...backupFiles].slice(0, MAX_BACKUP_FILES);
-    localStorage.setItem('backupFileHistory', JSON.stringify(updatedFiles));
-    
-    // Clean up old backup files notification
-    const removedFiles = backupFiles.slice(MAX_BACKUP_FILES - 1);
-    if (removedFiles.length > 0) {
-      console.log(`Smart cleanup: Tracking ${MAX_BACKUP_FILES} most recent backup files`);
-    }
-  };
-
-  const cleanupOrphanedData = () => {
-    try {
-      // Get all plants
-      const plants = localData.get('plants') || [];
-      const plantIds = plants.map((plant: any) => plant.id);
-
-      // Clean up logs that reference non-existent plants
-      const logTypes = ['wateringLogs', 'feedingLogs', 'repottingLogs', 'soilTopUpLogs', 'pruningLogs'];
-      let cleanedCount = 0;
-
-      logTypes.forEach(logType => {
-        const logs = localData.get(logType) || [];
-        const cleanLogs = logs.filter((log: any) => plantIds.includes(log.plantId));
-        
-        if (cleanLogs.length !== logs.length) {
-          const removed = logs.length - cleanLogs.length;
-          cleanedCount += removed;
-          localData.set(logType, cleanLogs);
-        }
-      });
-
-      if (cleanedCount > 0) {
-        toast({
-          title: "Cleanup Complete",
-          description: `Removed ${cleanedCount} orphaned care log${cleanedCount !== 1 ? 's' : ''}.`,
-        });
-      } else {
-        toast({
-          title: "No Cleanup Needed",
-          description: "All care logs are properly linked to existing plants.",
-        });
-      }
-    } catch (error) {
-      toast({
-        title: "Cleanup Failed",
-        description: "There was an error cleaning up orphaned data.",
-        variant: "destructive"
-      });
-    }
-  };
-
-  const clearAllData = () => {
-    const adminPassword = "digipl@nts";
-    const userPassword = prompt("Enter admin password to clear all data:");
-    
-    if (userPassword === adminPassword) {
-      if (confirm("Are you absolutely sure? This will delete ALL plants, care logs, and settings. This cannot be undone!")) {
-        try {
-          localData.clear();
-          localStorage.removeItem('autoBackupEnabled');
-          localStorage.removeItem('googleDriveUnlimited');
-          localStorage.removeItem('lastSyncTime');
-          localStorage.removeItem('backupFileHistory');
-          
-          toast({
-            title: "All Data Cleared",
-            description: "All plants, care logs, and settings have been deleted.",
-          });
-          
-          setTimeout(() => window.location.reload(), 2000);
-        } catch (error) {
-          toast({
-            title: "Clear Failed",
-            description: "There was an error clearing the data.",
-            variant: "destructive"
-          });
-        }
-      }
-    } else if (userPassword !== null) {
-      toast({
-        title: "Access Denied",
-        description: "Incorrect admin password.",
-        variant: "destructive"
-      });
+      console.error('Could not download file:', error);
+      throw error;
     }
   };
 
@@ -329,9 +128,6 @@ export function UniversalGoogleDriveSync() {
       
       const blob = new Blob([jsonString], { type: 'application/json' });
       downloadFile(blob, filename);
-      
-      // Track this backup file
-      addToBackupHistory(filename);
 
       setSyncProgress(100);
       setSyncStatus('complete');
@@ -377,16 +173,13 @@ export function UniversalGoogleDriveSync() {
       
       const blob = new Blob([jsonString], { type: 'application/json' });
       downloadFile(blob, filename);
-      
-      // Track this backup file
-      addToBackupHistory(filename);
 
       setSyncProgress(100);
       setSyncStatus('complete');
 
       toast({
         title: "Backup Created",
-        description: `Backup created with ${localPlants.length} plants. Tracking last ${MAX_BACKUP_FILES} backups.`,
+        description: `Backup created with ${localPlants.length} plants. Check your downloads folder.`,
       });
 
       setTimeout(() => setSyncStatus('idle'), 2000);
@@ -658,29 +451,6 @@ export function UniversalGoogleDriveSync() {
           </div>
         )}
 
-        {/* Unlimited Plants Mode Banner */}
-        {(autoBackupEnabled || localStorage.getItem('googleDriveUnlimited') === 'true') && (
-          <div className="bg-gradient-to-r from-green-400 to-blue-500 text-white rounded-lg p-4">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className="bg-white/20 rounded-full p-2">
-                  <Cloud className="h-5 w-5" />
-                </div>
-                <div>
-                  <div className="font-bold text-lg">Unlimited Plants Mode</div>
-                  <p className="text-sm opacity-90">
-                    Google Drive backup enabled • {localPlants.length} plants stored
-                  </p>
-                </div>
-              </div>
-              <div className="text-3xl font-bold">∞</div>
-            </div>
-            <div className="mt-3 text-xs opacity-80">
-              Add 250+, 500+, or thousands of plants without restrictions
-            </div>
-          </div>
-        )}
-
         <div className="grid grid-cols-2 gap-4">
           <div className="text-center">
             <div className="flex items-center justify-center gap-2 mb-2">
@@ -724,46 +494,6 @@ export function UniversalGoogleDriveSync() {
             <Upload className="h-4 w-4 mr-2" />
             {syncStatus === 'downloading' ? 'Restoring...' : 'Restore from Backup'}
           </Button>
-        </div>
-
-        <Separator />
-
-        {/* Data Management Section */}
-        <div className="space-y-3">
-          <div className="flex items-center gap-2 mb-3">
-            <Database className="h-5 w-5 text-gray-600" />
-            <span className="font-semibold text-gray-800">Data Management</span>
-          </div>
-          
-          <div className="grid grid-cols-1 gap-2">
-            <Button
-              onClick={cleanupOrphanedData}
-              variant="outline"
-              size="sm"
-              className="w-full text-left justify-start"
-            >
-              <RefreshCw className="h-4 w-4 mr-2" />
-              Clean Up Orphaned Data
-            </Button>
-            
-            <Button
-              onClick={clearAllData}
-              variant="destructive"
-              size="sm"
-              className="w-full text-left justify-start"
-            >
-              <Shield className="h-4 w-4 mr-2" />
-              Clear All Data (Admin)
-            </Button>
-          </div>
-
-          <div className="bg-gray-50 border border-gray-200 rounded-lg p-3">
-            <div className="text-xs text-gray-600 space-y-1">
-              <p><strong>Smart Backup Management:</strong> Keeps last {MAX_BACKUP_FILES} backup files</p>
-              <p><strong>Cleanup:</strong> Removes care logs for deleted plants</p>
-              <p><strong>Clear All:</strong> Requires admin password (digipl@nts)</p>
-            </div>
-          </div>
         </div>
 
         <div className="bg-amber-50 border border-amber-200 rounded-lg p-3">
