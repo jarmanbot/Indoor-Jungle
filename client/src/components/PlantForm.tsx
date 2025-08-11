@@ -264,10 +264,19 @@ const PlantForm = ({ onSuccess, initialValues, plantId }: PlantFormProps) => {
         } else {
           // Check plant count limit before creating new plant
           const plantUsage = getPlantCountUsage();
+          console.log('Plant usage check:', {
+            current: plantUsage.current,
+            max: plantUsage.max,
+            hasUnlimitedMode: plantUsage.hasUnlimitedMode,
+            needsGoogleDrive: plantUsage.needsGoogleDrive,
+            autoBackupEnabled: window.localStorage.getItem('autoBackupEnabled'),
+            googleDriveUnlimited: window.localStorage.getItem('googleDriveUnlimited')
+          });
+          
           if (plantUsage.needsGoogleDrive) {
             toast({
               title: "Plant Limit Reached",
-              description: `You've reached the ${STORAGE_LIMITS.LOCAL_STORAGE_MAX_PLANTS} plant limit for local storage. Enable Google Drive storage for unlimited plants.`,
+              description: `You've reached the ${STORAGE_LIMITS.LOCAL_STORAGE_MAX_PLANTS} plant limit for local storage. Enable cloud backup for unlimited plants.`,
               variant: "destructive",
             });
             setIsSubmitting(false);
