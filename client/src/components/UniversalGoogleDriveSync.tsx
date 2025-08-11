@@ -208,13 +208,22 @@ export function UniversalGoogleDriveSync() {
       setSyncProgress(60);
 
       const jsonString = JSON.stringify(exportData, null, 2);
-      const date = new Date().toISOString().split('T')[0];
-      const filename = `indoor-jungle-backup-${date}.json`;
+      const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+      const filename = `indoor-jungle-backup-${timestamp}.json`;
       
       downloadFile(jsonString, filename);
 
       setSyncProgress(100);
       setSyncStatus('complete');
+
+      // Update last sync time (same as auto backup)
+      const now = new Date();
+      setLastSyncTime(now.toLocaleString());
+      localStorage.setItem('lastSyncTime', now.toISOString());
+
+      // Calculate next sync time
+      const nextSync = new Date(now.getTime() + (4 * 60 * 60 * 1000));
+      setNextSyncTime(nextSync.toLocaleString());
 
       toast({
         title: "Backup Created",
@@ -224,12 +233,13 @@ export function UniversalGoogleDriveSync() {
       setTimeout(() => setSyncStatus('idle'), 2000);
 
     } catch (error: any) {
+      console.error('Manual backup failed:', error);
+      setSyncStatus('idle');
       toast({
         title: "Backup Failed",
-        description: "Could not create backup file",
+        description: "Could not create backup file. Please try again.",
         variant: "destructive",
       });
-      setSyncStatus('idle');
     }
   };
 
