@@ -9,10 +9,10 @@ import { Badge } from "@/components/ui/badge";
 import { Bell, Moon, Info, HelpCircle, Database, Shield, Download, Upload, Clock, ArrowLeft, Cloud } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
-import { localStorage as localData, exportUserData, importUserData, cleanupLocalData, getStorageUsage, getPlantCountUsage } from "@/lib/localDataStorage";
+import { localStorage as localData, getStorageUsage, getPlantCountUsage } from "@/lib/localDataStorage";
 import { queryClient } from "@/lib/queryClient";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { AutoGoogleDriveSync } from "@/components/AutoGoogleDriveSync";
+import { UniversalGoogleDriveSync } from "@/components/UniversalGoogleDriveSync";
 
 const Settings = () => {
   const [, setLocation] = useLocation();
@@ -110,22 +110,7 @@ const Settings = () => {
     }
   };
 
-  const handleExport = () => {
-    try {
-      exportUserData();
-      toast({
-        title: "Export successful",
-        description: "Your plant data has been downloaded",
-      });
-    } catch (error) {
-      console.error("Export failed:", error);
-      toast({
-        title: "Export failed",
-        description: "Failed to export your data. Please try again.",
-        variant: "destructive",
-      });
-    }
-  };
+  // Export functionality moved to UniversalGoogleDriveSync component
 
   const handleImportFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -146,44 +131,13 @@ const Settings = () => {
         }
       }
       
-      handleImport(file);
+      // handleImport(file); // Moved to UniversalGoogleDriveSync component
     } else {
       console.log('No file selected');
     }
   };
 
-  const handleImport = async (file: File) => {
-    try {
-      console.log('Starting import process for file:', file.name);
-      await importUserData(file);
-      toast({
-        title: "Import successful",
-        description: "Your plant data has been imported successfully",
-      });
-      // Refresh the page to show updated data
-      queryClient.invalidateQueries({ queryKey: ['/api/plants'] });
-      
-      // Force a page refresh to ensure all components reload with new data
-      setTimeout(() => {
-        window.location.reload();
-      }, 500);
-    } catch (error) {
-      console.error("Import failed:", error);
-      toast({
-        title: "Import failed",
-        description: error instanceof Error ? error.message : "Failed to import data",
-        variant: "destructive",
-      });
-    }
-  };
-
-  const handleCleanupData = () => {
-    cleanupLocalData();
-    toast({
-      title: "Data cleanup completed",
-      description: "Removed orphaned logs and unnecessary data",
-    });
-  };
+  // Import and cleanup functionality moved to UniversalGoogleDriveSync component
 
   const handleClearAllData = () => {
     // Show password dialog for clearing data
@@ -359,7 +313,7 @@ const Settings = () => {
 
         {/* 3. Google Drive Cloud Storage */}
         <div id="google-drive">
-          <AutoGoogleDriveSync />
+          <UniversalGoogleDriveSync />
         </div>
 
         {/* 4. Data Management */}
@@ -434,105 +388,14 @@ const Settings = () => {
                 </div>
               </div>
               
-              <Button onClick={handleExport} className="w-full" variant="outline">
-                <Download className="h-4 w-4 mr-2" />
-                Export Plant Data
-              </Button>
-              
-              <Button 
-                onClick={() => {
-                  const exportData = sessionStorage.getItem('plantDataExport');
-                  const filename = sessionStorage.getItem('plantDataExportFilename');
-                  if (exportData && filename) {
-                    navigator.clipboard.writeText(exportData).then(() => {
-                      toast({
-                        title: "Export data copied",
-                        description: `Data copied to clipboard. Save as ${filename}`,
-                      });
-                    }).catch(() => {
-                      // Fallback: show in alert
-                      const userConfirmed = confirm(`Copy this data and save as ${filename}:\n\nClick OK to see the data.`);
-                      if (userConfirmed) {
-                        alert(exportData);
-                      }
-                    });
-                  } else {
-                    toast({
-                      title: "No export data",
-                      description: "Please export data first",
-                      variant: "destructive",
-                    });
-                  }
-                }}
-                className="w-full" 
-                variant="outline"
-                size="sm"
-              >
-                Copy Last Export Data
-              </Button>
-              
-              <div className="text-xs text-muted-foreground mt-2 space-y-2">
-                <div>
-                  <p><strong>Import Instructions:</strong></p>
-                  <ol className="list-decimal list-inside space-y-1 mt-1">
-                    <li>Click "Import Plant Data" above</li>
-                    <li>Navigate to your Downloads folder</li>
-                    <li>Look for a file named like "plant-data-backup-2025-07-14.json"</li>
-                    <li>If the file appears greyed out, try changing the file type filter to "All Files (*.*)"</li>
-                    <li>Select the file and click "Open"</li>
-                  </ol>
-                </div>
-                
-                <div className="p-2 bg-yellow-50 dark:bg-yellow-900/20 rounded border border-yellow-200 dark:border-yellow-800">
-                  <p className="text-yellow-800 dark:text-yellow-200 text-xs">
-                    <strong>File appears greyed out?</strong> This can happen due to browser security. 
-                    Try: 1) Look for "All Files" or "*.*" option in file picker, 2) Use "Copy Last Export Data" button instead, 
-                    or 3) Rename your file to have a .txt extension and try again.
-                  </p>
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+                <div className="text-xs text-blue-700 space-y-1">
+                  <p><strong>Legacy Data Management:</strong></p>
+                  <p>• Export/Import functions have been moved to Universal Google Drive Sync</p>
+                  <p>• Data cleanup and management tools are now integrated above</p>
+                  <p>• Use Google Drive backup for unlimited plants and cross-device sync</p>
                 </div>
               </div>
-              
-              <div className="space-y-2">
-                <input
-                  type="file"
-                  accept="*/*"
-                  onChange={handleImportFileSelect}
-                  style={{ display: 'none' }}
-                  id="import-input"
-                  key={Math.random()} // Force re-render to clear previous selections
-                />
-                <Button 
-                  onClick={() => {
-                    const input = document.getElementById('import-input') as HTMLInputElement;
-                    if (input) {
-                      input.value = ''; // Clear previous selection
-                      input.click();
-                    }
-                  }}
-                  className="w-full" 
-                  variant="outline"
-                >
-                  <Upload className="h-4 w-4 mr-2" />
-                  Import Plant Data (Select Any File)
-                </Button>
-              </div>
-              
-              <Button onClick={handleCleanupData} className="w-full" variant="outline">
-                <Database className="h-4 w-4 mr-2" />
-                Cleanup Orphaned Data
-              </Button>
-              
-              <Separator />
-              
-              <Button 
-                onClick={handleClearAllData} 
-                className="w-full" 
-                variant="destructive"
-                size="sm"
-              >
-                <Shield className="h-4 w-4 mr-2" />
-                Clear All Data (Password Protected)
-              </Button>
             </div>
           </CardContent>
         </Card>

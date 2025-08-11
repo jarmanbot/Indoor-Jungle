@@ -17,26 +17,26 @@ A comprehensive plant care tracking application that helps you manage and nurtur
 2. Use the demo plant to explore features
 3. Limited to 25 plants maximum
 
-### Google Drive Auto Sync (Unlimited Plants)
+### Universal Google Drive Sync (Unlimited Plants)
 
-Get unlimited plant storage with automatic Google Drive synchronization:
+Get unlimited plant storage with automatic backup creation and Google Drive storage:
 
-#### One-Time Setup (30 seconds)
-1. **Connect to Google Drive**
-   - Go to Settings → "Auto Google Drive Sync"
-   - Click "Connect to Google Drive"
-   - Click "Authorize Google Drive Access"
-
-2. **Enable Auto Backup**
+#### Simple Setup (10 seconds)
+1. **Enable Auto Backup**
+   - Go to Settings → "Universal Google Drive Sync"
    - Toggle "Auto Backup" to ON
-   - Your plants will automatically backup every 6 hours
+   - Backup files will be created every 4 hours automatically
+
+2. **Upload to Google Drive**
+   - Upload the downloaded backup files to any folder in your Google Drive
+   - Share backup files between devices
 
 #### Features
 - **Unlimited Plants**: Store 250+, 500+, or thousands of plants
-- **Auto Backup**: Automatic sync every 6 hours
-- **Cross-Device Sync**: Access your plants on any device
-- **Manual Controls**: Backup now or restore from cloud anytime
-- **Zero Setup**: No API keys or complex configuration needed
+- **Auto Backup Creation**: Files created every 4 hours automatically
+- **Universal Compatibility**: Works on any domain without API setup
+- **Cross-Device Sync**: Download and restore on any device
+- **Zero Configuration**: No API keys, client IDs, or domain registration needed
 
 ## Troubleshooting
 
