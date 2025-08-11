@@ -1,4 +1,3 @@
-import { useState, useEffect } from "react";
 import { Switch, Route, useLocation } from "wouter";
 import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
@@ -22,8 +21,6 @@ import Navigation from "@/components/Navigation";
 import Header from "@/components/Header";
 import FloatingActionButton from "@/components/FloatingActionButton";
 import Landing from "@/pages/Landing";
-import { MigrationModal } from "@/components/MigrationModal";
-import { useAuth } from "@/hooks/useAuth";
 // Import Game pages
 import Game from "@/pages/Game";
 import GameDashboard from "@/pages/Game/Dashboard";
@@ -34,19 +31,6 @@ import GrowToEarn from "@/pages/GrowToEarn";
 
 function Router() {
   const [location] = useLocation();
-  const { isAuthenticated } = useAuth();
-  const [showMigrationModal, setShowMigrationModal] = useState(false);
-
-  // Show migration modal for authenticated users when they visit the app
-  useEffect(() => {
-    if (isAuthenticated && location === "/") {
-      // Add a small delay to ensure the page loads first
-      const timer = setTimeout(() => {
-        setShowMigrationModal(true);
-      }, 1000);
-      return () => clearTimeout(timer);
-    }
-  }, [isAuthenticated, location]);
   
   const isGameRoute = location.startsWith("/game");
   const isGrowToEarnRoute = location.startsWith("/grow-to-earn");
@@ -101,17 +85,6 @@ function Router() {
       
       {/* Floating Action Button on main pages */}
       {!hideHeader && !location.includes("/add") && !location.includes("/settings") && !location.includes("/landing") && <FloatingActionButton />}
-      
-      {/* Migration Modal */}
-      <MigrationModal 
-        open={showMigrationModal}
-        onOpenChange={setShowMigrationModal}
-        onMigrationComplete={() => {
-          setShowMigrationModal(false);
-          // Refresh the page to load data from the database
-          window.location.reload();
-        }}
-      />
     </div>
   );
 }

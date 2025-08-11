@@ -6,13 +6,12 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Separator } from "@/components/ui/separator";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { Bell, Moon, Info, HelpCircle, Database, Shield, Download, Upload, Clock, ArrowLeft, Cloud } from "lucide-react";
+import { Bell, Moon, Info, HelpCircle, Database, Shield, Download, Upload, Clock, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
-import { localStorage as localData, exportUserData, importUserData, cleanupLocalData, getStorageUsage, getPlantCountUsage } from "@/lib/localDataStorage";
+import { localStorage as localData, exportUserData, importUserData, cleanupLocalData } from "@/lib/localDataStorage";
 import { queryClient } from "@/lib/queryClient";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { UniversalGoogleDriveSync } from "@/components/UniversalGoogleDriveSync";
 
 const Settings = () => {
   const [, setLocation] = useLocation();
@@ -30,21 +29,6 @@ const Settings = () => {
 
   // Load default frequencies and check demo plant status on mount
   useEffect(() => {
-    // Check for hash in URL and scroll to section
-    const hash = window.location.hash;
-    if (hash === '#google-drive') {
-      setTimeout(() => {
-        const element = document.getElementById('google-drive');
-        if (element) {
-          element.scrollIntoView({ behavior: 'smooth' });
-        }
-      }, 100);
-    }
-    
-    // Clear hash from URL after scrolling
-    if (hash) {
-      window.history.replaceState(null, '', window.location.pathname);
-    }
     try {
       const savedWateringFreq = window.localStorage.getItem('defaultWateringFreq');
       const savedFeedingFreq = window.localStorage.getItem('defaultFeedingFreq');
@@ -357,81 +341,19 @@ const Settings = () => {
           </CardContent>
         </Card>
 
-        {/* 3. Google Drive Cloud Storage */}
-        <div id="google-drive">
-          <UniversalGoogleDriveSync />
-        </div>
-
-        {/* 4. Data Management */}
+        {/* 3. Data Management */}
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Database className="h-4 w-4" />
-              Local Data Management
+              Data Management
             </CardTitle>
-            <CardDescription>Backup, export, and import your local plant data</CardDescription>
+            <CardDescription>Backup, export, and import your plant data</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-3">
               <div className="text-sm text-muted-foreground mb-4">
                 Your plant data is stored locally on this device. Regular backups are recommended.
-              </div>
-              
-              {/* Plant Count Usage Display */}
-              <div className="bg-muted/50 rounded-lg p-3 space-y-2">
-                <div className="flex items-center justify-between text-sm">
-                  <span className="text-muted-foreground">Local Storage Plants</span>
-                  <span className="font-medium">
-                    {(() => {
-                      const usage = getPlantCountUsage();
-                      return `${usage.current} / ${usage.max} plants`;
-                    })()}
-                  </span>
-                </div>
-                <div className="w-full bg-muted rounded-full h-2">
-                  <div 
-                    className={`h-2 rounded-full transition-all ${
-                      (() => {
-                        const usage = getPlantCountUsage();
-                        if (usage.percentage >= 100) return 'bg-red-500';
-                        if (usage.percentage >= 80) return 'bg-yellow-500';
-                        return 'bg-green-500';
-                      })()
-                    }`}
-                    style={{ 
-                      width: `${Math.min(getPlantCountUsage().percentage, 100)}%` 
-                    }}
-                  />
-                </div>
-                <div className="text-xs text-muted-foreground">
-                  {getPlantCountUsage().percentage.toFixed(1)}% used
-                  {getPlantCountUsage().needsGoogleDrive && (
-                    <span className="text-orange-600 ml-2">
-                      • Limit reached - enable Google Drive for unlimited plants
-                    </span>
-                  )}
-                  {getPlantCountUsage().percentage >= 80 && !getPlantCountUsage().needsGoogleDrive && (
-                    <span className="text-amber-600 ml-2">
-                      • Nearly at limit - consider Google Drive for more plants
-                    </span>
-                  )}
-                </div>
-              </div>
-              
-              {/* Storage Size Display (Secondary Info) */}
-              <div className="bg-muted/30 rounded-lg p-2 space-y-1">
-                <div className="flex items-center justify-between text-xs">
-                  <span className="text-muted-foreground">Storage Size</span>
-                  <span className="font-medium">
-                    {(() => {
-                      const usage = getStorageUsage();
-                      return `${(usage.used / 1024 / 1024).toFixed(1)}MB / ${(usage.total / 1024 / 1024).toFixed(0)}MB`;
-                    })()}
-                  </span>
-                </div>
-                <div className="text-xs text-muted-foreground">
-                  {getStorageUsage().percentage.toFixed(1)}% of browser storage used
-                </div>
               </div>
               
               <Button onClick={handleExport} className="w-full" variant="outline">
