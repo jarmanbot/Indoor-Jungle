@@ -87,34 +87,58 @@ export function UniversalGoogleDriveSync() {
     };
   };
 
-  // Helper function to download files safely
-  const downloadFile = (blob: Blob, filename: string) => {
+  // Helper function to save files with "Save As" dialog
+  const saveFile = async (blob: Blob, filename: string) => {
     try {
+      // Check if File System Access API is available (modern browsers)
+      if ('showSaveFilePicker' in window) {
+        try {
+          const fileHandle = await (window as any).showSaveFilePicker({
+            suggestedName: filename,
+            types: [{
+              description: 'JSON backup files',
+              accept: { 'application/json': ['.json'] }
+            }]
+          });
+
+          const writable = await fileHandle.createWritable();
+          await writable.write(blob);
+          await writable.close();
+          
+          console.log('Plant data saved successfully via Save As dialog');
+          return;
+        } catch (saveError: any) {
+          // User cancelled or error occurred
+          if (saveError.name === 'AbortError') {
+            throw new Error('Save cancelled by user');
+          }
+          console.warn('Save As dialog failed, using fallback:', saveError);
+        }
+      }
+
+      // Fallback to traditional download
       const url = URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.href = url;
       link.download = filename;
       link.style.display = 'none';
       
-      // Add to document and trigger click immediately
       document.body.appendChild(link);
-      
-      // Use setTimeout to avoid popup blockers
       setTimeout(() => {
         link.click();
         document.body.removeChild(link);
         URL.revokeObjectURL(url);
+        console.log('Plant data downloaded successfully via fallback');
       }, 100);
       
-      console.log('Plant data exported successfully');
     } catch (error) {
-      console.error('Could not download file:', error);
+      console.error('Could not save file:', error);
       throw error;
     }
   };
 
   // Auto backup - creates downloadable backup file when changes detected
-  const performAutoBackup = () => {
+  const performAutoBackup = async () => {
     try {
       setSyncStatus('auto-pending');
       setSyncProgress(20);
@@ -127,7 +151,7 @@ export function UniversalGoogleDriveSync() {
       const filename = `indoor-jungle-auto-backup-${timestamp}.json`;
       
       const blob = new Blob([jsonString], { type: 'application/json' });
-      downloadFile(blob, filename);
+      await saveFile(blob, filename);
 
       setSyncProgress(100);
       setSyncStatus('complete');
@@ -141,25 +165,32 @@ export function UniversalGoogleDriveSync() {
       setNextSyncTime(nextSync.toLocaleString());
 
       toast({
-        title: "Auto Backup Created",
-        description: `Backup file created with ${localPlants.length} plants. Check your downloads folder.`,
+        title: "Auto Backup Ready",
+        description: `Backup created with ${localPlants.length} plants. Save file appeared or check downloads.`,
       });
 
       setTimeout(() => setSyncStatus('idle'), 3000);
 
-    } catch (error) {
+    } catch (error: any) {
       console.error('Auto backup failed:', error);
       setSyncStatus('idle');
-      toast({
-        title: "Auto Backup Failed",
-        description: "Could not create backup file. Please try manual backup.",
-        variant: "destructive",
-      });
+      if (error.message === 'Save cancelled by user') {
+        toast({
+          title: "Auto Backup Cancelled",
+          description: "Automatic backup was cancelled",
+        });
+      } else {
+        toast({
+          title: "Auto Backup Failed",
+          description: "Could not create backup file. Please try manual backup.",
+          variant: "destructive",
+        });
+      }
     }
   };
 
   // Manual backup
-  const createManualBackup = () => {
+  const createManualBackup = async () => {
     try {
       setSyncStatus('uploading');
       setSyncProgress(20);
@@ -172,24 +203,31 @@ export function UniversalGoogleDriveSync() {
       const filename = `indoor-jungle-backup-${date}.json`;
       
       const blob = new Blob([jsonString], { type: 'application/json' });
-      downloadFile(blob, filename);
+      await saveFile(blob, filename);
 
       setSyncProgress(100);
       setSyncStatus('complete');
 
       toast({
-        title: "Backup Created",
-        description: `Backup created with ${localPlants.length} plants. Check your downloads folder.`,
+        title: "Backup Ready",
+        description: `Backup created with ${localPlants.length} plants. Choose where to save the file.`,
       });
 
       setTimeout(() => setSyncStatus('idle'), 2000);
 
-    } catch (error) {
-      toast({
-        title: "Backup Failed",
-        description: "Could not create backup file",
-        variant: "destructive",
-      });
+    } catch (error: any) {
+      if (error.message === 'Save cancelled by user') {
+        toast({
+          title: "Backup Cancelled",
+          description: "Backup creation was cancelled",
+        });
+      } else {
+        toast({
+          title: "Backup Failed",
+          description: "Could not create backup file",
+          variant: "destructive",
+        });
+      }
       setSyncStatus('idle');
     }
   };
