@@ -87,6 +87,32 @@ export function UniversalGoogleDriveSync() {
     };
   };
 
+  // Helper function to download files safely
+  const downloadFile = (blob: Blob, filename: string) => {
+    try {
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = filename;
+      link.style.display = 'none';
+      
+      // Add to document and trigger click immediately
+      document.body.appendChild(link);
+      
+      // Use setTimeout to avoid popup blockers
+      setTimeout(() => {
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+      }, 100);
+      
+      console.log('Plant data exported successfully');
+    } catch (error) {
+      console.error('Could not download file:', error);
+      throw error;
+    }
+  };
+
   // Auto backup - creates downloadable backup file when changes detected
   const performAutoBackup = () => {
     try {
@@ -101,16 +127,7 @@ export function UniversalGoogleDriveSync() {
       const filename = `indoor-jungle-auto-backup-${timestamp}.json`;
       
       const blob = new Blob([jsonString], { type: 'application/json' });
-      const url = URL.createObjectURL(blob);
-      
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = filename;
-      link.style.display = 'none';
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      URL.revokeObjectURL(url);
+      downloadFile(blob, filename);
 
       setSyncProgress(100);
       setSyncStatus('complete');
@@ -125,7 +142,7 @@ export function UniversalGoogleDriveSync() {
 
       toast({
         title: "Auto Backup Created",
-        description: `Backup file downloaded with ${localPlants.length} plants. Upload to Google Drive when convenient.`,
+        description: `Backup file created with ${localPlants.length} plants. Check your downloads folder.`,
       });
 
       setTimeout(() => setSyncStatus('idle'), 3000);
@@ -155,22 +172,14 @@ export function UniversalGoogleDriveSync() {
       const filename = `indoor-jungle-backup-${date}.json`;
       
       const blob = new Blob([jsonString], { type: 'application/json' });
-      const url = URL.createObjectURL(blob);
-      
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = filename;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      URL.revokeObjectURL(url);
+      downloadFile(blob, filename);
 
       setSyncProgress(100);
       setSyncStatus('complete');
 
       toast({
         title: "Backup Created",
-        description: `Downloaded backup with ${localPlants.length} plants. Upload to Google Drive manually.`,
+        description: `Backup created with ${localPlants.length} plants. Check your downloads folder.`,
       });
 
       setTimeout(() => setSyncStatus('idle'), 2000);
@@ -189,51 +198,89 @@ export function UniversalGoogleDriveSync() {
   const restoreFromBackup = () => {
     const input = document.createElement('input');
     input.type = 'file';
-    input.accept = '.json';
+    input.accept = '.json,application/json,text/json';
+    input.multiple = false;
+    
     input.onchange = (event: any) => {
       const file = event.target.files[0];
       if (!file) return;
+
+      // Validate file type
+      if (!file.name.toLowerCase().endsWith('.json') && file.type !== 'application/json') {
+        toast({
+          title: "Wrong File Type",
+          description: "Please select a JSON backup file (.json extension)",
+          variant: "destructive",
+        });
+        return;
+      }
 
       setSyncStatus('downloading');
       setSyncProgress(20);
 
       const reader = new FileReader();
+      reader.onerror = () => {
+        toast({
+          title: "File Read Error",
+          description: "Could not read the selected file",
+          variant: "destructive",
+        });
+        setSyncStatus('idle');
+      };
+
       reader.onload = (e) => {
         try {
-          const importData = JSON.parse(e.target?.result as string);
-          
-          setSyncProgress(50);
-
-          // Validate data structure
-          if (!importData.plants || !importData.logs) {
-            throw new Error('Invalid backup file format');
+          const fileContent = e.target?.result as string;
+          if (!fileContent) {
+            throw new Error('File is empty');
           }
 
-          // Import plants
-          if (importData.plants.length > 0) {
+          const importData = JSON.parse(fileContent);
+          setSyncProgress(50);
+
+          // Validate data structure - be more flexible
+          if (!importData.plants && !importData.logs) {
+            throw new Error('Invalid backup file: missing plants and logs data');
+          }
+
+          // Import plants if they exist
+          if (importData.plants && Array.isArray(importData.plants)) {
             localData.set('plants', importData.plants);
           }
 
           setSyncProgress(70);
 
-          // Import logs
-          if (importData.logs.watering) localData.set('wateringLogs', importData.logs.watering);
-          if (importData.logs.feeding) localData.set('feedingLogs', importData.logs.feeding);
-          if (importData.logs.repotting) localData.set('repottingLogs', importData.logs.repotting);
-          if (importData.logs.soilTopUp) localData.set('soilTopUpLogs', importData.logs.soilTopUp);
-          if (importData.logs.pruning) localData.set('pruningLogs', importData.logs.pruning);
+          // Import logs if they exist
+          if (importData.logs) {
+            if (importData.logs.watering && Array.isArray(importData.logs.watering)) {
+              localData.set('wateringLogs', importData.logs.watering);
+            }
+            if (importData.logs.feeding && Array.isArray(importData.logs.feeding)) {
+              localData.set('feedingLogs', importData.logs.feeding);
+            }
+            if (importData.logs.repotting && Array.isArray(importData.logs.repotting)) {
+              localData.set('repottingLogs', importData.logs.repotting);
+            }
+            if (importData.logs.soilTopUp && Array.isArray(importData.logs.soilTopUp)) {
+              localData.set('soilTopUpLogs', importData.logs.soilTopUp);
+            }
+            if (importData.logs.pruning && Array.isArray(importData.logs.pruning)) {
+              localData.set('pruningLogs', importData.logs.pruning);
+            }
+          }
 
-          // Import custom locations
-          if (importData.customLocations) {
+          // Import custom locations if they exist
+          if (importData.customLocations && Array.isArray(importData.customLocations)) {
             localData.set('customLocations', importData.customLocations);
           }
 
           setSyncProgress(100);
           setSyncStatus('complete');
 
+          const plantCount = importData.plants ? importData.plants.length : 0;
           toast({
-            title: "Restore Complete",
-            description: `Imported ${importData.plants.length} plants from backup file.`,
+            title: "Restore Successful",
+            description: `Imported ${plantCount} plants from backup file successfully.`,
           });
 
           setTimeout(() => {
@@ -242,9 +289,10 @@ export function UniversalGoogleDriveSync() {
           }, 2000);
 
         } catch (error) {
+          console.error('Import error:', error);
           toast({
             title: "Import Failed",
-            description: "Could not read backup file. Please check the file format.",
+            description: error instanceof Error ? error.message : "Could not read backup file. Please verify it's a valid JSON backup file.",
             variant: "destructive",
           });
           setSyncStatus('idle');
