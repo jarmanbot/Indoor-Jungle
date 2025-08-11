@@ -7,16 +7,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Setup Google Auth for plant storage
   setupGoogleAuth(app);
   
-  // Setup Google Drive routes for plant storage  
+  // Setup Google Drive routes for plant storage
   setupGoogleDriveRoutes(app);
   
   // Health check endpoint
   app.get('/api/health', (req, res) => {
-    res.json({ 
-      status: 'ok', 
-      message: 'Indoor Jungle server running with Google Drive storage',
-      storage: 'google-drive'
-    });
+    res.json({ status: 'ok', message: 'Server running with Google Drive storage' });
   });
 
   const httpServer = createServer(app);
