@@ -4,6 +4,8 @@ import { storage } from "./storage";
 import { setupAuth, isAuthenticated } from "./replitAuth";
 import { ObjectStorageService, ObjectNotFoundError } from "./objectStorage";
 import { migrationService } from "./migrationService";
+import { setupGoogleAuth } from "./googleAuthRoutes";
+import { setupGoogleDriveRoutes } from "./googleDriveRoutes";
 import { 
   insertPlantSchema, 
   insertCustomLocationSchema,
@@ -51,7 +53,13 @@ const upload = multer({
 });
 
 export async function registerRoutes(app: Express): Promise<Server> {
-  // Auth middleware
+  // Setup Google Auth (alternative to Replit Auth)
+  setupGoogleAuth(app);
+  
+  // Setup Google Drive routes for plant storage
+  setupGoogleDriveRoutes(app);
+  
+  // Auth middleware (Replit Auth)
   await setupAuth(app);
 
   // Auth routes
