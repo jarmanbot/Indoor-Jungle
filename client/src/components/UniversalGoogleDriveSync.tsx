@@ -277,10 +277,13 @@ export function UniversalGoogleDriveSync() {
           setSyncProgress(100);
           setSyncStatus('complete');
 
+          // Enable unlimited mode when restoring backup files
+          localStorage.setItem('googleDriveUnlimited', 'true');
+          
           const plantCount = importData.plants ? importData.plants.length : 0;
           toast({
             title: "Restore Successful",
-            description: `Imported ${plantCount} plants from backup file successfully.`,
+            description: `Imported ${plantCount} plants successfully. Unlimited plant mode enabled!`,
           });
 
           setTimeout(() => {
@@ -311,15 +314,18 @@ export function UniversalGoogleDriveSync() {
     setAutoBackupEnabled(enabled);
     localStorage.setItem('autoBackupEnabled', enabled.toString());
     
+    // Set unlimited mode flag when enabling Google Drive backup
+    localStorage.setItem('googleDriveUnlimited', enabled.toString());
+    
     if (enabled) {
       toast({
-        title: "Auto Backup Enabled",
-        description: "Backup files will be created every 4 hours and downloaded automatically",
+        title: "Unlimited Plants Enabled",
+        description: "Auto backup enabled - you can now have unlimited plants (250+, 500+, etc.)",
       });
     } else {
       toast({
         title: "Auto Backup Disabled",
-        description: "Automatic backup creation has been turned off",
+        description: "Back to 25 plant limit for local storage only",
       });
     }
   };

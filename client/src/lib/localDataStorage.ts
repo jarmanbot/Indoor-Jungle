@@ -93,12 +93,17 @@ export function getPlantCountUsage() {
   const currentCount = plants.length;
   const maxCount = STORAGE_LIMITS.LOCAL_STORAGE_MAX_PLANTS;
   
+  // Check if user has Google Drive backup enabled (unlimited mode)
+  const hasGoogleDriveBackup = window.localStorage.getItem('autoBackupEnabled') === 'true' || 
+                               window.localStorage.getItem('googleDriveUnlimited') === 'true';
+  
   return {
     current: currentCount,
-    max: maxCount,
-    percentage: (currentCount / maxCount) * 100,
-    isAtLimit: currentCount >= maxCount,
-    needsGoogleDrive: currentCount >= maxCount
+    max: hasGoogleDriveBackup ? Infinity : maxCount,
+    percentage: hasGoogleDriveBackup ? 0 : (currentCount / maxCount) * 100,
+    isAtLimit: hasGoogleDriveBackup ? false : currentCount >= maxCount,
+    needsGoogleDrive: hasGoogleDriveBackup ? false : currentCount >= maxCount,
+    hasUnlimitedMode: hasGoogleDriveBackup
   };
 }
 
