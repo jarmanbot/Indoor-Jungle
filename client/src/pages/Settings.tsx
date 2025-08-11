@@ -12,7 +12,7 @@ import { useToast } from "@/hooks/use-toast";
 import { localStorage as localData, exportUserData, importUserData, cleanupLocalData, getStorageUsage, getPlantCountUsage } from "@/lib/localDataStorage";
 import { queryClient } from "@/lib/queryClient";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { AutoGoogleDriveSync } from "@/components/AutoGoogleDriveSync";
+import { UniversalGoogleDriveSync } from "@/components/UniversalGoogleDriveSync";
 
 const Settings = () => {
   const [, setLocation] = useLocation();
@@ -359,7 +359,7 @@ const Settings = () => {
 
         {/* 3. Google Drive Cloud Storage */}
         <div id="google-drive">
-          <AutoGoogleDriveSync />
+          <UniversalGoogleDriveSync />
         </div>
 
         {/* 4. Data Management */}

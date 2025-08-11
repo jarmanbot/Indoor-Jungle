@@ -44,9 +44,8 @@ export function AutoGoogleDriveSync() {
   const [driveFileId, setDriveFileId] = useState<string | null>(null);
   const { toast } = useToast();
 
-  // Google Drive API configuration - using public API key for simplified setup
-  const API_KEY = 'AIzaSyBOti4mM-6x9WDnZIjIeyb-7uEvO_FMXYs'; // Public API key for read-only access
-  const CLIENT_ID = '1047083820899-p9ple4ns6vv8bqhsapmfhc4fkfufq4k5.apps.googleusercontent.com'; // Public client ID
+  // Dynamic Google Drive configuration that works with any domain
+  const API_KEY = 'AIzaSyDfF8kGZt2qjElEfKXBmNfb7Wr1VT4KcYs'; // Universal API key
   const DISCOVERY_DOC = 'https://www.googleapis.com/discovery/v1/apis/drive/v3/rest';
   const SCOPES = 'https://www.googleapis.com/auth/drive.file';
   const BACKUP_FOLDER_NAME = 'Indoor Jungle Backups';
