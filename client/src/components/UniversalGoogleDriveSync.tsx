@@ -207,11 +207,23 @@ export function UniversalGoogleDriveSync() {
           });
         } else {
           console.error('Could not open new window - popup blocked');
-          toast({
-            title: "Popup Blocked",
-            description: "Please allow popups and try again, or copy backup data to clipboard.",
-            variant: "destructive",
-          });
+          
+          // Alternative: Copy to clipboard since popup is blocked
+          try {
+            navigator.clipboard.writeText(dataText).then(() => {
+              toast({
+                title: "Download Attempted + Clipboard Backup",
+                description: "Download triggered via MouseEvent. If file didn't download, backup data is now in clipboard - paste into text file and save as .json",
+                duration: 10000,
+              });
+            });
+          } catch (clipboardError) {
+            toast({
+              title: "Download Attempted",
+              description: `Download triggered via MouseEvent. Check Downloads folder for: ${filename}`,
+              duration: 8000,
+            });
+          }
         }
         
         // Clean up

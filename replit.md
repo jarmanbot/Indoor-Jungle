@@ -128,6 +128,7 @@ The app uses a robust local storage system that stores all data on each device:
 
 ```
 Changelog:
+- August 11, 2025. FIXED BACKUP DOWNLOAD ISSUE: Restored legacy download method using MouseEvent with dispatchEvent - the proven approach that successfully saved files to Downloads folder before Universal Google Drive Sync changes
 - August 10, 2025. IMPLEMENTED UNIVERSAL GOOGLE DRIVE SYNC: Added UniversalGoogleDriveSync component with auto backup file creation every 4 hours, unlimited plants support, cross-device sync, and zero API configuration - works on any domain
 - August 10, 2025. IMPLEMENTED AUTO GOOGLE DRIVE SYNC: Added AutoGoogleDriveSync component with automatic backup every 6 hours, unlimited plants support, cross-device sync, and zero-setup authorization
 - August 10, 2025. MAJOR SIMPLIFICATION: Replaced complex Google Cloud OAuth setup with simple backup/restore system - no API keys needed
