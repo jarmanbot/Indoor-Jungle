@@ -147,12 +147,13 @@ export function UniversalGoogleDriveSync() {
     reader.readAsText(blob);
   };
 
-  // Simple, reliable download method
+  // Simple, reliable download method using blob
   const simpleDownload = (dataText: string, filename: string) => {
-    console.log('Using simple download method - creating user-clickable button');
+    console.log('Using simple blob download method - creating user-clickable button');
     
-    // Create a data URI
-    const dataUri = 'data:application/json;charset=utf-8,' + encodeURIComponent(dataText);
+    // Create a blob URL (more reliable than data URI for large files)
+    const blob = new Blob([dataText], { type: 'application/json' });
+    const blobUrl = URL.createObjectURL(blob);
     
     // Remove any existing download buttons
     const existingButtons = document.querySelectorAll('[data-backup-download]');
@@ -202,36 +203,108 @@ export function UniversalGoogleDriveSync() {
     
     // Handle click - create and trigger download
     downloadButton.addEventListener('click', () => {
-      const link = document.createElement('a');
-      link.href = dataUri;
-      link.download = filename;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      
-      // Remove button after download
-      downloadButton.remove();
-      
-      console.log('Simple download triggered');
-      toast({
-        title: "Download Started",
-        description: `${filename} should download to your Downloads folder now.`,
-      });
+      try {
+        const link = document.createElement('a');
+        link.href = blobUrl;
+        link.download = filename;
+        link.style.display = 'none';
+        
+        // Add to DOM, click, and remove
+        document.body.appendChild(link);
+        
+        // Force click with user event
+        const clickEvent = new MouseEvent('click', {
+          view: window,
+          bubbles: true,
+          cancelable: false
+        });
+        link.dispatchEvent(clickEvent);
+        
+        // Clean up immediately
+        document.body.removeChild(link);
+        
+        // Remove button after successful download
+        downloadButton.remove();
+        
+        console.log('Blob download triggered successfully');
+        toast({
+          title: "Download Started",
+          description: `${filename} should now be in your Downloads folder.`,
+        });
+        
+        // Clean up blob URL after a delay
+        setTimeout(() => {
+          URL.revokeObjectURL(blobUrl);
+        }, 1000);
+        
+      } catch (error) {
+        console.error('Blob download failed:', error);
+        
+        // Fallback to legacy method
+        console.log('Falling back to legacy MouseEvent method');
+        const link = document.createElement('a');
+        link.href = blobUrl;
+        link.download = filename;
+        
+        const event = new MouseEvent('click');
+        link.dispatchEvent(event);
+        
+        downloadButton.remove();
+        
+        // Final fallback - open in new window for manual save
+        try {
+          const newWindow = window.open();
+          if (newWindow) {
+            newWindow.document.write(`
+              <html>
+                <head><title>Plant Backup - ${filename}</title></head>
+                <body style="font-family: monospace; margin: 20px;">
+                  <h2>Plant Care Backup</h2>
+                  <p>Right-click the text below and select "Save As" to download your backup file.</p>
+                  <p>Filename: <strong>${filename}</strong></p>
+                  <textarea readonly style="width: 100%; height: 80vh; font-family: monospace;">${dataText}</textarea>
+                </body>
+              </html>
+            `);
+            newWindow.document.close();
+            
+            toast({
+              title: "Backup Opened",
+              description: "Right-click the text in the new window and save as a .json file.",
+            });
+          } else {
+            // Copy to clipboard as ultimate fallback
+            navigator.clipboard.writeText(dataText);
+            toast({
+              title: "Copied to Clipboard",
+              description: "Backup data copied. Paste into a text file and save as .json",
+            });
+          }
+        } catch (fallbackError) {
+          console.error('All download methods failed:', fallbackError);
+          toast({
+            title: "Download Failed",
+            description: "Please try again or check browser settings.",
+            variant: "destructive"
+          });
+        }
+      }
     });
     
     // Add to document
     document.body.appendChild(downloadButton);
     
-    // Auto-remove after 60 seconds
+    // Auto-remove after 60 seconds if not clicked
     setTimeout(() => {
       if (document.body.contains(downloadButton)) {
         downloadButton.remove();
+        URL.revokeObjectURL(blobUrl); // Clean up if not used
       }
     }, 60000);
     
     toast({
       title: "Download Ready",
-      description: "Click the large green button in the center to download your backup file.",
+      description: "Click the large green button to download your backup file.",
       duration: 8000,
     });
   };
