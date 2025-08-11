@@ -33,7 +33,7 @@ import {
   insertPlantSchema, 
   type InsertCustomLocation 
 } from "@shared/schema";
-import { localStorage as localData, getNextId, getNextPlantNumber } from "@/lib/localDataStorage";
+import { localStorage as localData, getNextId, getNextPlantNumber, compressPlantImage, getStorageUsage } from "@/lib/localDataStorage";
 import ImageUpload from "./ImageUpload";
 import { PlusCircle, Shuffle } from "lucide-react";
 
@@ -246,13 +246,9 @@ const PlantForm = ({ onSuccess, initialValues, plantId }: PlantFormProps) => {
           if (plantIndex !== -1) {
             let imageUrl = plants[plantIndex].imageUrl;
             
-            // Handle image update in alpha mode
+            // Handle image update with improved compression
             if (selectedImage) {
-              const reader = new FileReader();
-              imageUrl = await new Promise<string>((resolve) => {
-                reader.onload = () => resolve(reader.result as string);
-                reader.readAsDataURL(selectedImage);
-              });
+              imageUrl = await compressPlantImage(selectedImage);
             }
             
             plants[plantIndex] = {
@@ -269,14 +265,9 @@ const PlantForm = ({ onSuccess, initialValues, plantId }: PlantFormProps) => {
           // Create new plant
           let imageUrl = undefined;
           
-          // Handle image in alpha mode - use compressed images to save storage space
+          // Handle image - use improved compression to save storage space
           if (selectedImage) {
-            // Convert compressed image to base64 for localStorage storage
-            const reader = new FileReader();
-            imageUrl = await new Promise<string>((resolve) => {
-              reader.onload = () => resolve(reader.result as string);
-              reader.readAsDataURL(selectedImage);
-            });
+            imageUrl = await compressPlantImage(selectedImage);
           }
           
           const plantId = getNextId();
@@ -318,11 +309,22 @@ const PlantForm = ({ onSuccess, initialValues, plantId }: PlantFormProps) => {
       }, 100);
     } catch (error) {
       console.error("Error saving plant:", error);
-      toast({
-        title: "Error",
-        description: error instanceof Error ? error.message : "An error occurred",
-        variant: "destructive",
-      });
+      
+      // Check if it's a storage quota error
+      if (error instanceof Error && error.message.includes('Storage quota exceeded')) {
+        const usage = getStorageUsage();
+        toast({
+          title: "Storage Full",
+          description: `Cannot save plant - storage is ${usage.percentage.toFixed(1)}% full (${(usage.used / 1024 / 1024).toFixed(1)}MB used). Try removing some plant images or export your data.`,
+          variant: "destructive",
+        });
+      } else {
+        toast({
+          title: "Error",
+          description: error instanceof Error ? error.message : "An error occurred",
+          variant: "destructive",
+        });
+      }
     } finally {
       setIsSubmitting(false);
     }

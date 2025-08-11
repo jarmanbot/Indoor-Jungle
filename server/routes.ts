@@ -2,6 +2,8 @@ import express, { type Express, Request, Response } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { setupAuth, isAuthenticated } from "./replitAuth";
+import { ObjectStorageService, ObjectNotFoundError } from "./objectStorage";
+import { migrationService } from "./migrationService";
 import { 
   insertPlantSchema, 
   insertCustomLocationSchema,
@@ -66,7 +68,65 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Register the game API routes under /api/game
   app.use("/api/game", gameRouter);
-  
+
+  // Object Storage Service
+  const objectStorageService = new ObjectStorageService();
+
+  // Migration routes
+  app.post("/api/migrate/check", isAuthenticated, async (req, res) => {
+    try {
+      const migrationNeeded = await migrationService.checkMigrationNeeded();
+      res.json({ migrationNeeded });
+    } catch (error) {
+      console.error("Migration check failed:", error);
+      res.status(500).json({ error: "Failed to check migration status" });
+    }
+  });
+
+  app.post("/api/migrate/from-localstorage", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const { localStorageData } = req.body;
+      
+      if (!localStorageData) {
+        return res.status(400).json({ error: "Local storage data is required" });
+      }
+
+      const result = await migrationService.migrateFromLocalStorage(localStorageData, userId);
+      res.json(result);
+    } catch (error) {
+      console.error("Migration failed:", error);
+      res.status(500).json({ 
+        error: error instanceof Error ? error.message : "Migration failed" 
+      });
+    }
+  });
+
+  // Object storage routes for plant images
+  app.get("/plant-images/:imagePath(*)", async (req, res) => {
+    try {
+      const imagePath = `/plant-images/${req.params.imagePath}`;
+      const imageFile = await objectStorageService.getPlantImageFile(imagePath);
+      await objectStorageService.downloadObject(imageFile, res);
+    } catch (error) {
+      if (error instanceof ObjectNotFoundError) {
+        return res.status(404).json({ error: "Image not found" });
+      }
+      console.error("Error serving plant image:", error);
+      return res.status(500).json({ error: "Failed to serve image" });
+    }
+  });
+
+  app.post("/api/plant-images/upload-url", isAuthenticated, async (req, res) => {
+    try {
+      const { uploadURL, objectPath } = await objectStorageService.getPlantImageUploadURL();
+      res.json({ uploadURL, objectPath });
+    } catch (error) {
+      console.error("Failed to get upload URL:", error);
+      res.status(500).json({ error: "Failed to generate upload URL" });
+    }
+  });
+
   // Plant API routes
   
   // Get all plants

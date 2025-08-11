@@ -32,9 +32,15 @@ export const localStorage = {
 
   set: (key: string, value: any) => {
     try {
-      window.localStorage.setItem(LOCAL_DATA_PREFIX + key, JSON.stringify(value));
-    } catch (error) {
+      const serialized = JSON.stringify(value);
+      window.localStorage.setItem(LOCAL_DATA_PREFIX + key, serialized);
+    } catch (error: any) {
       console.error('Failed to save to local storage:', error);
+      if (error.name === 'QuotaExceededError') {
+        const usage = getStorageUsage();
+        throw new Error(`Storage quota exceeded. Current usage: ${(usage.used / 1024 / 1024).toFixed(2)}MB / ${(usage.total / 1024 / 1024).toFixed(2)}MB. Try exporting your data and removing some plant images to free up space.`);
+      }
+      throw error;
     }
   },
 
@@ -51,6 +57,58 @@ export const localStorage = {
     });
   }
 };
+
+// Get localStorage usage statistics
+export function getStorageUsage() {
+  let used = 0;
+  for (let key in window.localStorage) {
+    if (window.localStorage.hasOwnProperty(key)) {
+      used += window.localStorage[key].length + key.length;
+    }
+  }
+  
+  // Most browsers have a localStorage limit around 5-10MB
+  const estimated = 10 * 1024 * 1024; // Estimate 10MB limit
+  return {
+    used: used * 2, // JavaScript strings are UTF-16, so 2 bytes per character
+    total: estimated,
+    percentage: ((used * 2) / estimated) * 100
+  };
+}
+
+// Compress plant image data to save storage space
+export function compressPlantImage(file: File): Promise<string> {
+  return new Promise((resolve) => {
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d');
+    const img = new Image();
+    
+    img.onload = () => {
+      // Reduce image size for storage efficiency
+      const maxWidth = 200; // Reduced from 400px
+      const maxHeight = 200;
+      
+      let { width, height } = img;
+      
+      if (width > maxWidth || height > maxHeight) {
+        const ratio = Math.min(maxWidth / width, maxHeight / height);
+        width = Math.floor(width * ratio);
+        height = Math.floor(height * ratio);
+      }
+      
+      canvas.width = width;
+      canvas.height = height;
+      
+      ctx?.drawImage(img, 0, 0, width, height);
+      
+      // Use lower quality for smaller file size
+      const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.5); // Reduced from 0.7
+      resolve(compressedDataUrl);
+    };
+    
+    img.src = URL.createObjectURL(file);
+  });
+}
 
 // Export all user data to a downloadable JSON file
 export function exportUserData(): void {
