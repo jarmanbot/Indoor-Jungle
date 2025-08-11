@@ -135,8 +135,8 @@ export function UniversalGoogleDriveSync() {
             dataUriDownload(dataText, filename);
           });
         } else {
-          console.log('Using server-side download endpoint');
-          serverSideDownload(dataText, filename);
+          console.log('Using simple download method');
+          simpleDownload(dataText, filename);
         }
       } catch (error) {
         console.error('Download function error:', error);
@@ -145,6 +145,95 @@ export function UniversalGoogleDriveSync() {
     };
     
     reader.readAsText(blob);
+  };
+
+  // Simple, reliable download method
+  const simpleDownload = (dataText: string, filename: string) => {
+    console.log('Using simple download method - creating user-clickable button');
+    
+    // Create a data URI
+    const dataUri = 'data:application/json;charset=utf-8,' + encodeURIComponent(dataText);
+    
+    // Remove any existing download buttons
+    const existingButtons = document.querySelectorAll('[data-backup-download]');
+    existingButtons.forEach(btn => btn.remove());
+    
+    // Create prominent download button
+    const downloadButton = document.createElement('div');
+    downloadButton.setAttribute('data-backup-download', 'true');
+    downloadButton.style.cssText = `
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      z-index: 20000;
+      background: linear-gradient(135deg, #10b981, #059669);
+      color: white;
+      padding: 24px 32px;
+      border-radius: 16px;
+      font-family: system-ui, -apple-system, sans-serif;
+      font-size: 18px;
+      font-weight: 600;
+      text-align: center;
+      cursor: pointer;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+      border: 3px solid #065f46;
+      transition: all 0.3s ease;
+      max-width: 400px;
+    `;
+    
+    downloadButton.innerHTML = `
+      <div style="margin-bottom: 8px; font-size: 24px;">📥</div>
+      <div style="margin-bottom: 4px;">Click to Download Backup</div>
+      <div style="font-size: 14px; opacity: 0.9;">${filename}</div>
+      <div style="font-size: 12px; opacity: 0.7; margin-top: 8px;">2.6MB JSON File</div>
+    `;
+    
+    // Add hover effect
+    downloadButton.addEventListener('mouseenter', () => {
+      downloadButton.style.transform = 'translate(-50%, -50%) scale(1.05)';
+      downloadButton.style.boxShadow = '0 25px 50px rgba(0,0,0,0.4)';
+    });
+    
+    downloadButton.addEventListener('mouseleave', () => {
+      downloadButton.style.transform = 'translate(-50%, -50%) scale(1)';
+      downloadButton.style.boxShadow = '0 20px 40px rgba(0,0,0,0.3)';
+    });
+    
+    // Handle click - create and trigger download
+    downloadButton.addEventListener('click', () => {
+      const link = document.createElement('a');
+      link.href = dataUri;
+      link.download = filename;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      
+      // Remove button after download
+      downloadButton.remove();
+      
+      console.log('Simple download triggered');
+      toast({
+        title: "Download Started",
+        description: `${filename} should download to your Downloads folder now.`,
+      });
+    });
+    
+    // Add to document
+    document.body.appendChild(downloadButton);
+    
+    // Auto-remove after 60 seconds
+    setTimeout(() => {
+      if (document.body.contains(downloadButton)) {
+        downloadButton.remove();
+      }
+    }, 60000);
+    
+    toast({
+      title: "Download Ready",
+      description: "Click the large green button in the center to download your backup file.",
+      duration: 8000,
+    });
   };
 
   // Server-side download method - most reliable

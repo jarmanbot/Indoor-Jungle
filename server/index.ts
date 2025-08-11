@@ -5,8 +5,8 @@ import session from "express-session";
 import path from "path";
 
 const app = express();
-app.use(express.json());
-app.use(express.urlencoded({ extended: false }));
+app.use(express.json({ limit: '10mb' })); // Increase limit for backup files
+app.use(express.urlencoded({ extended: false, limit: '10mb' }));
 
 // Serve static files from public folder
 app.use(express.static(path.join(process.cwd(), "public")));
