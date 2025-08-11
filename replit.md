@@ -128,6 +128,7 @@ The app uses a robust local storage system that stores all data on each device:
 
 ```
 Changelog:
+- August 10, 2025. IMPLEMENTED AUTO GOOGLE DRIVE SYNC: Added AutoGoogleDriveSync component with automatic backup every 6 hours, unlimited plants support, cross-device sync, and zero-setup authorization
 - August 10, 2025. MAJOR SIMPLIFICATION: Replaced complex Google Cloud OAuth setup with simple backup/restore system - no API keys needed
 - August 10, 2025. Created SimpleGoogleDriveSync component for easy JSON file backup and restore without Google Cloud Console setup
 - August 10, 2025. Fixed Google OAuth redirect URI bug - added https:// protocol prefix to fix "invalid redirect URI" error in Google Cloud Console
