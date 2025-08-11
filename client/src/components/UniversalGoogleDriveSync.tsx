@@ -91,28 +91,82 @@ export function UniversalGoogleDriveSync() {
     };
   };
 
-  // Helper function to download files safely
+  // Helper function to download files with visible download link
   const downloadFile = (blob: Blob, filename: string) => {
     try {
       const url = URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.href = url;
       link.download = filename;
-      link.style.display = 'none';
       
-      // Add to document and trigger click immediately
+      // Create visible download button
+      link.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        z-index: 10000;
+        padding: 12px 20px;
+        background: #22c55e;
+        color: white;
+        text-decoration: none;
+        border-radius: 8px;
+        font-family: system-ui, -apple-system, sans-serif;
+        font-size: 14px;
+        font-weight: 500;
+        cursor: pointer;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        transition: all 0.2s ease;
+      `;
+      
+      link.textContent = '📥 Download ' + filename;
+      
+      // Add hover effects
+      link.onmouseenter = () => {
+        link.style.background = '#16a34a';
+        link.style.transform = 'translateY(-1px)';
+      };
+      
+      link.onmouseleave = () => {
+        link.style.background = '#22c55e';
+        link.style.transform = 'translateY(0)';
+      };
+      
+      // Handle click to remove button
+      link.onclick = () => {
+        setTimeout(() => {
+          if (document.body.contains(link)) {
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+          }
+        }, 1000);
+      };
+      
+      // Add to document
       document.body.appendChild(link);
       
-      // Use setTimeout to avoid popup blockers
+      // Auto-remove after 30 seconds
       setTimeout(() => {
-        link.click();
-        document.body.removeChild(link);
-        URL.revokeObjectURL(url);
-      }, 100);
+        if (document.body.contains(link)) {
+          document.body.removeChild(link);
+          URL.revokeObjectURL(url);
+        }
+      }, 30000);
       
       console.log('Plant data exported successfully');
+      
+      toast({
+        title: "Backup Ready",
+        description: "Click the green download button in the top-right corner to save your backup.",
+        duration: 5000,
+      });
+      
     } catch (error) {
       console.error('Could not download file:', error);
+      toast({
+        title: "Download Failed",
+        description: "Could not create download. Please check browser settings.",
+        variant: "destructive"
+      });
       throw error;
     }
   };
