@@ -56,10 +56,10 @@ export function UniversalGoogleDriveSync() {
     setAutoBackupEnabled(savedAutoBackup);
     setLastSyncTime(savedLastSync);
 
-    // Calculate next sync time (every 4 hours)
+    // Calculate next sync time (every 2 minutes for testing)
     if (savedLastSync) {
       const lastSync = new Date(savedLastSync);
-      const nextSync = new Date(lastSync.getTime() + (4 * 60 * 60 * 1000));
+      const nextSync = new Date(lastSync.getTime() + (2 * 60 * 1000));
       setNextSyncTime(nextSync.toLocaleString());
     }
   }, []);
@@ -177,7 +177,7 @@ export function UniversalGoogleDriveSync() {
       localStorage.setItem('lastSyncTime', now.toISOString());
 
       // Calculate next sync time
-      const nextSync = new Date(now.getTime() + (4 * 60 * 60 * 1000));
+      const nextSync = new Date(now.getTime() + (2 * 60 * 1000));
       setNextSyncTime(nextSync.toLocaleString());
 
       toast({
@@ -222,7 +222,7 @@ export function UniversalGoogleDriveSync() {
       localStorage.setItem('lastSyncTime', now.toISOString());
 
       // Calculate next sync time
-      const nextSync = new Date(now.getTime() + (4 * 60 * 60 * 1000));
+      const nextSync = new Date(now.getTime() + (2 * 60 * 1000));
       setNextSyncTime(nextSync.toLocaleString());
 
       toast({
@@ -379,30 +379,30 @@ export function UniversalGoogleDriveSync() {
     }
   };
 
-  // Auto backup interval (every 4 hours when enabled)
+  // Auto backup interval (every 2 minutes for testing)
   useEffect(() => {
     if (!autoBackupEnabled) return;
 
     const checkAutoBackup = () => {
       const lastSync = localStorage.getItem('lastSyncTime');
       if (!lastSync) {
-        // First time - create backup after 5 minutes
-        setTimeout(performAutoBackup, 5 * 60 * 1000);
+        // First time - create backup after 30 seconds
+        setTimeout(performAutoBackup, 30 * 1000);
         return;
       }
 
       const lastSyncDate = new Date(lastSync);
       const now = new Date();
       const timeDiff = now.getTime() - lastSyncDate.getTime();
-      const fourHours = 4 * 60 * 60 * 1000;
+      const twoMinutes = 2 * 60 * 1000;
 
-      if (timeDiff >= fourHours) {
+      if (timeDiff >= twoMinutes) {
         performAutoBackup();
       }
     };
 
-    // Check every 15 minutes
-    const interval = setInterval(checkAutoBackup, 15 * 60 * 1000);
+    // Check every 30 seconds
+    const interval = setInterval(checkAutoBackup, 30 * 1000);
 
     // Check immediately
     checkAutoBackup();
@@ -448,7 +448,7 @@ export function UniversalGoogleDriveSync() {
               <div>
                 <strong>Auto backup creates files</strong>
                 <br />
-                <span className="text-xs">When enabled, backup files are automatically created every 4 hours</span>
+                <span className="text-xs">When enabled, backup files are automatically created every 2 minutes (testing mode)</span>
               </div>
             </li>
             <li className="flex items-start gap-2">
@@ -473,7 +473,7 @@ export function UniversalGoogleDriveSync() {
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Timer className="h-4 w-4 text-green-600" />
-            <Label htmlFor="auto-backup">Auto Backup (Every 4 Hours)</Label>
+            <Label htmlFor="auto-backup">Auto Backup (Every 2 Minutes - Testing)</Label>
           </div>
           <Switch 
             id="auto-backup"
