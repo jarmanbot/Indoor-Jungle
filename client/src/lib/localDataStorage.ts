@@ -45,19 +45,26 @@ export const localStorage = {
           console.log('Unlimited mode active - attempting to compress older plant data');
           try {
             // Keep images for recent plants (last 10), compress older ones
-            const sortedPlants = [...value].sort((a, b) => 
-              new Date(b.createdAt || b.updatedAt || 0).getTime() - new Date(a.createdAt || a.updatedAt || 0).getTime()
-            );
+            // Sort by ID (newer IDs are higher) as fallback for timestamp sorting
+            const sortedPlants = [...value].sort((a, b) => {
+              // Try timestamp first
+              const aTime = new Date(b.createdAt || b.updatedAt || 0).getTime();
+              const bTime = new Date(a.createdAt || a.updatedAt || 0).getTime();
+              if (aTime !== bTime) return aTime - bTime;
+              
+              // Fallback to ID (higher ID = newer plant)
+              return (b.id || 0) - (a.id || 0);
+            });
             
             const optimizedPlants = sortedPlants.map((plant: any, index: number) => {
               if (index < 10) {
-                // Keep full data for recent plants
+                // Keep full data for recent plants (top 10 by ID/timestamp)
                 return plant;
               } else {
-                // Compress older plants by removing images
+                // Compress older plants by removing images but keep compressed marker
                 return {
                   ...plant,
-                  imageUrl: plant.imageUrl ? 'compressed_for_backup' : undefined
+                  imageUrl: plant.imageUrl && plant.imageUrl !== 'compressed_for_backup' ? 'compressed_for_backup' : plant.imageUrl
                 };
               }
             });
@@ -111,14 +118,20 @@ export function optimizeExistingPlants() {
 
     console.log('Optimizing existing plants...');
     
-    // Sort by creation/update date, newest first
-    const sortedPlants = [...plants].sort((a, b) => 
-      new Date(b.createdAt || b.updatedAt || 0).getTime() - new Date(a.createdAt || a.updatedAt || 0).getTime()
-    );
+    // Sort by ID (newer IDs are higher) as primary method since timestamps may not exist
+    const sortedPlants = [...plants].sort((a, b) => {
+      // Try timestamp first if available
+      const aTime = new Date(b.createdAt || b.updatedAt || 0).getTime();
+      const bTime = new Date(a.createdAt || a.updatedAt || 0).getTime();
+      if (aTime !== bTime && aTime > 0 && bTime > 0) return aTime - bTime;
+      
+      // Fallback to ID (higher ID = newer plant)
+      return (b.id || 0) - (a.id || 0);
+    });
     
     const optimizedPlants = sortedPlants.map((plant, index) => {
       if (index < 10) {
-        // Keep full data for recent plants (top 10)
+        // Keep full data for recent plants (top 10 by ID/timestamp)
         return plant;
       } else {
         // Compress older plants by removing images
