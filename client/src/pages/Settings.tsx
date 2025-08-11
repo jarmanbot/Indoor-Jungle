@@ -9,7 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { Bell, Moon, Info, HelpCircle, Database, Shield, Download, Upload, Clock, ArrowLeft, Cloud } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
-import { localStorage as localData, exportUserData, importUserData, cleanupLocalData, getStorageUsage, getPlantCountUsage } from "@/lib/localDataStorage";
+import { localStorage as localData, exportUserData, importUserData, cleanupLocalData, getStorageUsage, getPlantCountUsage, optimizeExistingPlants } from "@/lib/localDataStorage";
 import { queryClient } from "@/lib/queryClient";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { UniversalGoogleDriveSync } from "@/components/UniversalGoogleDriveSync";
@@ -183,6 +183,25 @@ const Settings = () => {
       title: "Data cleanup completed",
       description: "Removed orphaned logs and unnecessary data",
     });
+  };
+
+  const handleOptimizePlants = () => {
+    const success = optimizeExistingPlants();
+    if (success) {
+      toast({
+        title: "Plant storage optimized",
+        description: "Recent 10 plants keep images, older plants compressed for backup files",
+      });
+      // Refresh the UI to show changes
+      queryClient.invalidateQueries({ queryKey: ['/api/plants'] });
+      setTimeout(() => window.location.reload(), 500);
+    } else {
+      toast({
+        title: "Optimization failed",
+        description: "Unable to optimize plant storage at this time",
+        variant: "destructive",
+      });
+    }
   };
 
   const handleClearAllData = () => {
@@ -521,6 +540,17 @@ const Settings = () => {
                 <Database className="h-4 w-4 mr-2" />
                 Cleanup Orphaned Data
               </Button>
+              
+              <div className="space-y-2">
+                <Button onClick={handleOptimizePlants} className="w-full" variant="outline">
+                  <Cloud className="h-4 w-4 mr-2" />
+                  Optimize Plant Storage
+                </Button>
+                <p className="text-xs text-muted-foreground">
+                  Keeps images for your 10 most recent plants, compresses older plants to save storage space. 
+                  Full data including images remains safe in backup files.
+                </p>
+              </div>
               
               <Separator />
               

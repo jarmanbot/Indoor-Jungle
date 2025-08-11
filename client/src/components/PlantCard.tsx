@@ -134,8 +134,11 @@ const PlantCard = ({ plant, index = 0 }: PlantCardProps) => {
           {/* Plant Image - keeping same size */}
           <div className="w-16 h-16 mr-2.5 rounded-md overflow-hidden flex-shrink-0">
             {plant.imageUrl === 'compressed_for_backup' ? (
-              <div className="w-full h-full bg-gradient-to-br from-green-100 to-green-200 flex items-center justify-center">
+              <div className="w-full h-full bg-gradient-to-br from-green-100 to-green-200 flex items-center justify-center relative group">
                 <Package className="h-6 w-6 text-green-600" />
+                <div className="absolute inset-0 bg-black bg-opacity-75 text-white text-xs p-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center justify-center text-center rounded-md">
+                  Image saved in backup files
+                </div>
               </div>
             ) : (
               <img 
