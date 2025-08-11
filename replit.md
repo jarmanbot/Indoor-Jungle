@@ -128,6 +128,8 @@ The app uses a robust local storage system that stores all data on each device:
 
 ```
 Changelog:
+- August 10, 2025. MAJOR SIMPLIFICATION: Replaced complex Google Cloud OAuth setup with simple backup/restore system - no API keys needed
+- August 10, 2025. Created SimpleGoogleDriveSync component for easy JSON file backup and restore without Google Cloud Console setup
 - August 10, 2025. Fixed Google OAuth redirect URI bug - added https:// protocol prefix to fix "invalid redirect URI" error in Google Cloud Console
 - August 10, 2025. Enhanced Google Drive setup guide with specific redirect URI format and improved troubleshooting section
 - August 10, 2025. Removed PostgreSQL dependencies for cost efficiency - app now uses Google Drive + localStorage for unlimited plant storage

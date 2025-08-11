@@ -17,59 +17,44 @@ A comprehensive plant care tracking application that helps you manage and nurtur
 2. Use the demo plant to explore features
 3. Limited to 25 plants maximum
 
-### Google Drive Setup (Unlimited Plants)
+### Google Drive Backup (Simple Setup)
 
-To unlock unlimited plant storage, follow these steps:
+To backup your plant data to Google Drive:
 
-#### Step 1: Create Google Cloud Project
-1. Go to [Google Cloud Console](https://console.cloud.google.com/)
-2. Click "New Project" and name it (e.g., "Indoor Jungle App")
-3. Go to "APIs & Services" → "Library"
-4. Search and enable "Google Drive API"
-5. Search and enable "Google+ API" (for user info)
+#### Simple 2-Step Process
+1. **Create Backup File**
+   - Go to Settings → "Simple Google Drive Backup"
+   - Click "Enable Simple Backup" 
+   - Click "Create Backup File" to download a JSON file
 
-#### Step 2: Create OAuth Credentials
-1. In Google Cloud Console, go to "Credentials"
-2. Click "Create Credentials" → "OAuth 2.0 Client IDs"
-3. Choose "Web application"
-4. Add this exact URL to "Authorized redirect URIs":
-   ```
-   https://your-replit-url/api/auth/google/callback
-   ```
-   Replace `your-replit-url` with your actual Replit app URL
-5. Copy the Client ID and Client Secret
+2. **Upload to Google Drive**
+   - Upload the downloaded backup file to any folder in your Google Drive
+   - To restore: Download the backup file and use "Restore from Backup"
 
-#### Step 3: Configure App Secrets
-1. In your Replit project, go to the "Secrets" tab
-2. Add secret `GOOGLE_CLIENT_ID` with your Client ID
-3. Add secret `GOOGLE_CLIENT_SECRET` with your Client Secret
-4. Restart the app (stop and run again)
-
-#### Step 4: Connect Google Drive
-1. Go to Settings in the app
-2. Scroll to "Google Drive Cloud Storage"
-3. Click "Connect Google Drive"
-4. Complete the authorization process
+#### No Complex Setup Required
+- No Google Cloud Console setup needed
+- No API keys or client secrets required
+- Works with any Google Drive account
+- Backup files can be shared between devices
 
 ## Troubleshooting
 
 ### Common Issues
 
-**"Invalid redirect URI" Error**
-- Ensure the redirect URI in Google Cloud Console exactly matches your app URL with `/api/auth/google/callback` appended
-- The URL must include `https://` and match exactly
+**Backup File Not Downloading**
+- Check if browser is blocking downloads
+- Try using a different browser or incognito mode
+- Ensure you have enough storage space
 
-**"Authorization Error"**
-- Verify both `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET` are correctly set in Replit Secrets
-- Make sure there are no extra spaces or characters
+**Restore Not Working**
+- Verify the backup file is a valid JSON file from this app
+- Check that the file isn't corrupted during upload/download
+- Make sure you're selecting the correct backup file
 
-**"Access Blocked"**
-- Ensure both Google Drive API and Google+ API are enabled in Google Cloud Console
-- Check that your Google Cloud project is active
-
-**Pop-up Blocked**
-- Allow pop-ups for your app domain in browser settings
-- Try using an incognito/private browsing window
+**Can't Access Google Drive**
+- Any Google account can be used - no special setup required
+- Upload backup files to any folder in your Google Drive
+- Share backup files between devices by downloading from Google Drive
 
 ## Data Storage
 
