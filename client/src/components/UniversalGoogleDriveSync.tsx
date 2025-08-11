@@ -175,9 +175,13 @@ export function UniversalGoogleDriveSync() {
       
       console.log('Plant data exported successfully via fallback method');
       
+      // Also create a visible backup option in case download is missed
+      createBackupPreviewLink(blob, filename);
+      
       toast({
         title: "Backup Downloaded",
-        description: `${filename} should download to your Downloads folder shortly.`,
+        description: `${filename} should be in your Downloads folder. If not found, check the backup preview link that appeared.`,
+        duration: 10000,
       });
       
     } catch (error) {
@@ -210,6 +214,69 @@ export function UniversalGoogleDriveSync() {
         });
       }
     }
+  };
+
+  // Create a visible backup preview/download link as fallback
+  const createBackupPreviewLink = (blob: Blob, filename: string) => {
+    const url = URL.createObjectURL(blob);
+    
+    // Create floating download link
+    const linkDiv = document.createElement('div');
+    linkDiv.style.cssText = `
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      z-index: 10000;
+      background: #1f2937;
+      border: 2px solid #22c55e;
+      border-radius: 12px;
+      padding: 16px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+      font-family: system-ui, -apple-system, sans-serif;
+      color: white;
+      max-width: 300px;
+    `;
+    
+    linkDiv.innerHTML = `
+      <div style="margin-bottom: 8px; font-weight: 600; color: #22c55e;">
+        📁 Backup Ready
+      </div>
+      <div style="margin-bottom: 12px; font-size: 14px; color: #d1d5db;">
+        If download didn't start, use this link:
+      </div>
+      <a href="${url}" download="${filename}" style="
+        display: inline-block;
+        background: #22c55e;
+        color: white;
+        padding: 8px 16px;
+        border-radius: 6px;
+        text-decoration: none;
+        font-weight: 500;
+        font-size: 14px;
+        margin-bottom: 8px;
+      ">📥 Download ${filename}</a>
+      <div style="text-align: right;">
+        <button onclick="this.parentElement.parentElement.remove()" style="
+          background: transparent;
+          border: 1px solid #6b7280;
+          color: #9ca3af;
+          padding: 4px 8px;
+          border-radius: 4px;
+          cursor: pointer;
+          font-size: 12px;
+        ">Close</button>
+      </div>
+    `;
+    
+    document.body.appendChild(linkDiv);
+    
+    // Auto-remove after 2 minutes
+    setTimeout(() => {
+      if (document.body.contains(linkDiv)) {
+        document.body.removeChild(linkDiv);
+        URL.revokeObjectURL(url);
+      }
+    }, 120000);
   };
 
   // Backup file management functions
