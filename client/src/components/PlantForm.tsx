@@ -33,7 +33,7 @@ import {
   insertPlantSchema, 
   type InsertCustomLocation 
 } from "@shared/schema";
-import { localStorage as localData, getNextId, getNextPlantNumber, compressPlantImage, getStorageUsage, getPlantCountUsage, STORAGE_LIMITS } from "@/lib/localDataStorage";
+import { localStorage as localData, getNextId, getNextPlantNumber, compressPlantImage, getStorageUsage } from "@/lib/localDataStorage";
 import ImageUpload from "./ImageUpload";
 import { PlusCircle, Shuffle } from "lucide-react";
 
@@ -262,18 +262,6 @@ const PlantForm = ({ onSuccess, initialValues, plantId }: PlantFormProps) => {
             console.log("Plant updated in localStorage");
           }
         } else {
-          // Check plant count limit before creating new plant
-          const plantUsage = getPlantCountUsage();
-          if (plantUsage.needsGoogleDrive) {
-            toast({
-              title: "Plant Limit Reached",
-              description: `You've reached the ${STORAGE_LIMITS.LOCAL_STORAGE_MAX_PLANTS} plant limit for local storage. Enable Google Drive storage for unlimited plants.`,
-              variant: "destructive",
-            });
-            setIsSubmitting(false);
-            return;
-          }
-          
           // Create new plant
           let imageUrl = undefined;
           
@@ -322,14 +310,8 @@ const PlantForm = ({ onSuccess, initialValues, plantId }: PlantFormProps) => {
     } catch (error) {
       console.error("Error saving plant:", error);
       
-      // Check if it's a plant limit or storage quota error
-      if (error instanceof Error && error.message.includes('Plant limit reached')) {
-        toast({
-          title: "Plant Limit Reached",
-          description: error.message,
-          variant: "destructive",
-        });
-      } else if (error instanceof Error && error.message.includes('Storage quota exceeded')) {
+      // Check if it's a storage quota error
+      if (error instanceof Error && error.message.includes('Storage quota exceeded')) {
         const usage = getStorageUsage();
         toast({
           title: "Storage Full",

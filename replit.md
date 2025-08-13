@@ -34,7 +34,7 @@ Indoor Jungle is a Web3 plant care application that combines a traditional plant
 - **Token Economy**: LVS token for purchases, upgrades, and rewards
 
 ### Data Storage
-- **Local Storage**: Browser localStorage for offline capability (25 plants limit)
+- **Local Storage**: Browser localStorage for offline capability (~45 plants)
 - **Google Drive**: Unlimited cloud storage in user's personal Google Drive
 - **Plant Data**: JSON format stored in user's Google Drive folder
 - **Photos**: Full-resolution images stored in Google Drive
@@ -128,18 +128,7 @@ The app uses a robust local storage system that stores all data on each device:
 
 ```
 Changelog:
-- August 10, 2025. IMPLEMENTED UNIVERSAL GOOGLE DRIVE SYNC: Added UniversalGoogleDriveSync component with auto backup file creation every 4 hours, unlimited plants support, cross-device sync, and zero API configuration - works on any domain
-- August 10, 2025. IMPLEMENTED AUTO GOOGLE DRIVE SYNC: Added AutoGoogleDriveSync component with automatic backup every 6 hours, unlimited plants support, cross-device sync, and zero-setup authorization
-- August 10, 2025. MAJOR SIMPLIFICATION: Replaced complex Google Cloud OAuth setup with simple backup/restore system - no API keys needed
-- August 10, 2025. Created SimpleGoogleDriveSync component for easy JSON file backup and restore without Google Cloud Console setup
-- August 10, 2025. Fixed Google OAuth redirect URI bug - added https:// protocol prefix to fix "invalid redirect URI" error in Google Cloud Console
-- August 10, 2025. Enhanced Google Drive setup guide with specific redirect URI format and improved troubleshooting section
 - August 10, 2025. Removed PostgreSQL dependencies for cost efficiency - app now uses Google Drive + localStorage for unlimited plant storage
-- August 10, 2025. Updated plant limit to 25 plants for localStorage before requiring Google Drive upgrade
-- August 10, 2025. Added plant limit warning banner that appears on Home page when displaying the 25th plant
-- August 10, 2025. Changed warning banner to red color when plant limit is reached for better visibility
-- August 10, 2025. Added auto-scrolling functionality to Google Drive section when clicking warning links
-- August 10, 2025. Created comprehensive Google Drive setup guide with step-by-step OAuth configuration
 - August 10, 2025. Implemented Google Drive integration with OAuth authentication for unlimited plant storage (250+ plants)
 - August 10, 2025. Created GoogleDriveSync component for cloud backup and restore functionality
 - August 10, 2025. Added GoogleDriveImageUpload for storing full-resolution plant photos in user's Google Drive
