@@ -1,5 +1,5 @@
 import express, { type Request, Response, NextFunction } from "express";
-import { registerRoutes } from "./routes";
+import { registerFirebaseRoutes } from "./firebaseRoutes";
 import { setupVite, serveStatic, log } from "./vite";
 import { storage } from "./storage";
 import path from "path";
@@ -52,7 +52,7 @@ app.use((req, res, next) => {
     console.log("Note: Alpha testing mode uses local storage and doesn't require a database connection");
   }
 
-  const server = await registerRoutes(app);
+  const server = await registerFirebaseRoutes(app);
 
   app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
     const status = err.status || err.statusCode || 500;
