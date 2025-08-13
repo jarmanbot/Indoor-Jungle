@@ -13,7 +13,7 @@ export function setupGoogleAuth(app: Express) {
   const oauth2Client = new OAuth2Client(
     process.env.GOOGLE_CLIENT_ID,
     process.env.GOOGLE_CLIENT_SECRET,
-    `${process.env.REPLIT_DOMAINS?.split(',')[0] || 'localhost'}/api/auth/google/callback`
+    `https://${process.env.REPLIT_DOMAINS?.split(',')[0] || 'localhost:5000'}/api/auth/google/callback`
   );
 
   // Start Google OAuth flow

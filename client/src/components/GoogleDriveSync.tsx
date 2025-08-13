@@ -16,7 +16,9 @@ import {
   ExternalLink,
   Shield,
   HardDrive,
-  Smartphone
+  Smartphone,
+  Copy,
+  Check
 } from "lucide-react";
 import { apiRequest } from "@/lib/queryClient";
 import { localStorage as localData } from "@/lib/localDataStorage";
@@ -24,8 +26,32 @@ import { localStorage as localData } from "@/lib/localDataStorage";
 export function GoogleDriveSync() {
   const [syncProgress, setSyncProgress] = useState(0);
   const [syncStatus, setSyncStatus] = useState<'idle' | 'uploading' | 'downloading' | 'complete'>('idle');
+  const [showSetupGuide, setShowSetupGuide] = useState(false);
+  const [copiedStates, setCopiedStates] = useState<Record<string, boolean>>({});
   const { toast } = useToast();
   const queryClient = useQueryClient();
+
+  // Helper function to copy text to clipboard
+  const copyToClipboard = async (text: string, key: string, description: string) => {
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopiedStates(prev => ({ ...prev, [key]: true }));
+      toast({
+        title: "Copied!",
+        description: `${description} copied to clipboard`,
+      });
+      // Reset the copied state after 2 seconds
+      setTimeout(() => {
+        setCopiedStates(prev => ({ ...prev, [key]: false }));
+      }, 2000);
+    } catch (error) {
+      toast({
+        title: "Copy Failed",
+        description: "Could not copy to clipboard. Please copy manually.",
+        variant: "destructive",
+      });
+    }
+  };
 
   // Check authentication status
   const { data: authStatus, isLoading: checkingAuth } = useQuery({
@@ -151,7 +177,17 @@ export function GoogleDriveSync() {
   });
 
   const handleGoogleSignIn = () => {
-    window.location.href = '/api/auth/google';
+    try {
+      // Check if Google auth is properly configured
+      window.location.href = '/api/auth/google';
+    } catch (error) {
+      toast({
+        title: "Connection Error",
+        description: "Unable to connect to Google Drive. Please check the setup guide below.",
+        variant: "destructive",
+      });
+      setShowSetupGuide(true);
+    }
   };
 
   const localPlants = localData.get('plants') || [];
@@ -194,7 +230,7 @@ export function GoogleDriveSync() {
             <ul className="text-sm text-blue-700 space-y-1">
               <li className="flex items-center gap-2">
                 <CheckCircle className="h-4 w-4" />
-                Store 250+ plants (vs ~45 with local storage)
+                Store 250+ plants (vs 25 with local storage)
               </li>
               <li className="flex items-center gap-2">
                 <CheckCircle className="h-4 w-4" />
@@ -215,7 +251,7 @@ export function GoogleDriveSync() {
             <div className="bg-muted rounded-lg p-3">
               <HardDrive className="h-8 w-8 mx-auto text-amber-600 mb-2" />
               <div className="text-sm font-medium">Local Storage</div>
-              <div className="text-xs text-muted-foreground">~45 plants max</div>
+              <div className="text-xs text-muted-foreground">25 plants max</div>
             </div>
             <div className="bg-green-50 border border-green-200 rounded-lg p-3">
               <Cloud className="h-8 w-8 mx-auto text-green-600 mb-2" />
@@ -232,6 +268,169 @@ export function GoogleDriveSync() {
             <Shield className="h-4 w-4 mr-2" />
             Connect Google Drive
           </Button>
+
+          <div className="space-y-2">
+            <Button
+              onClick={() => setShowSetupGuide(!showSetupGuide)}
+              variant="outline"
+              className="w-full"
+              size="sm"
+            >
+              <ExternalLink className="h-4 w-4 mr-2" />
+              {showSetupGuide ? 'Hide Setup Guide' : 'Show Setup Guide'}
+            </Button>
+            
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-xs font-medium text-blue-900">Your App URL:</p>
+                  <code className="text-xs text-blue-800 break-all">https://{window.location.hostname}</code>
+                </div>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => copyToClipboard(
+                    `https://${window.location.hostname}`,
+                    'app-url',
+                    'App URL'
+                  )}
+                  className="h-8 w-8 p-0"
+                >
+                  {copiedStates['app-url'] ? (
+                    <Check className="h-3 w-3 text-green-600" />
+                  ) : (
+                    <Copy className="h-3 w-3" />
+                  )}
+                </Button>
+              </div>
+              <p className="text-xs text-blue-700 mt-1">Use this as the base URL for OAuth configuration</p>
+            </div>
+          </div>
+
+          {showSetupGuide && (
+            <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 space-y-4">
+              <h4 className="font-medium text-amber-900 flex items-center gap-2">
+                <AlertCircle className="h-4 w-4" />
+                Google Drive Setup Guide
+              </h4>
+              
+              <div className="text-sm text-amber-800 space-y-4">
+                <div className="bg-white rounded p-3 border border-amber-200">
+                  <h5 className="font-semibold text-amber-900 mb-2">Step 1: Create Google Cloud Project</h5>
+                  <ol className="list-decimal list-inside space-y-1 ml-2 text-xs">
+                    <li className="flex items-center gap-2 mb-2">
+                      Go to Google Cloud Console:
+                      <div className="flex items-center gap-1 ml-2">
+                        <a href="https://console.cloud.google.com/" target="_blank" rel="noopener noreferrer" className="text-blue-600 underline text-xs">console.cloud.google.com</a>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => copyToClipboard(
+                            'https://console.cloud.google.com/',
+                            'console-url',
+                            'Google Cloud Console URL'
+                          )}
+                          className="h-6 w-6 p-0"
+                        >
+                          {copiedStates['console-url'] ? (
+                            <Check className="h-2 w-2 text-green-600" />
+                          ) : (
+                            <Copy className="h-2 w-2" />
+                          )}
+                        </Button>
+                      </div>
+                    </li>
+                    <li>Click "New Project" and give it a name (e.g., "Indoor Jungle App")</li>
+                    <li>Go to "APIs & Services" → "Library"</li>
+                    <li>Search for "Google Drive API" and click "Enable"</li>
+                    <li>Also search for "Google+ API" and enable it (for user info)</li>
+                  </ol>
+                </div>
+
+                <div className="bg-white rounded p-3 border border-amber-200">
+                  <h5 className="font-semibold text-amber-900 mb-2">Step 2: Create OAuth Credentials</h5>
+                  <ol className="list-decimal list-inside space-y-1 ml-2 text-xs">
+                    <li>Go to "Credentials" in the left sidebar</li>
+                    <li>Click "Create Credentials" → "OAuth 2.0 Client IDs"</li>
+                    <li>Choose "Web application"</li>
+                    <li>Add this exact URL to "Authorized redirect URIs":</li>
+                    <li className="flex items-center gap-2 mt-2">
+                      <code className="bg-gray-100 px-2 py-1 rounded text-xs break-all flex-1">
+                        https://{window.location.hostname}/api/auth/google/callback
+                      </code>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => copyToClipboard(
+                          `https://${window.location.hostname}/api/auth/google/callback`,
+                          'redirect-uri',
+                          'Redirect URI'
+                        )}
+                        className="h-8 w-8 p-0"
+                      >
+                        {copiedStates['redirect-uri'] ? (
+                          <Check className="h-3 w-3 text-green-600" />
+                        ) : (
+                          <Copy className="h-3 w-3" />
+                        )}
+                      </Button>
+                    </li>
+                    <li>Copy and save the Client ID and Client Secret</li>
+                  </ol>
+                </div>
+
+                <div className="bg-white rounded p-3 border border-amber-200">
+                  <h5 className="font-semibold text-amber-900 mb-2">Step 3: Configure App (For Developers)</h5>
+                  <ol className="list-decimal list-inside space-y-1 ml-2 text-xs">
+                    <li>Copy the Client ID and Client Secret from Step 2</li>
+                    <li>Go to the Replit Secrets tab in your project</li>
+                    <li>Add secret: <code className="bg-gray-100 px-1 rounded">GOOGLE_CLIENT_ID</code> with your Client ID</li>
+                    <li>Add secret: <code className="bg-gray-100 px-1 rounded">GOOGLE_CLIENT_SECRET</code> with your Client Secret</li>
+                    <li>Restart the app (stop and run again) to apply changes</li>
+                  </ol>
+                </div>
+                
+                <div className="border-t border-amber-300 pt-3">
+                  <p><strong>Troubleshooting Connection Issues:</strong></p>
+                  <ul className="list-disc list-inside space-y-2 ml-2 text-xs">
+                    <li>
+                      <strong>"Invalid redirect URI":</strong> Make sure the redirect URI in Google Cloud exactly matches:
+                      <div className="flex items-center gap-2 mt-1 ml-4">
+                        <code className="bg-gray-100 px-2 py-1 rounded text-xs break-all flex-1">
+                          https://{window.location.hostname}/api/auth/google/callback
+                        </code>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => copyToClipboard(
+                            `https://${window.location.hostname}/api/auth/google/callback`,
+                            'troubleshoot-uri',
+                            'Redirect URI'
+                          )}
+                          className="h-6 w-6 p-0"
+                        >
+                          {copiedStates['troubleshoot-uri'] ? (
+                            <Check className="h-2 w-2 text-green-600" />
+                          ) : (
+                            <Copy className="h-2 w-2" />
+                          )}
+                        </Button>
+                      </div>
+                    </li>
+                    <li><strong>Popup blocked:</strong> Allow pop-ups for this site in your browser</li>
+                    <li><strong>"Authorization error":</strong> Check that both Client ID and Client Secret are correctly set in Secrets</li>
+                    <li><strong>"Access blocked":</strong> Make sure both Google Drive API and Google+ API are enabled</li>
+                    <li><strong>Network error:</strong> Try incognito mode or clear browser cache</li>
+                  </ul>
+                </div>
+                
+                <div className="bg-amber-100 rounded p-2">
+                  <p className="text-xs font-medium">🔒 Privacy Note:</p>
+                  <p className="text-xs">The app only creates a private "IndoorJungle" folder in your Google Drive. Your existing files are never accessed or modified.</p>
+                </div>
+              </div>
+            </div>
+          )}
 
           <p className="text-xs text-muted-foreground text-center">
             Your plant data stays private in your Google Drive folder
