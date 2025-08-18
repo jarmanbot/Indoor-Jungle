@@ -19,8 +19,8 @@ const Home = () => {
   const { isAuthenticated } = useAuth();
   const [showMigrationModal, setShowMigrationModal] = useState(false);
   
-  // For now, always use local storage since we're focusing on the Firebase backend
-  const isUsingFirebase = false; // Will be true when Firebase auth is fully implemented
+  // Enable Firebase for testing the backend
+  const isUsingFirebase = true; // Testing Firebase backend now
   
   const { data: plants, isLoading, error } = useQuery<Plant[]>({
     queryKey: isUsingFirebase ? ['/api/plants'] : ['/api/plants/local'],

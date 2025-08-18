@@ -1,6 +1,6 @@
 import express, { type Express, Request, Response } from "express";
 import { createServer, type Server } from "http";
-import { firebaseStorage } from "./firebaseStorageClean";
+import { mockFirebaseStorage } from "./mockFirebaseStorage";
 
 // Simple middleware for Firebase-based authentication (no PostgreSQL required)
 const requireAuth = (req: any, res: Response, next: any) => {
@@ -25,7 +25,7 @@ export async function registerFirebaseRoutes(app: Express): Promise<Server> {
   app.get('/api/plants', requireAuth, async (req: any, res) => {
     try {
       const userId = req.userId || 'dev-user';
-      const plants = await firebaseStorage.getPlants(userId);
+      const plants = await mockFirebaseStorage.getPlants(userId);
       res.json(plants);
     } catch (error) {
       console.error("Error fetching plants:", error);
@@ -37,7 +37,7 @@ export async function registerFirebaseRoutes(app: Express): Promise<Server> {
     try {
       const userId = req.userId || 'dev-user';
       const plantId = req.params.id;
-      const plant = await firebaseStorage.getPlant(userId, plantId);
+      const plant = await mockFirebaseStorage.getPlant(userId, plantId);
       
       if (!plant) {
         return res.status(404).json({ message: "Plant not found" });
@@ -54,12 +54,12 @@ export async function registerFirebaseRoutes(app: Express): Promise<Server> {
     try {
       const userId = req.userId || 'dev-user';
       
-      // Basic validation - Firebase will handle the rest
+      // Basic validation
       if (!req.body.name) {
         return res.status(400).json({ message: "Plant name is required" });
       }
 
-      const plant = await firebaseStorage.createPlant(userId, {
+      const plant = await mockFirebaseStorage.createPlant(userId, {
         ...req.body,
         userId,
       });
@@ -75,7 +75,7 @@ export async function registerFirebaseRoutes(app: Express): Promise<Server> {
       const userId = req.userId || 'dev-user';
       const plantId = req.params.id;
       
-      const plant = await firebaseStorage.updatePlant(userId, plantId, req.body);
+      const plant = await mockFirebaseStorage.updatePlant(userId, plantId, req.body);
       res.json(plant);
     } catch (error) {
       console.error("Error updating plant:", error);
@@ -88,7 +88,7 @@ export async function registerFirebaseRoutes(app: Express): Promise<Server> {
       const userId = req.userId || 'dev-user';
       const plantId = req.params.id;
       
-      await firebaseStorage.deletePlant(userId, plantId);
+      await mockFirebaseStorage.deletePlant(userId, plantId);
       res.status(204).send();
     } catch (error) {
       console.error("Error deleting plant:", error);
@@ -106,7 +106,7 @@ export async function registerFirebaseRoutes(app: Express): Promise<Server> {
         const userId = req.userId || 'dev-user';
         const plantId = req.params.plantId;
         
-        const logs = await firebaseStorage.getCareLogsForPlant(userId, plantId, `${logType}Logs`);
+        const logs = await mockFirebaseStorage.getCareLogsForPlant(userId, plantId, `${logType}Logs`);
         res.json(logs);
       } catch (error) {
         console.error(`Error fetching ${logType} logs:`, error);
@@ -127,7 +127,7 @@ export async function registerFirebaseRoutes(app: Express): Promise<Server> {
           date: req.body.date ? new Date(req.body.date) : new Date(),
         };
 
-        const log = await firebaseStorage.addCareLog(userId, `${logType}Logs`, logData);
+        const log = await mockFirebaseStorage.addCareLog(userId, `${logType}Logs`, logData);
         res.status(201).json(log);
       } catch (error) {
         console.error(`Error adding ${logType} log:`, error);
@@ -136,19 +136,23 @@ export async function registerFirebaseRoutes(app: Express): Promise<Server> {
     });
   });
 
-  // Migration routes
-  app.get('/api/migration/status', requireAuth, async (req: any, res) => {
+  // Firebase testing routes
+  app.get('/api/firebase/status', requireAuth, async (req: any, res) => {
     try {
       const userId = req.userId || 'dev-user';
-      const plants = await firebaseStorage.getPlants(userId);
+      const plants = await mockFirebaseStorage.getPlants(userId);
+      const counts = mockFirebaseStorage.getTotalCounts();
       
       res.json({
-        migrationNeeded: plants.length === 0,
-        plantsInFirebase: plants.length,
+        status: 'active',
+        userId: userId,
+        userPlants: plants.length,
+        totalCounts: counts,
+        message: 'Firebase backend is operational'
       });
     } catch (error) {
-      console.error("Error checking migration status:", error);
-      res.status(500).json({ message: "Failed to check migration status" });
+      console.error("Error checking Firebase status:", error);
+      res.status(500).json({ message: "Failed to check Firebase status" });
     }
   });
 
@@ -163,7 +167,7 @@ export async function registerFirebaseRoutes(app: Express): Promise<Server> {
 
       // Migrate plants
       for (const plant of data.plants) {
-        await firebaseStorage.createPlant(userId, { ...plant, userId });
+        await mockFirebaseStorage.createPlant(userId, { ...plant, userId });
       }
 
       // Migrate care logs
@@ -171,7 +175,7 @@ export async function registerFirebaseRoutes(app: Express): Promise<Server> {
       for (const logType of logTypes) {
         if (data[logType] && Array.isArray(data[logType])) {
           for (const log of data[logType]) {
-            await firebaseStorage.addCareLog(userId, logType, { ...log, userId });
+            await mockFirebaseStorage.addCareLog(userId, logType, { ...log, userId });
           }
         }
       }
