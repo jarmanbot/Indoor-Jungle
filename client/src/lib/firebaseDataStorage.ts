@@ -2,7 +2,6 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "./queryClient";
 import { useAuth } from "@/hooks/useAuth";
-import { localStorage as localData } from '@/lib/localDataStorage';
 
 // Hook to use Firebase storage for plants
 export function useFirebasePlants() {
@@ -102,31 +101,4 @@ export function useMigrationStatus() {
     enabled: isAuthenticated,
     retry: false,
   });
-}
-
-// Simple migration function for immediate use
-export async function performMigration() {
-  try {
-    const localStorageData = {
-      plants: JSON.parse(localStorage.getItem('plants') || '[]'),
-      wateringLogs: JSON.parse(localStorage.getItem('wateringLogs') || '[]'),
-      feedingLogs: JSON.parse(localStorage.getItem('feedingLogs') || '[]'),
-      repottingLogs: JSON.parse(localStorage.getItem('repottingLogs') || '[]'),
-      soilTopUpLogs: JSON.parse(localStorage.getItem('soilTopUpLogs') || '[]'),
-      pruningLogs: JSON.parse(localStorage.getItem('pruningLogs') || '[]'),
-      customLocations: JSON.parse(localStorage.getItem('customLocations') || '[]'),
-    };
-
-    console.log(`Migrating ${localStorageData.plants.length} plants to Firebase...`);
-    
-    const result = await apiRequest('/api/migrate/from-localstorage', 'POST', { 
-      localStorageData 
-    });
-    
-    console.log('Migration completed:', result);
-    return result;
-  } catch (error) {
-    console.error('Migration failed:', error);
-    throw error;
-  }
 }

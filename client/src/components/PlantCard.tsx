@@ -7,6 +7,7 @@ import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import { queryClient } from "@/lib/queryClient";
 import { localStorage as localData } from "@/lib/localDataStorage";
+import { getSafeImageUrl } from "@/utils/imageUtils";
 
 interface PlantCardProps {
   plant: Plant;
@@ -132,11 +133,26 @@ const PlantCard = ({ plant, index = 0 }: PlantCardProps) => {
       <div className="flex items-center">
         <Link href={`/plant/${plant.id}`} className="flex flex-1">
           {/* Plant Image - keeping same size */}
-          <div className="w-16 h-16 mr-2.5 rounded-md overflow-hidden flex-shrink-0">
+          <div className="w-16 h-16 mr-2.5 rounded-md overflow-hidden flex-shrink-0 bg-gray-100">
             <img 
-              src={plant.imageUrl || "https://via.placeholder.com/100x100?text=No+Image"} 
+              src={plant.imageUrl || "https://via.placeholder.com/100x100/e5e7eb/6b7280?text=🌱"} 
               alt={plant.babyName} 
               className="w-full h-full object-cover"
+              onError={(e) => {
+                const target = e.target as HTMLImageElement;
+                if (target.src !== "https://via.placeholder.com/100x100/e5e7eb/6b7280?text=🌱") {
+                  console.log(`Image failed to load for plant ${plant.babyName}:`, plant.imageUrl?.substring(0, 50) + '...');
+                  target.src = "https://via.placeholder.com/100x100/e5e7eb/6b7280?text=🌱";
+                }
+              }}
+              onLoad={(e) => {
+                const target = e.target as HTMLImageElement;
+                // Validate that the image actually loaded content
+                if (target.naturalWidth === 0 || target.naturalHeight === 0) {
+                  console.log(`Invalid image dimensions for plant ${plant.babyName}`);
+                  target.src = "https://via.placeholder.com/100x100/e5e7eb/6b7280?text=🌱";
+                }
+              }}
             />
           </div>
           
