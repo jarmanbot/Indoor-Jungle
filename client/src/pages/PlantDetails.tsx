@@ -71,7 +71,8 @@ const PlantDetails = () => {
         throw new Error('Failed to delete plant');
       }
       
-      return response.json();
+      // DELETE returns 204 with no content, so don't parse JSON
+      return { success: true };
     },
     onSuccess: () => {
       // Invalidate all plant-related queries to ensure immediate UI updates

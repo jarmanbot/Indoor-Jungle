@@ -72,9 +72,9 @@ Indoor Jungle is a Web3 plant care application that combines a traditional plant
 
 ### Backend Dependencies
 - Express.js with TypeScript support
-- Neon Database (PostgreSQL serverless)
-- Drizzle ORM for database operations
-- File upload handling with Multer
+- Firebase Firestore (real-time NoSQL database)
+- Mock Firebase storage system for development
+- Automatic JSON backup system for data protection
 
 ### Web3 Dependencies
 - OpenZeppelin contracts for secure NFT and token implementations
@@ -129,6 +129,9 @@ The app uses a robust local storage system that stores all data on each device:
 
 ```
 Changelog:
+- August 18, 2025. Fixed plant deletion JSON parsing error and implemented Firebase + JSON backup system - plant deletion now returns proper JSON response, automatic backups created on plant add/delete operations, manual backup endpoint available
+- August 18, 2025. Resolved migration popup persistence issue - modal now auto-closes after successful migration and clears localStorage to prevent repeated popup display
+- August 18, 2025. Fixed plant number display issues - all plants now show proper sequential numbers instead of "?" symbols through improved plantNumber field handling
 - August 18, 2025. Completed Firebase migration system implementation - comprehensive migration interface allows users to transfer all plants and care logs from local storage to Firebase with progress tracking, data validation, and automatic verification
 - August 18, 2025. Successfully tested Firebase backend with mock storage system - all CRUD operations working (plant creation, retrieval, care logs), user-based data isolation implemented
 - August 18, 2025. Migrated from PostgreSQL to Firebase real-time database - provides unlimited scalability for 250+ plants, real-time sync across devices, and automatic cloud backup

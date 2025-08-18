@@ -1,6 +1,32 @@
 import express, { type Express, Request, Response } from "express";
 import { createServer, type Server } from "http";
 import { mockFirebaseStorage } from "./mockFirebaseStorage";
+import { writeFileSync } from 'fs';
+import { join } from 'path';
+
+// Automatic backup function
+async function createBackup(userId: string, trigger: string) {
+  try {
+    const plants = await mockFirebaseStorage.getPlants(userId);
+    
+    const backup = {
+      plants,
+      metadata: {
+        exportDate: new Date().toISOString(),
+        userId,
+        trigger,
+        totalPlants: plants.length
+      }
+    };
+
+    const backupPath = join(process.cwd(), 'public', `firebase_backup_${userId}_${Date.now()}.json`);
+    writeFileSync(backupPath, JSON.stringify(backup, null, 2));
+    
+    console.log(`Auto-backup created: ${backupPath} (${trigger})`);
+  } catch (error) {
+    console.error('Failed to create backup:', error);
+  }
+}
 
 // Simple middleware for Firebase-based authentication (no PostgreSQL required)
 const requireAuth = (req: any, res: Response, next: any) => {
@@ -69,6 +95,10 @@ export async function registerFirebaseRoutes(app: Express): Promise<Server> {
         ...req.body,
         userId,
       });
+      
+      // Create automatic JSON backup after adding plant
+      await createBackup(userId, 'plant_added');
+      
       res.status(201).json(plant);
     } catch (error) {
       console.error("Error creating plant:", error);
@@ -95,7 +125,11 @@ export async function registerFirebaseRoutes(app: Express): Promise<Server> {
       const plantId = req.params.id;
       
       await mockFirebaseStorage.deletePlant(userId, plantId);
-      res.status(204).send();
+      
+      // Create automatic JSON backup after deletion
+      await createBackup(userId, 'plant_deleted');
+      
+      res.json({ success: true, message: "Plant deleted successfully" });
     } catch (error) {
       console.error("Error deleting plant:", error);
       res.status(500).json({ message: "Failed to delete plant" });
@@ -285,6 +319,41 @@ export async function registerFirebaseRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error('Error clearing data:', error);
       res.status(500).json({ error: 'Failed to clear data' });
+    }
+  });
+
+  // Manual backup endpoint
+  app.post('/api/backup/create', requireAuth, async (req: any, res) => {
+    try {
+      const userId = req.userId || 'dev-user';
+      const plants = await mockFirebaseStorage.getPlants(userId);
+      
+      const backup = {
+        plants,
+        metadata: {
+          exportDate: new Date().toISOString(),
+          userId,
+          trigger: 'manual_backup',
+          totalPlants: plants.length
+        }
+      };
+
+      const filename = `manual_backup_${userId}_${Date.now()}.json`;
+      const backupPath = join(process.cwd(), 'public', filename);
+      writeFileSync(backupPath, JSON.stringify(backup, null, 2));
+      
+      console.log(`Manual backup created: ${backupPath}`);
+      
+      res.json({ 
+        success: true, 
+        message: 'Backup created successfully',
+        filename,
+        downloadUrl: `/public/${filename}`,
+        totalPlants: plants.length
+      });
+    } catch (error) {
+      console.error('Failed to create manual backup:', error);
+      res.status(500).json({ error: 'Failed to create backup' });
     }
   });
 
