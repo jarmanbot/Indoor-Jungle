@@ -8,28 +8,20 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Plus, Leaf, Droplet, Package, ImageIcon, Thermometer, Search, Award, CalendarRange, X, Cloud, ArrowRight } from "lucide-react";
-import { initializeLocalStorage } from "@/lib/localDataStorage";
-import { useFirebasePlants, useMigrationStatus } from "@/lib/firebaseDataStorage";
-import { MigrationModal } from "@/components/MigrationModal";
+
+
 import { useAuth } from "@/hooks/useAuth";
 import React, { useState } from "react";
 
 const Home = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const { isAuthenticated } = useAuth();
-  const [showMigrationModal, setShowMigrationModal] = useState(false);
+
   
   // Enable Firebase for testing the backend
   const isUsingFirebase = true; // Firebase backend is operational and ready for migration
   
-  // Check if local storage has plants for migration
-  const [localPlantCount, setLocalPlantCount] = useState(0);
-  
-  React.useEffect(() => {
-    initializeLocalStorage();
-    const localPlants = JSON.parse(window.localStorage.getItem('plant_app_plants') || '[]');
-    setLocalPlantCount(localPlants.length);
-  }, []);
+
   
   const { data: plants, isLoading, error, refetch } = useQuery<Plant[]>({
     queryKey: isUsingFirebase ? ['/api/plants'] : ['/api/plants/local'],
@@ -45,11 +37,6 @@ const Home = () => {
         const plantsData = await response.json();
         console.log('Fetched plants from Firebase:', plantsData.length, 'plants');
         return plantsData;
-      } else {
-        // Local storage
-        initializeLocalStorage();
-        const plants = JSON.parse(window.localStorage.getItem('plant_app_plants') || '[]');
-        return plants.sort((a: any, b: any) => (a.plantNumber || 0) - (b.plantNumber || 0));
       }
     },
     staleTime: 10 * 1000, // 10 seconds
@@ -146,38 +133,7 @@ const Home = () => {
           </Link>
         )}
 
-        {/* Migration Notice - Show if using Firebase but have local storage data and no migration is in progress */}
-        {isUsingFirebase && localPlantCount > 0 && (plants?.length || 0) === 0 && !window.localStorage.getItem('migration_completed') && (
-          <div className="mt-3">
-            <Card className="bg-blue-50 border-blue-200">
-              <CardContent className="p-3">
-                <div className="flex items-start justify-between">
-                  <div className="flex items-start gap-3">
-                    <div className="bg-blue-100 rounded-full p-1 mt-0.5">
-                      <Cloud className="h-4 w-4 text-blue-600" />
-                    </div>
-                    <div className="flex-1">
-                      <h3 className="text-sm font-semibold text-blue-900 mb-1">
-                        Migrate {localPlantCount} Plants to Firebase
-                      </h3>
-                      <p className="text-xs text-blue-700 mb-2">
-                        Transfer your existing plants from local storage to Firebase for unlimited storage and cross-device sync.
-                      </p>
-                      <button
-                        onClick={() => setShowMigrationModal(true)}
-                        className="inline-flex items-center gap-1 text-xs bg-blue-600 hover:bg-blue-700 text-white px-2 py-1 rounded-md transition-colors"
-                      >
-                        <Cloud className="h-3 w-3" />
-                        Migrate Now
-                        <ArrowRight className="h-3 w-3" />
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-        )}
+
       </div>
 
       {/* Search bar for many plants */}
@@ -288,11 +244,7 @@ const Home = () => {
 
       <FloatingActionButton />
       
-      {/* Migration Modal */}
-      <MigrationModal 
-        open={showMigrationModal} 
-        onOpenChange={setShowMigrationModal} 
-      />
+
     </div>
   );
 };

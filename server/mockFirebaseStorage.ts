@@ -54,6 +54,12 @@ class MockFirebaseStorage {
   async createPlant(userId: string, plantData: any): Promise<MockPlant> {
     console.log(`Mock Firebase: Creating plant for user ${userId}:`, plantData);
     
+    // Get current plants to calculate next plant number
+    const currentPlants = this.plants.get(userId) || [];
+    const nextPlantNumber = currentPlants.length > 0 
+      ? Math.max(...currentPlants.map(p => p.plantNumber || 0)) + 1 
+      : 1;
+    
     const newPlant: MockPlant = {
       id: `plant_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
       userId,
@@ -62,7 +68,7 @@ class MockFirebaseStorage {
       commonName: plantData.commonName || '',
       latinName: plantData.latinName || '',
       location: plantData.location || 'living_room',
-      plantNumber: plantData.plantNumber || plantData.id || 1,
+      plantNumber: nextPlantNumber,
       lastWatered: plantData.lastWatered ? new Date(plantData.lastWatered) : null,
       lastFed: plantData.lastFed ? new Date(plantData.lastFed) : null,
       nextCheck: plantData.nextCheck ? new Date(plantData.nextCheck) : null,

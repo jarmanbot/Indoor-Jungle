@@ -101,19 +101,41 @@ const Settings = () => {
     }
   };
 
-  const handleExport = () => {
+  const handleExport = async () => {
     try {
-      exportUserData();
-      toast({
-        title: "Export successful",
-        description: "Your plant data has been downloaded",
+      // Export Firebase data instead of localStorage
+      const response = await fetch('/api/backup/create', {
+        method: 'POST',
+        headers: {
+          'X-User-ID': 'dev-user'
+        }
       });
-    } catch (error) {
-      console.error("Export failed:", error);
+      
+      if (!response.ok) {
+        throw new Error('Failed to create backup');
+      }
+      
+      const result = await response.json();
+      
+      // Download the backup file
+      const downloadUrl = result.downloadUrl;
+      const link = document.createElement('a');
+      link.href = downloadUrl;
+      link.download = result.filename;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      
       toast({
-        title: "Export failed",
-        description: "Failed to export your data. Please try again.",
-        variant: "destructive",
+        title: "Firebase Export Successful",
+        description: `Data exported successfully (${result.totalPlants} plants)`,
+      });
+    } catch (error: any) {
+      console.error("Failed to export Firebase data:", error);
+      toast({
+        title: "Export Failed",
+        description: error.message || "Failed to export your Firebase data",
+        variant: "destructive"
       });
     }
   };
@@ -368,7 +390,7 @@ const Settings = () => {
               
               <Button onClick={handleExport} className="w-full" variant="outline">
                 <Download className="h-4 w-4 mr-2" />
-                Export Plant Data
+                Export Firebase Data
               </Button>
               
               <Button 
@@ -445,7 +467,7 @@ const Settings = () => {
                   variant="outline"
                 >
                   <Upload className="h-4 w-4 mr-2" />
-                  Import Plant Data (Select Any File)
+                  Import Firebase Data (Select Any File)
                 </Button>
               </div>
               
