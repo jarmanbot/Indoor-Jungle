@@ -8,6 +8,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Plus, Leaf, Droplet, Package, ImageIcon, Thermometer, Search, Award, CalendarRange, X, Cloud } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { localStorage as localData, initializeLocalStorage } from "@/lib/localDataStorage";
 import { useFirebasePlants, useMigrationStatus } from "@/lib/firebaseDataStorage";
 import { MigrationModal } from "@/components/MigrationModal";
@@ -110,6 +111,33 @@ const Home = () => {
             </div>
             <p className="text-sm text-gray-600">{totalPlants} plants in your collection</p>
           </div>
+
+          {/* Login/Migration Button */}
+          {!isAuthenticated && (
+            <div className="flex flex-col sm:flex-row gap-2 items-center">
+              <div className="text-sm text-gray-600 text-center sm:text-right">
+                <div className="font-semibold">50+ plants? Unlock unlimited storage!</div>
+                <div className="text-xs text-green-600">Log in for cloud sync & backup</div>
+              </div>
+              <Button 
+                onClick={() => window.location.href = '/api/login'}
+                className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md flex items-center gap-2"
+              >
+                <Cloud className="h-4 w-4" />
+                Log In
+              </Button>
+            </div>
+          )}
+          
+          {isAuthenticated && (
+            <Button 
+              onClick={() => window.location.href = '/api/logout'}
+              variant="outline"
+              className="text-gray-600 hover:text-gray-800"
+            >
+              Log Out
+            </Button>
+          )}
 
         </div>
 
