@@ -27,7 +27,12 @@ export async function registerFirebaseRoutes(app: Express): Promise<Server> {
     try {
       const userId = req.userId || 'dev-user';
       const plants = await mockFirebaseStorage.getPlants(userId);
-      res.json(plants);
+      // Ensure all plants have plant numbers for display
+      const plantsWithNumbers = plants.map((plant, index) => ({
+        ...plant,
+        plantNumber: plant.plantNumber || (index + 1)
+      }));
+      res.json(plantsWithNumbers);
     } catch (error) {
       console.error("Error fetching plants:", error);
       res.status(500).json({ message: "Failed to fetch plants" });

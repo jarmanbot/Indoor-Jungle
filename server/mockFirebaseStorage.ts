@@ -9,6 +9,7 @@ interface MockPlant {
   commonName?: string;
   latinName?: string;
   location: string;
+  plantNumber?: number;
   lastWatered?: Date;
   lastFed?: Date;
   nextCheck?: Date;
@@ -61,6 +62,7 @@ class MockFirebaseStorage {
       commonName: plantData.commonName || '',
       latinName: plantData.latinName || '',
       location: plantData.location || 'living_room',
+      plantNumber: plantData.plantNumber || plantData.id || 1,
       lastWatered: plantData.lastWatered ? new Date(plantData.lastWatered) : null,
       lastFed: plantData.lastFed ? new Date(plantData.lastFed) : null,
       nextCheck: plantData.nextCheck ? new Date(plantData.nextCheck) : null,

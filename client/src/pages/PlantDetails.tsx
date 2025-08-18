@@ -40,17 +40,19 @@ const PlantDetails = () => {
   const [locationValue, setLocationValue] = useState("");
   const numericId = id ? parseInt(id) : 0;
 
-  // Custom data fetching that uses local storage
+  // Firebase data fetching
   const { data: plant, isLoading, error } = useQuery<Plant>({
     queryKey: [`/api/plants/${id}`],
     queryFn: async () => {
-      // Always use local storage mode now
-      const plants = localData.get('plants') || [];
-      const plant = plants.find((p: any) => p.id === parseInt(id || '0'));
-      if (!plant) {
-        throw new Error('Plant not found in local storage');
+      const response = await fetch(`/api/plants/${id}`, {
+        headers: {
+          'X-User-ID': 'dev-user'
+        }
+      });
+      if (!response.ok) {
+        throw new Error('Plant not found');
       }
-      return plant;
+      return response.json();
     },
     enabled: !!id,
   });

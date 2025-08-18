@@ -133,6 +133,12 @@ export function MigrationModal({ open, onOpenChange }: MigrationModalProps) {
       // Invalidate queries to refresh data and clear cache
       queryClient.invalidateQueries({ queryKey: ['/api/plants'] });
       queryClient.removeQueries({ queryKey: ['/api/plants'] });
+      
+      // Mark migration as completed and auto-close modal after 2 seconds
+      localStorage.setItem('migration_completed', 'true');
+      setTimeout(() => {
+        onOpenChange(false);
+      }, 2000);
     },
     onError: (error: Error) => {
       setMigrationStep('error');

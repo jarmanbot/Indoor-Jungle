@@ -146,8 +146,8 @@ const Home = () => {
           </Link>
         )}
 
-        {/* Migration Notice - Show if using Firebase but have local storage data */}
-        {isUsingFirebase && localPlantCount > 0 && (plants?.length || 0) === 0 && (
+        {/* Migration Notice - Show if using Firebase but have local storage data and no migration is in progress */}
+        {isUsingFirebase && localPlantCount > 0 && (plants?.length || 0) === 0 && !localStorage.getItem('migration_completed') && (
           <div className="mt-3">
             <Card className="bg-blue-50 border-blue-200">
               <CardContent className="p-3">
