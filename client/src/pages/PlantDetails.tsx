@@ -59,24 +59,19 @@ const PlantDetails = () => {
 
   const deleteMutation = useMutation({
     mutationFn: async () => {
-      // Delete from local storage
-      const plants = localData.get('plants') || [];
-      const filteredPlants = plants.filter((p: any) => p.id !== parseInt(id || '0'));
-      localData.set('plants', filteredPlants);
+      // Delete from Firebase
+      const response = await fetch(`/api/plants/${id}`, {
+        method: 'DELETE',
+        headers: {
+          'X-User-ID': 'dev-user'
+        }
+      });
       
-      // Also clean up related logs
-      const wateringLogs = localData.get('wateringLogs') || [];
-      const feedingLogs = localData.get('feedingLogs') || [];
-      const repottingLogs = localData.get('repottingLogs') || [];
-      const soilTopUpLogs = localData.get('soilTopUpLogs') || [];
-      const pruningLogs = localData.get('pruningLogs') || [];
+      if (!response.ok) {
+        throw new Error('Failed to delete plant');
+      }
       
-      const plantIdNum = parseInt(id || '0');
-      localData.set('wateringLogs', wateringLogs.filter((log: any) => log.plantId !== plantIdNum));
-      localData.set('feedingLogs', feedingLogs.filter((log: any) => log.plantId !== plantIdNum));
-      localData.set('repottingLogs', repottingLogs.filter((log: any) => log.plantId !== plantIdNum));
-      localData.set('soilTopUpLogs', soilTopUpLogs.filter((log: any) => log.plantId !== plantIdNum));
-      localData.set('pruningLogs', pruningLogs.filter((log: any) => log.plantId !== plantIdNum));
+      return response.json();
     },
     onSuccess: () => {
       // Invalidate all plant-related queries to ensure immediate UI updates

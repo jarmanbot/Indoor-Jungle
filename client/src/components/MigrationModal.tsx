@@ -135,7 +135,11 @@ export function MigrationModal({ open, onOpenChange }: MigrationModalProps) {
       queryClient.removeQueries({ queryKey: ['/api/plants'] });
       
       // Mark migration as completed and auto-close modal after 2 seconds
-      localStorage.setItem('migration_completed', 'true');
+      window.localStorage.setItem('migration_completed', 'true');
+      // Also clear local storage data since it's been migrated
+      window.localStorage.removeItem('plant_app_plants');
+      window.localStorage.removeItem('plant_app_wateringLogs');
+      window.localStorage.removeItem('plant_app_feedingLogs');
       setTimeout(() => {
         onOpenChange(false);
       }, 2000);
