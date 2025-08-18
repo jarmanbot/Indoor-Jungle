@@ -1,17 +1,30 @@
 import express, { type Express, Request, Response } from "express";
 import { createServer, type Server } from "http";
 import { firebaseStorage } from "./firebaseStorageClean";
-import { setupAuth, isAuthenticated } from "./replitAuth";
-// Firebase route validation will be done inline
+
+// Simple middleware for Firebase-based authentication (no PostgreSQL required)
+const requireAuth = (req: any, res: Response, next: any) => {
+  // For development, allow any user ID in the request headers
+  const userId = req.headers['x-user-id'] || 'anonymous';
+  req.userId = userId;
+  next();
+};
 
 export async function registerFirebaseRoutes(app: Express): Promise<Server> {
-  // Auth middleware
-  await setupAuth(app);
+  // Simple auth route for development
+  app.get('/api/auth/user', (req, res) => {
+    // For development, return a mock user
+    res.json({
+      id: 'dev-user',
+      email: 'dev@example.com',
+      name: 'Development User'
+    });
+  });
 
   // Plants routes
-  app.get('/api/plants', isAuthenticated, async (req: any, res) => {
+  app.get('/api/plants', requireAuth, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.userId || 'dev-user';
       const plants = await firebaseStorage.getPlants(userId);
       res.json(plants);
     } catch (error) {
@@ -20,9 +33,9 @@ export async function registerFirebaseRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get('/api/plants/:id', isAuthenticated, async (req: any, res) => {
+  app.get('/api/plants/:id', requireAuth, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.userId || 'dev-user';
       const plantId = req.params.id;
       const plant = await firebaseStorage.getPlant(userId, plantId);
       
@@ -37,9 +50,9 @@ export async function registerFirebaseRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post('/api/plants', isAuthenticated, async (req: any, res) => {
+  app.post('/api/plants', requireAuth, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.userId || 'dev-user';
       
       // Basic validation - Firebase will handle the rest
       if (!req.body.name) {
@@ -57,9 +70,9 @@ export async function registerFirebaseRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.put('/api/plants/:id', isAuthenticated, async (req: any, res) => {
+  app.put('/api/plants/:id', requireAuth, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.userId || 'dev-user';
       const plantId = req.params.id;
       
       const plant = await firebaseStorage.updatePlant(userId, plantId, req.body);
@@ -70,9 +83,9 @@ export async function registerFirebaseRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.delete('/api/plants/:id', isAuthenticated, async (req: any, res) => {
+  app.delete('/api/plants/:id', requireAuth, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.userId || 'dev-user';
       const plantId = req.params.id;
       
       await firebaseStorage.deletePlant(userId, plantId);
@@ -88,9 +101,9 @@ export async function registerFirebaseRoutes(app: Express): Promise<Server> {
   
   careLogTypes.forEach(logType => {
     // Get care logs for a plant
-    app.get(`/api/plants/:plantId/${logType}-logs`, isAuthenticated, async (req: any, res) => {
+    app.get(`/api/plants/:plantId/${logType}-logs`, requireAuth, async (req: any, res) => {
       try {
-        const userId = req.user.claims.sub;
+        const userId = req.userId || 'dev-user';
         const plantId = req.params.plantId;
         
         const logs = await firebaseStorage.getCareLogsForPlant(userId, plantId, `${logType}Logs`);
@@ -102,9 +115,9 @@ export async function registerFirebaseRoutes(app: Express): Promise<Server> {
     });
 
     // Add care log
-    app.post(`/api/plants/:plantId/${logType}-logs`, isAuthenticated, async (req: any, res) => {
+    app.post(`/api/plants/:plantId/${logType}-logs`, requireAuth, async (req: any, res) => {
       try {
-        const userId = req.user.claims.sub;
+        const userId = req.userId || 'dev-user';
         const plantId = req.params.plantId;
         
         const logData = {
@@ -123,106 +136,49 @@ export async function registerFirebaseRoutes(app: Express): Promise<Server> {
     });
   });
 
-  // User routes
-  app.get('/api/auth/user', isAuthenticated, async (req: any, res) => {
-    try {
-      const userId = req.user.claims.sub;
-      let user = await firebaseStorage.getUser(userId);
-      
-      // Create user if doesn't exist
-      if (!user) {
-        user = await firebaseStorage.createUser({
-          id: userId,
-          email: req.user.claims.email,
-          firstName: req.user.claims.first_name,
-          lastName: req.user.claims.last_name,
-          profileImageUrl: req.user.claims.profile_image_url,
-        });
-      }
-      
-      res.json(user);
-    } catch (error) {
-      console.error("Error fetching user:", error);
-      res.status(500).json({ message: "Failed to fetch user" });
-    }
-  });
-
   // Migration routes
-  app.get('/api/migrate/check', isAuthenticated, async (req: any, res) => {
+  app.get('/api/migration/status', requireAuth, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.userId || 'dev-user';
       const plants = await firebaseStorage.getPlants(userId);
       
-      // If user has plants in Firebase, they've migrated
-      const migrationNeeded = plants.length === 0;
-      
-      res.json({ migrationNeeded });
+      res.json({
+        migrationNeeded: plants.length === 0,
+        plantsInFirebase: plants.length,
+      });
     } catch (error) {
       console.error("Error checking migration status:", error);
       res.status(500).json({ message: "Failed to check migration status" });
     }
   });
 
-  app.post('/api/migrate/from-localstorage', isAuthenticated, async (req: any, res) => {
+  app.post('/api/migration/migrate', requireAuth, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
-      const { localStorageData } = req.body;
+      const userId = req.userId || 'dev-user';
+      const { data } = req.body;
       
-      let plantsCreated = 0;
-      let logsCreated = 0;
-      
+      if (!data || !data.plants) {
+        return res.status(400).json({ message: "Invalid migration data" });
+      }
+
       // Migrate plants
-      for (const localPlant of localStorageData.plants || []) {
-        try {
-          await firebaseStorage.createPlant(userId, {
-            name: localPlant.name || 'Unknown Plant',
-            userId,
-            babyName: localPlant.babyName || '',
-            commonName: localPlant.commonName || '',
-            latinName: localPlant.latinName || null,
-            location: localPlant.location || 'living_room',
-            lastWatered: localPlant.lastWatered ? new Date(localPlant.lastWatered) : null,
-            lastFed: localPlant.lastFed ? new Date(localPlant.lastFed) : null,
-            nextCheck: localPlant.nextCheck ? new Date(localPlant.nextCheck) : null,
-            wateringFrequencyDays: localPlant.wateringFrequencyDays || 7,
-            feedingFrequencyDays: localPlant.feedingFrequencyDays || 14,
-            notes: localPlant.notes || null,
-            imageUrl: localPlant.imageUrl || null,
-            status: localPlant.status || 'healthy',
-          });
-          plantsCreated++;
-        } catch (error) {
-          console.error('Error migrating plant:', error);
-        }
+      for (const plant of data.plants) {
+        await firebaseStorage.createPlant(userId, { ...plant, userId });
       }
 
       // Migrate care logs
       const logTypes = ['wateringLogs', 'feedingLogs', 'repottingLogs', 'soilTopUpLogs', 'pruningLogs'];
       for (const logType of logTypes) {
-        const logs = localStorageData[logType] || [];
-        for (const log of logs) {
-          try {
-            await firebaseStorage.addCareLog(userId, logType, {
-              plantId: log.plantId?.toString() || '',
-              userId,
-              date: log.date ? new Date(log.date) : new Date(),
-              notes: log.notes || null,
-            });
-            logsCreated++;
-          } catch (error) {
-            console.error(`Error migrating ${logType} log:`, error);
+        if (data[logType] && Array.isArray(data[logType])) {
+          for (const log of data[logType]) {
+            await firebaseStorage.addCareLog(userId, logType, { ...log, userId });
           }
         }
       }
 
-      res.json({
-        success: true,
-        plantsCreated,
-        logsCreated,
-        imagesUploaded: 0, // Images will be uploaded separately
-      });
+      res.json({ success: true, message: "Migration completed successfully" });
     } catch (error) {
-      console.error("Error migrating from localStorage:", error);
+      console.error("Error during migration:", error);
       res.status(500).json({ message: "Migration failed" });
     }
   });

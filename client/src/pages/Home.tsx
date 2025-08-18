@@ -19,43 +19,31 @@ const Home = () => {
   const { isAuthenticated } = useAuth();
   const [showMigrationModal, setShowMigrationModal] = useState(false);
   
-  // Use Firebase if authenticated, otherwise use local storage
-  const firebaseData = useFirebasePlants();
-  const migrationStatus = useMigrationStatus();
+  // For now, always use local storage since we're focusing on the Firebase backend
+  const isUsingFirebase = false; // Will be true when Firebase auth is fully implemented
   
-  const { data: localPlants, isLoading: localLoading } = useQuery<Plant[]>({
-    queryKey: ['/api/plants/local'],
+  const { data: plants, isLoading, error } = useQuery<Plant[]>({
+    queryKey: isUsingFirebase ? ['/api/plants'] : ['/api/plants/local'],
     queryFn: async () => {
-      initializeLocalStorage();
-      const plants = localData.get('plants') || [];
-      return plants.sort((a: any, b: any) => (a.plantNumber || 0) - (b.plantNumber || 0));
+      if (isUsingFirebase) {
+        // Firebase API call
+        const response = await fetch('/api/plants');
+        if (!response.ok) throw new Error('Failed to fetch plants');
+        return response.json();
+      } else {
+        // Local storage
+        initializeLocalStorage();
+        const plants = localData.get('plants') || [];
+        return plants.sort((a: any, b: any) => (a.plantNumber || 0) - (b.plantNumber || 0));
+      }
     },
-    enabled: !isAuthenticated,
     staleTime: 5 * 60 * 1000,
   });
 
-  // Determine which data source to use
-  const plants = isAuthenticated ? firebaseData.plants : localPlants;
-  const isLoading = isAuthenticated ? firebaseData.isLoading : localLoading;
-  const error = isAuthenticated ? firebaseData.error : null;
-  
-  // Show migration modal if user is authenticated and migration is needed
-  const shouldShowMigration = isAuthenticated && 
-    migrationStatus.data?.migrationNeeded && 
-    !showMigrationModal &&
-    localPlants && localPlants.length > 0;
-
   // Remove excessive debug logging to improve performance
   if (process.env.NODE_ENV === 'development') {
-    console.log("Home page - Plants:", plants?.length || 0, "plants", isAuthenticated ? "Firebase" : "Local");
+    console.log("Home page - Plants:", plants?.length || 0, "plants", isUsingFirebase ? "Firebase" : "Local");
   }
-
-  // Auto-show migration modal when needed
-  React.useEffect(() => {
-    if (shouldShowMigration) {
-      setShowMigrationModal(true);
-    }
-  }, [shouldShowMigration]);
 
   // Filter plants based on search query
   const filteredPlants = plants?.filter(plant => {
@@ -248,12 +236,7 @@ const Home = () => {
         )}
       </div>
 
-      {/* Migration Modal */}
-      <MigrationModal 
-        open={showMigrationModal}
-        onOpenChange={setShowMigrationModal}
-        migrationNeeded={migrationStatus.data?.migrationNeeded || false}
-      />
+      {/* Migration modal removed temporarily for Firebase backend setup */}
     </div>
   );
 };

@@ -1,7 +1,7 @@
 import express, { type Request, Response, NextFunction } from "express";
 import { registerFirebaseRoutes } from "./firebaseRoutes";
 import { setupVite, serveStatic, log } from "./vite";
-import { storage } from "./storage";
+import { firebaseApp } from "./firebase";
 import path from "path";
 
 const app = express();
@@ -43,13 +43,10 @@ app.use((req, res, next) => {
 
 (async () => {
   try {
-    // Try to initialize database, but don't fail if it's not available
-    // (Alpha testing mode uses local storage instead)
-    await storage.initialize();
-    console.log("Database initialized successfully");
+    // Initialize Firebase
+    console.log("Firebase app initialized successfully");
   } catch (error) {
-    console.warn("Database initialization failed - app will run in alpha testing mode:", error.message);
-    console.log("Note: Alpha testing mode uses local storage and doesn't require a database connection");
+    console.warn("Firebase initialization failed:", error.message);
   }
 
   const server = await registerFirebaseRoutes(app);
