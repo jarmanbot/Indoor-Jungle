@@ -235,32 +235,39 @@ const PlantForm = ({ onSuccess, initialValues, plantId }: PlantFormProps) => {
         latinName: data.latinName || ""
       };
       
-      // Always use local storage mode - save directly to localStorage
-        console.log("Local storage mode: Saving to localStorage...");
-        
-        const plants = localData.get('plants') || [];
+      // Use Firebase API for plant operations
+        console.log("Firebase mode: Saving to Firebase API...");
         
         if (plantId) {
           // Update existing plant
-          const plantIndex = plants.findIndex((p: any) => p.id === plantId);
-          if (plantIndex !== -1) {
-            let imageUrl = plants[plantIndex].imageUrl;
-            
-            // Handle image update with improved compression
-            if (selectedImage) {
-              imageUrl = await compressPlantImage(selectedImage);
-            }
-            
-            plants[plantIndex] = {
-              ...plants[plantIndex],
-              ...processedData,
-              name: processedData.babyName,
-              imageUrl: imageUrl,
-              updatedAt: new Date().toISOString()
-            };
-            localData.set('plants', plants);
-            console.log("Plant updated in localStorage");
+          let imageUrl = undefined;
+          
+          // Handle image update with improved compression
+          if (selectedImage) {
+            imageUrl = await compressPlantImage(selectedImage);
           }
+          
+          const updateData = {
+            ...processedData,
+            name: processedData.babyName,
+            ...(imageUrl && { imageUrl }),
+            updatedAt: new Date().toISOString()
+          };
+          
+          const response = await fetch(`/api/plants/${plantId}`, {
+            method: 'PUT',
+            headers: {
+              'Content-Type': 'application/json',
+              'X-User-ID': 'dev-user'
+            },
+            body: JSON.stringify(updateData)
+          });
+          
+          if (!response.ok) {
+            throw new Error('Failed to update plant');
+          }
+          
+          console.log("Plant updated via Firebase API");
         } else {
           // Create new plant
           let imageUrl = undefined;
@@ -270,29 +277,33 @@ const PlantForm = ({ onSuccess, initialValues, plantId }: PlantFormProps) => {
             imageUrl = await compressPlantImage(selectedImage);
           }
           
-          const plantId = getNextId();
-          const plantNumber = getNextPlantNumber();
-          console.log('Creating plant with ID:', plantId, 'and plant number:', plantNumber);
-          
           const newPlant = {
             ...processedData,
-            id: plantId,
-            plantNumber: plantNumber,
             name: processedData.babyName,
             imageUrl: imageUrl,
             lastWatered: null,
             nextCheck: null,
             lastFed: null,
-            status: "healthy",
-            createdAt: new Date().toISOString(),
-            updatedAt: new Date().toISOString()
+            status: "healthy"
           };
           
-          console.log('Final plant object before saving:', newPlant);
+          console.log('Creating plant via Firebase API:', newPlant);
           
-          plants.push(newPlant);
-          localData.set('plants', plants);
-          console.log("New plant saved to localStorage:", newPlant);
+          const response = await fetch('/api/plants', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'X-User-ID': 'dev-user'
+            },
+            body: JSON.stringify(newPlant)
+          });
+          
+          if (!response.ok) {
+            throw new Error('Failed to create plant');
+          }
+          
+          const result = await response.json();
+          console.log("New plant saved to Firebase:", result);
         }
       
       // Show success message
