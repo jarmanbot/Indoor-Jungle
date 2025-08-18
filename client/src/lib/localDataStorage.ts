@@ -74,36 +74,6 @@ export function getStorageUsage() {
   };
 }
 
-// Validate base64 image data
-export function isValidBase64Image(dataUrl: string): boolean {
-  if (!dataUrl || !dataUrl.startsWith('data:image/')) {
-    return false;
-  }
-  
-  try {
-    const base64Part = dataUrl.split(',')[1];
-    if (!base64Part) return false;
-    
-    // Check if it's valid base64
-    const decoded = atob(base64Part);
-    // Check minimum length for image data
-    return decoded.length > 100;
-  } catch (e) {
-    return false;
-  }
-}
-
-// Repair or remove invalid plant images
-export function validatePlantImages(plants: any[]): any[] {
-  return plants.map(plant => {
-    if (plant.imageUrl && !isValidBase64Image(plant.imageUrl)) {
-      console.log(`Removing invalid image for plant ${plant.babyName}: corrupted or truncated`);
-      return { ...plant, imageUrl: null };
-    }
-    return plant;
-  });
-}
-
 // Compress plant image data to save storage space
 export function compressPlantImage(file: File): Promise<string> {
   return new Promise((resolve) => {
@@ -286,22 +256,12 @@ export function importUserData(file: File): Promise<void> {
         
         console.log(`Found ${data.plants.length} plants to import`);
         
-        // Validate and clean up plant images
-        const cleanedPlants = validatePlantImages(data.plants);
-        const removedImages = data.plants.length - cleanedPlants.filter(p => p.imageUrl).length;
-        if (removedImages > 0) {
-          console.log(`Removed ${removedImages} corrupted plant images during import`);
-        }
-        
-        // Update data with validated plants
-        data.plants = cleanedPlants;
-        
         // Clear existing data before importing
         console.log('Clearing existing data...');
         localStorage.clear();
         
         // Import all data with validation
-        localStorage.set('plants', cleanedPlants);
+        localStorage.set('plants', data.plants);
         localStorage.set('customLocations', data.customLocations || []);
         localStorage.set('wateringLogs', data.wateringLogs || []);
         localStorage.set('feedingLogs', data.feedingLogs || []);
