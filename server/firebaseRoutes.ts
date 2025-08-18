@@ -187,6 +187,86 @@ export async function registerFirebaseRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Demo plant toggle endpoint
+  app.post('/api/demo-plant/toggle', requireAuth, async (req: any, res) => {
+    try {
+      const { enabled } = req.body;
+      const userId = req.userId || 'dev-user';
+      
+      if (enabled) {
+        // Check if demo plant already exists
+        const plants = await mockFirebaseStorage.getPlants(userId);
+        const existingDemo = plants.find(p => 
+          p.babyName === 'Demo Plant' && 
+          p.notes?.includes('This is your demo plant to explore the app!')
+        );
+        
+        if (existingDemo) {
+          res.json({ success: true, message: 'Demo plant already exists' });
+          return;
+        }
+        
+        // Add demo plant
+        const demoPlant = {
+          id: 1,
+          plantNumber: 1,
+          babyName: 'Demo Plant',
+          commonName: 'Sample Houseplant',
+          latinName: 'Plantus Demonstratus',
+          name: 'Demo Plant',
+          location: 'living_room',
+          lastWatered: null,
+          nextCheck: null,
+          lastFed: null,
+          wateringFrequencyDays: 7,
+          feedingFrequencyDays: 14,
+          notes: 'This is your demo plant to explore the app! You can delete it and add your own plants.',
+          imageUrl: '/demo-plant.gif',
+          status: 'healthy',
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+          userId
+        };
+        
+        await mockFirebaseStorage.createPlant(userId, demoPlant);
+        res.json({ success: true, message: 'Demo plant added successfully' });
+      } else {
+        // Remove demo plant
+        const plants = await mockFirebaseStorage.getPlants(userId);
+        const demoPlant = plants.find(p => 
+          p.babyName === 'Demo Plant' && 
+          p.notes?.includes('This is your demo plant to explore the app!')
+        );
+        
+        if (demoPlant) {
+          await mockFirebaseStorage.deletePlant(userId, demoPlant.id!);
+        }
+        
+        res.json({ success: true, message: 'Demo plant removed successfully' });
+      }
+    } catch (error) {
+      console.error('Error toggling demo plant:', error);
+      res.status(500).json({ error: 'Failed to toggle demo plant' });
+    }
+  });
+
+  // Demo plant status endpoint
+  app.get('/api/demo-plant/status', requireAuth, async (req: any, res) => {
+    try {
+      const userId = req.userId || 'dev-user';
+      const plants = await mockFirebaseStorage.getPlants(userId);
+      const hasDemo = plants.some(p => 
+        p.babyName === 'Demo Plant' && 
+        p.notes?.includes('This is your demo plant to explore the app!')
+      );
+      
+      res.json({ enabled: hasDemo });
+    } catch (error) {
+      console.error('Error checking demo plant status:', error);
+      res.status(500).json({ error: 'Failed to check demo plant status' });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }

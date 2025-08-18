@@ -48,13 +48,20 @@ const Settings = () => {
         }
       }
       
-      // Check if demo plant exists
-      const plants = localData.get('plants') || [];
-      const hasDemo = plants.some((plant: any) => 
-        plant.babyName === 'Demo Plant' && 
-        plant.notes?.includes('This is your demo plant to explore the app!')
-      );
-      setDemoPlantEnabled(hasDemo);
+      // Check if demo plant exists in Firebase
+      fetch('/api/demo-plant/status')
+        .then(res => res.json())
+        .then(data => setDemoPlantEnabled(data.enabled))
+        .catch(err => {
+          console.error('Failed to check demo plant status:', err);
+          // Fallback to local storage check
+          const plants = localData.get('plants') || [];
+          const hasDemo = plants.some((plant: any) => 
+            plant.babyName === 'Demo Plant' && 
+            plant.notes?.includes('This is your demo plant to explore the app!')
+          );
+          setDemoPlantEnabled(hasDemo);
+        });
     } catch (error) {
       console.error("Failed to load settings:", error);
     }
@@ -197,77 +204,44 @@ const Settings = () => {
     }
   };
 
-  const handleDemoPlantToggle = () => {
-    if (demoPlantEnabled) {
-      // Remove demo plant
-      const plants = localData.get('plants') || [];
-      const filteredPlants = plants.filter((plant: any) => {
-        const isDemo = plant.babyName === 'Demo Plant' && 
-                      plant.notes?.includes('This is your demo plant to explore the app!');
-        return !isDemo;
+  const handleDemoPlantToggle = async () => {
+    try {
+      const response = await fetch('/api/demo-plant/toggle', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ enabled: !demoPlantEnabled }),
       });
       
-      localData.set('plants', filteredPlants);
-      setDemoPlantEnabled(false);
+      if (!response.ok) {
+        throw new Error('Failed to toggle demo plant');
+      }
+      
+      const result = await response.json();
+      setDemoPlantEnabled(!demoPlantEnabled);
       
       toast({
-        title: "Demo plant removed",
-        description: "You can now use plant #1 for your own plant",
+        title: !demoPlantEnabled ? "Demo plant added" : "Demo plant removed",
+        description: result.message,
       });
       
-      // Enhanced cache management for immediate UI update
+      // Clear cache to refresh plant list immediately
       queryClient.invalidateQueries({ queryKey: ['/api/plants'] });
-      queryClient.removeQueries({ queryKey: ['/api/plants/1'] });
-      queryClient.refetchQueries({ queryKey: ['/api/plants'] });
-    } else {
-      // Check if there's already a plant #1
-      const plants = localData.get('plants') || [];
-      const hasPlantNumber1 = plants.some((plant: any) => plant.plantNumber === 1);
-      
-      if (hasPlantNumber1) {
-        setShowDemoPlantDialog(true);
-      } else {
-        addDemoPlant();
-      }
+      queryClient.invalidateQueries({ queryKey: ['/api/plants/local'] });
+    } catch (error) {
+      console.error("Failed to toggle demo plant:", error);
+      toast({
+        title: "Error",
+        description: "Failed to update demo plant. Please try again.",
+        variant: "destructive",
+      });
     }
   };
 
-  const addDemoPlant = () => {
-    const demoPlant = {
-      id: 1,
-      plantNumber: 1,
-      babyName: "Demo Plant",
-      commonName: "Sample Houseplant",
-      latinName: "Plantus Demonstratus",
-      name: "Demo Plant",
-      location: "living_room",
-      lastWatered: null,
-      nextCheck: null,
-      lastFed: null,
-      wateringFrequencyDays: 7,
-      feedingFrequencyDays: 14,
-      notes: "This is your demo plant to explore the app! You can delete it and add your own plants.",
-      imageUrl: "/demo-plant.gif",
-      status: "healthy",
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString()
-    };
-    
-    const plants = localData.get('plants') || [];
-    const updatedPlants = [demoPlant, ...plants.filter((p: any) => p.plantNumber !== 1)];
-    localData.set('plants', updatedPlants);
-    setDemoPlantEnabled(true);
+  const addDemoPlant = async () => {
     setShowDemoPlantDialog(false);
-    
-    toast({
-      title: "Demo plant added",
-      description: "The demo plant is now available as plant #1",
-    });
-    
-    // Enhanced cache management for immediate UI update
-    queryClient.invalidateQueries({ queryKey: ['/api/plants'] });
-    queryClient.invalidateQueries({ queryKey: ['/api/plants/1'] });
-    queryClient.refetchQueries({ queryKey: ['/api/plants'] });
+    await handleDemoPlantToggle();
   };
 
   return (
