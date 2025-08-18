@@ -130,8 +130,9 @@ export function MigrationModal({ open, onOpenChange }: MigrationModalProps) {
     },
     onSuccess: () => {
       setMigrationStep('complete');
-      // Invalidate queries to refresh data
+      // Invalidate queries to refresh data and clear cache
       queryClient.invalidateQueries({ queryKey: ['/api/plants'] });
+      queryClient.removeQueries({ queryKey: ['/api/plants'] });
     },
     onError: (error: Error) => {
       setMigrationStep('error');

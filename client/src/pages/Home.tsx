@@ -31,14 +31,20 @@ const Home = () => {
     setLocalPlantCount(localPlants.length);
   }, []);
   
-  const { data: plants, isLoading, error } = useQuery<Plant[]>({
+  const { data: plants, isLoading, error, refetch } = useQuery<Plant[]>({
     queryKey: isUsingFirebase ? ['/api/plants'] : ['/api/plants/local'],
     queryFn: async () => {
       if (isUsingFirebase) {
         // Firebase API call
-        const response = await fetch('/api/plants');
+        const response = await fetch('/api/plants', {
+          headers: {
+            'X-User-ID': 'dev-user'
+          }
+        });
         if (!response.ok) throw new Error('Failed to fetch plants');
-        return response.json();
+        const plantsData = await response.json();
+        console.log('Fetched plants from Firebase:', plantsData.length, 'plants');
+        return plantsData;
       } else {
         // Local storage
         initializeLocalStorage();
@@ -46,7 +52,9 @@ const Home = () => {
         return plants.sort((a: any, b: any) => (a.plantNumber || 0) - (b.plantNumber || 0));
       }
     },
-    staleTime: 5 * 60 * 1000,
+    staleTime: 10 * 1000, // 10 seconds
+    cacheTime: 30 * 1000, // 30 seconds
+    refetchOnWindowFocus: true
   });
 
   // Remove excessive debug logging to improve performance

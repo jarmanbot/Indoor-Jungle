@@ -150,6 +150,18 @@ class MockFirebaseStorage {
     
     return { plants: totalPlants, careLogs: totalLogs };
   }
+  // Clear all data for a user
+  async clearAllData(userId: string): Promise<void> {
+    console.log(`Mock Firebase: Clearing all data for user ${userId}`);
+    this.plants.delete(userId);
+    
+    // Clear all care logs for this user
+    const careLogTypes = ['wateringLogs', 'feedingLogs', 'repottingLogs', 'soilTopUpLogs', 'pruningLogs'];
+    for (const logType of careLogTypes) {
+      const key = `${userId}_${logType}`;
+      this.careLogs.delete(key);
+    }
+  }
 }
 
 export const mockFirebaseStorage = new MockFirebaseStorage();

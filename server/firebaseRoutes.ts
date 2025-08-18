@@ -4,9 +4,10 @@ import { mockFirebaseStorage } from "./mockFirebaseStorage";
 
 // Simple middleware for Firebase-based authentication (no PostgreSQL required)
 const requireAuth = (req: any, res: Response, next: any) => {
-  // For development, allow any user ID in the request headers
-  const userId = req.headers['x-user-id'] || 'anonymous';
+  // For development, allow any user ID in the request headers or use dev-user as default
+  const userId = req.headers['x-user-id'] || req.user?.id || 'dev-user';
   req.userId = userId;
+  console.log('Auth middleware - Using userId:', userId);
   next();
 };
 
@@ -165,6 +166,9 @@ export async function registerFirebaseRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: "Invalid migration data" });
       }
 
+      // Clear existing data first to prevent duplicates
+      await mockFirebaseStorage.clearAllData(userId);
+      
       // Migrate plants
       for (const plant of data.plants) {
         await mockFirebaseStorage.createPlant(userId, { ...plant, userId });
@@ -264,6 +268,18 @@ export async function registerFirebaseRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error('Error checking demo plant status:', error);
       res.status(500).json({ error: 'Failed to check demo plant status' });
+    }
+  });
+
+  // Debug endpoint to clear all data
+  app.delete('/api/debug/clear-all-data', requireAuth, async (req: any, res) => {
+    try {
+      const userId = req.userId || 'dev-user';
+      await mockFirebaseStorage.clearAllData(userId);
+      res.json({ success: true, message: 'All data cleared successfully' });
+    } catch (error) {
+      console.error('Error clearing data:', error);
+      res.status(500).json({ error: 'Failed to clear data' });
     }
   });
 
