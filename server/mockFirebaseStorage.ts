@@ -54,11 +54,21 @@ class MockFirebaseStorage {
   async createPlant(userId: string, plantData: any): Promise<MockPlant> {
     console.log(`Mock Firebase: Creating plant for user ${userId}:`, plantData);
     
-    // Get current plants to calculate next plant number
+    // Get current plants to find the next available plant number
     const currentPlants = this.plants.get(userId) || [];
-    const nextPlantNumber = currentPlants.length > 0 
-      ? Math.max(...currentPlants.map(p => p.plantNumber || 0)) + 1 
-      : 1;
+    
+    // Find the lowest available plant number (reuse deleted numbers)
+    let nextPlantNumber = 1;
+    const usedNumbers = new Set(currentPlants.map(p => p.plantNumber || 0).filter(n => n > 0));
+    
+    console.log(`Mock Firebase: Current used plant numbers:`, Array.from(usedNumbers).sort((a, b) => a - b));
+    
+    // Find the first gap in the sequence or use the next sequential number
+    while (usedNumbers.has(nextPlantNumber)) {
+      nextPlantNumber++;
+    }
+    
+    console.log(`Mock Firebase: Assigning plant number ${nextPlantNumber} (reusing deleted numbers)`);
     
     const newPlant: MockPlant = {
       id: `plant_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
