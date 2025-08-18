@@ -7,31 +7,55 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
-import { Plus, Leaf, Droplet, Package, ImageIcon, Thermometer, Search, Award, CalendarRange, X } from "lucide-react";
+import { Plus, Leaf, Droplet, Package, ImageIcon, Thermometer, Search, Award, CalendarRange, X, Cloud } from "lucide-react";
 import { localStorage as localData, initializeLocalStorage } from "@/lib/localDataStorage";
-import { useState } from "react";
+import { useFirebasePlants, useMigrationStatus } from "@/lib/firebaseDataStorage";
+import { MigrationModal } from "@/components/MigrationModal";
+import { useAuth } from "@/hooks/useAuth";
+import React, { useState } from "react";
 
 const Home = () => {
   const [searchQuery, setSearchQuery] = useState("");
-  const { data: plants, isLoading, error, refetch } = useQuery<Plant[]>({
-    queryKey: ['/api/plants'],
+  const { isAuthenticated } = useAuth();
+  const [showMigrationModal, setShowMigrationModal] = useState(false);
+  
+  // Use Firebase if authenticated, otherwise use local storage
+  const firebaseData = useFirebasePlants();
+  const migrationStatus = useMigrationStatus();
+  
+  const { data: localPlants, isLoading: localLoading } = useQuery<Plant[]>({
+    queryKey: ['/api/plants/local'],
     queryFn: async () => {
-      // Always use local storage mode now
       initializeLocalStorage();
       const plants = localData.get('plants') || [];
-      // Sort plants by plant number to ensure proper display order
       return plants.sort((a: any, b: any) => (a.plantNumber || 0) - (b.plantNumber || 0));
     },
-    staleTime: 5 * 60 * 1000, // 5 minutes
-    refetchOnMount: false,
-    refetchOnWindowFocus: false,
-    refetchOnReconnect: false,
+    enabled: !isAuthenticated,
+    staleTime: 5 * 60 * 1000,
   });
+
+  // Determine which data source to use
+  const plants = isAuthenticated ? firebaseData.plants : localPlants;
+  const isLoading = isAuthenticated ? firebaseData.isLoading : localLoading;
+  const error = isAuthenticated ? firebaseData.error : null;
+  
+  // Show migration modal if user is authenticated and migration is needed
+  const shouldShowMigration = isAuthenticated && 
+    migrationStatus.data?.migrationNeeded && 
+    !showMigrationModal &&
+    localPlants && localPlants.length > 0;
 
   // Remove excessive debug logging to improve performance
   if (process.env.NODE_ENV === 'development') {
-    console.log("Home page - Plants:", plants?.length || 0, "plants");
+    console.log("Home page - Plants:", plants?.length || 0, "plants", isAuthenticated ? "Firebase" : "Local");
   }
+
+  // Auto-show migration modal when needed
+  React.useEffect(() => {
+    if (shouldShowMigration) {
+      setShowMigrationModal(true);
+    }
+  }, [shouldShowMigration]);
 
   // Filter plants based on search query
   const filteredPlants = plants?.filter(plant => {
@@ -75,7 +99,15 @@ const Home = () => {
       <div className="bg-green-50 p-4 border-b">
         <div className="flex justify-between items-center mb-3">
           <div>
-            <h2 className="font-bold text-gray-800 text-lg">My Plants</h2>
+            <div className="flex items-center gap-2">
+              <h2 className="font-bold text-gray-800 text-lg">My Plants</h2>
+              {isAuthenticated && (
+                <Badge variant="secondary" className="text-xs">
+                  <Cloud className="h-3 w-3 mr-1" />
+                  Firebase
+                </Badge>
+              )}
+            </div>
             <p className="text-sm text-gray-600">{totalPlants} plants in your collection</p>
           </div>
 
@@ -215,6 +247,13 @@ const Home = () => {
           </div>
         )}
       </div>
+
+      {/* Migration Modal */}
+      <MigrationModal 
+        open={showMigrationModal}
+        onOpenChange={setShowMigrationModal}
+        migrationNeeded={migrationStatus.data?.migrationNeeded || false}
+      />
     </div>
   );
 };

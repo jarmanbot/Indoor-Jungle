@@ -1,5 +1,3 @@
-// Local data storage system with export/import functionality
-// Replaces alpha testing mode with permanent local storage
 
 const LOCAL_DATA_PREFIX = 'plant_app_';
 
@@ -373,3 +371,38 @@ export function initializeLocalStorage(): void {
 export function isUsingLocalStorage(): boolean {
   return true;
 }
+
+// Hook for using local data storage
+export const useLocalDataStorage = () => {
+  return {
+    exportData: () => {
+      return {
+        plants: localStorage.get('plants') || [],
+        wateringLogs: localStorage.get('wateringLogs') || [],
+        feedingLogs: localStorage.get('feedingLogs') || [],
+        repottingLogs: localStorage.get('repottingLogs') || [],
+        soilTopUpLogs: localStorage.get('soilTopUpLogs') || [],
+        pruningLogs: localStorage.get('pruningLogs') || [],
+        customLocations: localStorage.get('customLocations') || [],
+      };
+    },
+    importData: (data: any) => {
+      if (data.plants) localStorage.set('plants', data.plants);
+      if (data.wateringLogs) localStorage.set('wateringLogs', data.wateringLogs);
+      if (data.feedingLogs) localStorage.set('feedingLogs', data.feedingLogs);
+      if (data.repottingLogs) localStorage.set('repottingLogs', data.repottingLogs);
+      if (data.soilTopUpLogs) localStorage.set('soilTopUpLogs', data.soilTopUpLogs);
+      if (data.pruningLogs) localStorage.set('pruningLogs', data.pruningLogs);
+      if (data.customLocations) localStorage.set('customLocations', data.customLocations);
+    },
+    clearAll: () => {
+      localStorage.remove('plants');
+      localStorage.remove('wateringLogs');
+      localStorage.remove('feedingLogs');
+      localStorage.remove('repottingLogs');
+      localStorage.remove('soilTopUpLogs');
+      localStorage.remove('pruningLogs');
+      localStorage.remove('customLocations');
+    }
+  };
+};

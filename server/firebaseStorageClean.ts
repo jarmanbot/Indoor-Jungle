@@ -243,10 +243,7 @@ export class FirebaseStorage {
 
     await userRef.set(data);
     
-    return {
-      id: userData.id,
-      ...data,
-    } as FirebaseUserData;
+    return data as FirebaseUserData;
   }
 
   async updateUser(userId: string, updates: Partial<FirebaseUserData>): Promise<FirebaseUserData> {

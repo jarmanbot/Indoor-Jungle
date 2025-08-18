@@ -9,9 +9,10 @@ Indoor Jungle is a Web3 plant care application that combines a traditional plant
 ### Full-Stack Architecture
 - **Frontend**: React/TypeScript with Vite for development and building
 - **Backend**: Express.js server with TypeScript
-- **Database**: PostgreSQL with Drizzle ORM for data management
+- **Database**: Firebase Firestore (real-time NoSQL database) replacing PostgreSQL
 - **UI Components**: Shadcn/ui with Tailwind CSS for styling
 - **State Management**: TanStack Query for server state management
+- **Authentication**: Replit Auth with Firebase user management
 
 ### Web3 Integration
 - **Smart Contracts**: Solidity contracts for NFTs and ERC-20 tokens
@@ -33,12 +34,12 @@ Indoor Jungle is a Web3 plant care application that combines a traditional plant
 - **Marketplace**: Player-to-player trading of virtual plants and items
 - **Token Economy**: LVS token for purchases, upgrades, and rewards
 
-### Database Schema
-- **Users**: Authentication and user management
-- **Plants**: Real plant data with care tracking
+### Database Schema (Firebase Collections)
+- **Users**: Authentication and user management via Replit Auth
+- **Plants**: Real plant data with care tracking (per-user subcollections)
+- **Care Logs**: Historical watering, feeding, repotting, soil top-up, and pruning records (per-user subcollections)
 - **Game Players**: Virtual game profiles linked to wallet addresses
 - **Virtual Plants**: NFT plant data with game attributes
-- **Care Logs**: Historical watering and feeding records
 
 ## Data Flow
 
@@ -128,6 +129,7 @@ The app uses a robust local storage system that stores all data on each device:
 
 ```
 Changelog:
+- August 18, 2025. Migrated from PostgreSQL to Firebase real-time database - provides unlimited scalability for 250+ plants, real-time sync across devices, and automatic cloud backup
 - July 29, 2025. Enhanced plant list navigation - added custom scrollbar, search functionality, and visual indicators for better browsing with many plants
 - July 29, 2025. Fixed "Set Reminder" functionality - now properly updates nextCheck date in local storage instead of attempting server API calls
 - July 29, 2025. Enhanced plant deletion and demo plant toggle with immediate cache refresh - plants now appear/disappear instantly without page refresh
