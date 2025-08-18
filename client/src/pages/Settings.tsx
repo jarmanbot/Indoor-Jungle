@@ -168,23 +168,47 @@ const Settings = () => {
   const handleImport = async (file: File) => {
     try {
       console.log('Starting import process for file:', file.name);
-      await importUserData(file);
-      toast({
-        title: "Import successful",
-        description: "Your plant data has been imported successfully",
+      
+      // Read the file as text
+      const text = await file.text();
+      const data = JSON.parse(text);
+      
+      console.log('Import data:', data);
+      
+      // Send the data to Firebase import endpoint
+      const response = await fetch('/api/backup/import', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-User-ID': 'dev-user'
+        },
+        body: JSON.stringify(data)
       });
+      
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Import failed');
+      }
+      
+      const result = await response.json();
+      
+      toast({
+        title: "Firebase Import Successful",
+        description: `Imported ${result.totalPlants} plants successfully`,
+      });
+      
       // Refresh the page to show updated data
       queryClient.invalidateQueries({ queryKey: ['/api/plants'] });
       
       // Force a page refresh to ensure all components reload with new data
       setTimeout(() => {
         window.location.reload();
-      }, 500);
-    } catch (error) {
+      }, 1000);
+    } catch (error: any) {
       console.error("Import failed:", error);
       toast({
-        title: "Import failed",
-        description: error instanceof Error ? error.message : "Failed to import data",
+        title: "Import Failed",
+        description: error.message || "Failed to import Firebase data",
         variant: "destructive",
       });
     }

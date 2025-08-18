@@ -357,6 +357,58 @@ export async function registerFirebaseRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Import backup route
+  app.post('/api/backup/import', requireAuth, async (req: any, res) => {
+    try {
+      const userId = req.userId || 'dev-user';
+      const importData = req.body;
+      
+      if (!importData || !importData.plants || !Array.isArray(importData.plants)) {
+        return res.status(400).json({ message: 'Invalid backup data format' });
+      }
+      
+      console.log(`Importing ${importData.plants.length} plants for user ${userId}`);
+      
+      // Clear existing plants first
+      await mockFirebaseStorage.clearUserData(userId);
+      
+      // Import each plant
+      let importedCount = 0;
+      for (const plantData of importData.plants) {
+        try {
+          // Generate new Firebase-compatible ID and plant number
+          const newPlant = {
+            ...plantData,
+            userId,
+            plantNumber: importedCount + 1,
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString()
+          };
+          
+          // Remove old ID if present, let Firebase create new one
+          delete newPlant.id;
+          
+          await mockFirebaseStorage.createPlant(userId, newPlant);
+          importedCount++;
+        } catch (error) {
+          console.error(`Failed to import plant ${plantData.name}:`, error);
+        }
+      }
+      
+      // Create backup after successful import
+      await createBackup(userId, 'post_import');
+      
+      res.json({
+        success: true,
+        message: `Successfully imported ${importedCount} plants`,
+        totalPlants: importedCount
+      });
+    } catch (error) {
+      console.error('Error importing backup:', error);
+      res.status(500).json({ message: 'Failed to import backup data' });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }

@@ -170,6 +170,11 @@ class MockFirebaseStorage {
       this.careLogs.delete(key);
     }
   }
+
+  // Clear user data (alias for clearAllData)
+  async clearUserData(userId: string): Promise<void> {
+    return this.clearAllData(userId);
+  }
 }
 
 export const mockFirebaseStorage = new MockFirebaseStorage();
