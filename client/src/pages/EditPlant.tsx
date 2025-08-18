@@ -3,25 +3,27 @@ import { useQuery } from "@tanstack/react-query";
 import { queryClient } from "@/lib/queryClient";
 import PlantForm from "@/components/PlantForm";
 import { X } from "lucide-react";
-import { localStorage as localData } from "@/lib/localDataStorage";
 import { Plant } from "@shared/schema";
 
 const EditPlant = () => {
   const [_, setLocation] = useLocation();
   const [match, params] = useRoute("/edit/:id");
-  const plantId = params?.id ? parseInt(params.id) : 0;
+  const plantId = params?.id || "";
 
   // Fetch plant data for editing
   const { data: plant, isLoading, error } = useQuery<Plant>({
     queryKey: [`/api/plants/${plantId}`],
     queryFn: async () => {
-      // Always use local storage mode now
-      const plants = localData.get('plants') || [];
-      const plant = plants.find((p: any) => p.id === plantId);
-      if (!plant) {
-        throw new Error('Plant not found in local storage');
+      // Use Firebase API to fetch plant data
+      const response = await fetch(`/api/plants/${plantId}`, {
+        headers: {
+          'X-User-ID': 'dev-user'
+        }
+      });
+      if (!response.ok) {
+        throw new Error('Plant not found');
       }
-      return plant;
+      return response.json();
     },
     enabled: !!plantId,
   });
@@ -92,8 +94,12 @@ const EditPlant = () => {
       <div className="p-4">
         <PlantForm 
           onSuccess={handleSuccess} 
-          initialValues={plant}
-          plantId={plantId}
+          initialValues={{
+            ...plant,
+            latinName: plant.latinName || "",
+            notes: plant.notes || ""
+          }}
+          plantId={plant.id}
         />
       </div>
     </div>

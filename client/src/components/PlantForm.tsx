@@ -79,7 +79,7 @@ type FormValues = z.infer<typeof formSchema>;
 interface PlantFormProps {
   onSuccess: () => void;
   initialValues?: Partial<FormValues>;
-  plantId?: number;
+  plantId?: string;
 }
 
 const PlantForm = ({ onSuccess, initialValues, plantId }: PlantFormProps) => {
