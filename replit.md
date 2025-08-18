@@ -129,6 +129,7 @@ The app uses a robust local storage system that stores all data on each device:
 
 ```
 Changelog:
+- August 18, 2025. Implemented plant number reuse system with numerical sorting - deleted plant numbers are now reused for new plants, plant list displays in numerical order
 - August 18, 2025. Completely removed migration popups and fixed plant numbering - eliminated all migration modal code, plant numbering now sequential starting from highest existing number, Firebase-only operation with manual backup functionality in Settings
 - August 18, 2025. Fixed plant deletion JSON parsing error and implemented Firebase + JSON backup system - plant deletion now returns proper JSON response, automatic backups created on plant add/delete operations, manual backup endpoint available
 - August 18, 2025. Resolved migration popup persistence issue - modal now auto-closes after successful migration and clears localStorage to prevent repeated popup display

@@ -53,11 +53,13 @@ export async function registerFirebaseRoutes(app: Express): Promise<Server> {
     try {
       const userId = req.userId || 'dev-user';
       const plants = await mockFirebaseStorage.getPlants(userId);
-      // Ensure all plants have plant numbers for display
-      const plantsWithNumbers = plants.map((plant, index) => ({
-        ...plant,
-        plantNumber: plant.plantNumber || (index + 1)
-      }));
+      // Ensure all plants have plant numbers for display and sort by plant number
+      const plantsWithNumbers = plants
+        .map((plant, index) => ({
+          ...plant,
+          plantNumber: plant.plantNumber || (index + 1)
+        }))
+        .sort((a, b) => (a.plantNumber || 0) - (b.plantNumber || 0));
       res.json(plantsWithNumbers);
     } catch (error) {
       console.error("Error fetching plants:", error);
