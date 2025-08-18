@@ -49,7 +49,11 @@ const Settings = () => {
       }
       
       // Check if demo plant exists in Firebase
-      fetch('/api/demo-plant/status')
+      fetch('/api/demo-plant/status', {
+        headers: {
+          'X-User-ID': 'dev-user'
+        }
+      })
         .then(res => res.json())
         .then(data => setDemoPlantEnabled(data.enabled))
         .catch(err => {
@@ -210,6 +214,7 @@ const Settings = () => {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'X-User-ID': 'dev-user'
         },
         body: JSON.stringify({ enabled: !demoPlantEnabled }),
       });

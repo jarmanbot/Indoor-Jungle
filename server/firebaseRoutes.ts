@@ -27,11 +27,26 @@ export async function registerFirebaseRoutes(app: Express): Promise<Server> {
     try {
       const userId = req.userId || 'dev-user';
       const plants = await mockFirebaseStorage.getPlants(userId);
-      // Ensure all plants have plant numbers for display
-      const plantsWithNumbers = plants.map((plant, index) => ({
-        ...plant,
-        plantNumber: plant.plantNumber || (index + 1)
-      }));
+      // Assign proper plant numbers based on position
+      const plantsWithNumbers = plants.map((plant, index) => {
+        // Demo plant always gets plantNumber 1
+        const isDemo = plant.babyName === 'Demo Plant' && plant.notes?.includes('This is your demo plant to explore the app!');
+        if (isDemo) {
+          return { ...plant, plantNumber: 1 };
+        }
+        
+        // Other plants get numbers starting from 1 (if no demo) or 2 (if demo exists)
+        const hasDemoPlant = plants.some(p => 
+          p.babyName === 'Demo Plant' && p.notes?.includes('This is your demo plant to explore the app!')
+        );
+        const adjustedIndex = hasDemoPlant ? index : index + 1;
+        
+        return {
+          ...plant,
+          plantNumber: plant.plantNumber || adjustedIndex
+        };
+      });
+      
       res.json(plantsWithNumbers);
     } catch (error) {
       console.error("Error fetching plants:", error);
@@ -215,7 +230,7 @@ export async function registerFirebaseRoutes(app: Express): Promise<Server> {
           return;
         }
         
-        // Add demo plant
+        // Add demo plant with plantNumber 1
         const demoPlant = {
           id: 1,
           plantNumber: 1,
@@ -237,6 +252,16 @@ export async function registerFirebaseRoutes(app: Express): Promise<Server> {
           userId
         };
         
+        // When adding demo plant, adjust existing plant numbers
+        const existingPlants = await mockFirebaseStorage.getPlants(userId);
+        for (const existingPlant of existingPlants) {
+          if (existingPlant.plantNumber && existingPlant.plantNumber >= 1) {
+            await mockFirebaseStorage.updatePlant(userId, existingPlant.id, {
+              plantNumber: existingPlant.plantNumber + 1
+            });
+          }
+        }
+        
         await mockFirebaseStorage.createPlant(userId, demoPlant);
         res.json({ success: true, message: 'Demo plant added successfully' });
       } else {
@@ -249,6 +274,16 @@ export async function registerFirebaseRoutes(app: Express): Promise<Server> {
         
         if (demoPlant) {
           await mockFirebaseStorage.deletePlant(userId, demoPlant.id!);
+          
+          // When removing demo plant, shift other plant numbers down
+          const remainingPlants = await mockFirebaseStorage.getPlants(userId);
+          for (const plant of remainingPlants) {
+            if (plant.plantNumber && plant.plantNumber > 1) {
+              await mockFirebaseStorage.updatePlant(userId, plant.id, {
+                plantNumber: plant.plantNumber - 1
+              });
+            }
+          }
         }
         
         res.json({ success: true, message: 'Demo plant removed successfully' });

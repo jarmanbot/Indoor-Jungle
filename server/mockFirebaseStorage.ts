@@ -39,8 +39,22 @@ class MockFirebaseStorage {
   async getPlants(userId: string): Promise<MockPlant[]> {
     console.log(`Mock Firebase: Getting plants for user ${userId}`);
     const userPlants = this.plants.get(userId) || [];
-    console.log(`Mock Firebase: Found ${userPlants.length} plants`);
-    return userPlants;
+    
+    // Sort plants with demo plant first, then by plant number
+    const sortedPlants = userPlants.sort((a, b) => {
+      // Demo plant always comes first
+      const aIsDemo = a.babyName === 'Demo Plant' && a.notes?.includes('This is your demo plant to explore the app!');
+      const bIsDemo = b.babyName === 'Demo Plant' && b.notes?.includes('This is your demo plant to explore the app!');
+      
+      if (aIsDemo && !bIsDemo) return -1;
+      if (!aIsDemo && bIsDemo) return 1;
+      
+      // Otherwise sort by plant number
+      return (a.plantNumber || 0) - (b.plantNumber || 0);
+    });
+    
+    console.log(`Mock Firebase: Found ${sortedPlants.length} plants`);
+    return sortedPlants;
   }
 
   // Get specific plant
