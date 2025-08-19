@@ -79,7 +79,26 @@ export default function FeedingLogForm({ plantId, onSuccess, onCancel }: Feeding
         throw new Error('Failed to save feeding log');
       }
 
-      // Update the plant's lastFed date via Firebase API
+      // Get plant data to calculate next check date
+      const plantResponse = await fetch(`/api/plants/${plantId}`, {
+        headers: { 'X-User-ID': 'dev-user' }
+      });
+      const plant = await plantResponse.json();
+      
+      // Calculate next feeding date
+      const nextFeed = new Date(data.fedAt);
+      nextFeed.setDate(nextFeed.getDate() + (plant.feedingFrequencyDays || 14));
+      
+      // Calculate next watering date (if lastWatered exists)
+      let nextCheck = nextFeed;
+      if (plant.lastWatered && plant.wateringFrequencyDays) {
+        const nextWater = new Date(plant.lastWatered);
+        nextWater.setDate(nextWater.getDate() + plant.wateringFrequencyDays);
+        // Use the earlier of next water or next feed
+        nextCheck = nextFeed < nextWater ? nextFeed : nextWater;
+      }
+
+      // Update the plant's lastFed and nextCheck dates via Firebase API
       const updateResponse = await fetch(`/api/plants/${plantId}`, {
         method: 'PUT',
         headers: {
@@ -88,6 +107,7 @@ export default function FeedingLogForm({ plantId, onSuccess, onCancel }: Feeding
         },
         body: JSON.stringify({
           lastFed: data.fedAt.toISOString(),
+          nextCheck: nextCheck.toISOString(),
           updatedAt: new Date().toISOString()
         })
       });

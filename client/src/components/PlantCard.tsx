@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import { queryClient } from "@/lib/queryClient";
-import { localStorage as localData } from "@/lib/localDataStorage";
+
 
 interface PlantCardProps {
   plant: Plant;
@@ -37,31 +37,69 @@ const PlantCard = ({ plant, index = 0 }: PlantCardProps) => {
     e.preventDefault();
     
     try {
-      // Use local storage for watering logs
-      const wateringLog = {
-        id: Date.now(), // Simple ID generation
-        plantId: plant.id,
-        wateredAt: new Date().toISOString(),
-        amount: "normal",
-        notes: "Quick watering from home screen",
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString()
-      };
+      const currentTime = new Date().toISOString();
       
-      // Add to local storage
-      const existingLogs = localData.get('wateringLogs') || [];
-      localData.set('wateringLogs', [...existingLogs, wateringLog]);
+      // Save watering log to Firebase
+      const response = await fetch(`/api/plants/${plant.id}/watering-logs`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-User-ID': 'dev-user'
+        },
+        body: JSON.stringify({
+          wateredAt: currentTime,
+          amount: "moderate",
+          notes: "Quick watering from home screen"
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to save watering log');
+      }
+
+      // Calculate next watering date
+      const nextWater = new Date(currentTime);
+      nextWater.setDate(nextWater.getDate() + (plant.wateringFrequencyDays || 7));
       
-      // Update plant's lastWatered date
-      const plants = localData.get('plants') || [];
-      const updatedPlants = plants.map((p: any) => 
-        p.id === plant.id ? { ...p, lastWatered: new Date().toISOString() } : p
-      );
-      localData.set('plants', updatedPlants);
+      // Calculate next feeding date (if lastFed exists)
+      let nextCheck = nextWater;
+      if (plant.lastFed && plant.feedingFrequencyDays) {
+        const nextFeed = new Date(plant.lastFed);
+        nextFeed.setDate(nextFeed.getDate() + plant.feedingFrequencyDays);
+        // Use the earlier of next water or next feed
+        nextCheck = nextWater < nextFeed ? nextWater : nextFeed;
+      }
+
+      // Update the plant's lastWatered and nextCheck dates via Firebase API
+      const updateResponse = await fetch(`/api/plants/${plant.id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-User-ID': 'dev-user'
+        },
+        body: JSON.stringify({
+          lastWatered: currentTime,
+          nextCheck: nextCheck.toISOString(),
+          updatedAt: new Date().toISOString()
+        })
+      });
+
+      if (!updateResponse.ok) {
+        throw new Error('Failed to update plant');
+      }
       
+      // Enhanced cache invalidation with proper sequence for immediate UI updates
+      queryClient.removeQueries({ queryKey: ['/api/plants'] });
+      queryClient.removeQueries({ queryKey: [`/api/plants/${plant.id}`] });
       queryClient.invalidateQueries({ queryKey: ['/api/plants'] });
       queryClient.invalidateQueries({ queryKey: [`/api/plants/${plant.id}`] });
       queryClient.invalidateQueries({ queryKey: [`/api/plants/${plant.id}/watering-logs`] });
+      
+      // Force immediate refetch with proper timing
+      setTimeout(() => {
+        queryClient.refetchQueries({ queryKey: ['/api/plants'] });
+        queryClient.refetchQueries({ queryKey: [`/api/plants/${plant.id}`] });
+      }, 100);
       
       toast({
         title: "Plant watered",
@@ -83,32 +121,70 @@ const PlantCard = ({ plant, index = 0 }: PlantCardProps) => {
     e.preventDefault();
     
     try {
-      // Use local storage for feeding logs
-      const feedingLog = {
-        id: Date.now() + 1, // Simple ID generation with offset
-        plantId: plant.id,
-        fedAt: new Date().toISOString(),
-        fertilizerType: "general",
-        amount: "normal",
-        notes: "Quick feeding from home screen",
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString()
-      };
+      const currentTime = new Date().toISOString();
       
-      // Add to local storage
-      const existingLogs = localData.get('feedingLogs') || [];
-      localData.set('feedingLogs', [...existingLogs, feedingLog]);
+      // Save feeding log to Firebase
+      const response = await fetch(`/api/plants/${plant.id}/feeding-logs`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-User-ID': 'dev-user'
+        },
+        body: JSON.stringify({
+          fedAt: currentTime,
+          fertilizer: "general",
+          amount: "moderate",
+          notes: "Quick feeding from home screen"
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to save feeding log');
+      }
+
+      // Calculate next feeding date
+      const nextFeed = new Date(currentTime);
+      nextFeed.setDate(nextFeed.getDate() + (plant.feedingFrequencyDays || 14));
       
-      // Update plant's lastFed date
-      const plants = localData.get('plants') || [];
-      const updatedPlants = plants.map((p: any) => 
-        p.id === plant.id ? { ...p, lastFed: new Date().toISOString() } : p
-      );
-      localData.set('plants', updatedPlants);
+      // Calculate next watering date (if lastWatered exists)
+      let nextCheck = nextFeed;
+      if (plant.lastWatered && plant.wateringFrequencyDays) {
+        const nextWater = new Date(plant.lastWatered);
+        nextWater.setDate(nextWater.getDate() + plant.wateringFrequencyDays);
+        // Use the earlier of next water or next feed
+        nextCheck = nextFeed < nextWater ? nextFeed : nextWater;
+      }
+
+      // Update the plant's lastFed and nextCheck dates via Firebase API
+      const updateResponse = await fetch(`/api/plants/${plant.id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-User-ID': 'dev-user'
+        },
+        body: JSON.stringify({
+          lastFed: currentTime,
+          nextCheck: nextCheck.toISOString(),
+          updatedAt: new Date().toISOString()
+        })
+      });
+
+      if (!updateResponse.ok) {
+        throw new Error('Failed to update plant');
+      }
       
+      // Enhanced cache invalidation with proper sequence for immediate UI updates
+      queryClient.removeQueries({ queryKey: ['/api/plants'] });
+      queryClient.removeQueries({ queryKey: [`/api/plants/${plant.id}`] });
       queryClient.invalidateQueries({ queryKey: ['/api/plants'] });
       queryClient.invalidateQueries({ queryKey: [`/api/plants/${plant.id}`] });
       queryClient.invalidateQueries({ queryKey: [`/api/plants/${plant.id}/feeding-logs`] });
+      
+      // Force immediate refetch with proper timing
+      setTimeout(() => {
+        queryClient.refetchQueries({ queryKey: ['/api/plants'] });
+        queryClient.refetchQueries({ queryKey: [`/api/plants/${plant.id}`] });
+      }, 100);
       
       toast({
         title: "Plant fed",

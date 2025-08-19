@@ -436,32 +436,82 @@ const PlantDetails = () => {
 
   const handleWateringSuccess = () => {
     setShowWateringForm(false);
-    queryClient.invalidateQueries({ queryKey: ['/api/plants', plant.id] });
-    queryClient.invalidateQueries({ queryKey: ['/api/plants', plant.id, 'watering-logs'] });
+    // Enhanced cache invalidation with proper sequence for immediate UI updates
+    queryClient.removeQueries({ queryKey: ['/api/plants'] });
+    queryClient.removeQueries({ queryKey: [`/api/plants/${plant.id}`] });
+    queryClient.invalidateQueries({ queryKey: ['/api/plants'] });
+    queryClient.invalidateQueries({ queryKey: [`/api/plants/${plant.id}`] });
+    queryClient.invalidateQueries({ queryKey: [`/api/plants/${plant.id}/watering-logs`] });
+    
+    // Force immediate refetch with proper timing
+    setTimeout(() => {
+      queryClient.refetchQueries({ queryKey: ['/api/plants'] });
+      queryClient.refetchQueries({ queryKey: [`/api/plants/${plant.id}`] });
+    }, 100);
   };
 
   const handleFeedingSuccess = () => {
     setShowFeedingForm(false);
-    queryClient.invalidateQueries({ queryKey: ['/api/plants', plant.id] });
-    queryClient.invalidateQueries({ queryKey: ['/api/plants', plant.id, 'feeding-logs'] });
+    // Enhanced cache invalidation with proper sequence for immediate UI updates
+    queryClient.removeQueries({ queryKey: ['/api/plants'] });
+    queryClient.removeQueries({ queryKey: [`/api/plants/${plant.id}`] });
+    queryClient.invalidateQueries({ queryKey: ['/api/plants'] });
+    queryClient.invalidateQueries({ queryKey: [`/api/plants/${plant.id}`] });
+    queryClient.invalidateQueries({ queryKey: [`/api/plants/${plant.id}/feeding-logs`] });
+    
+    // Force immediate refetch with proper timing
+    setTimeout(() => {
+      queryClient.refetchQueries({ queryKey: ['/api/plants'] });
+      queryClient.refetchQueries({ queryKey: [`/api/plants/${plant.id}`] });
+    }, 100);
   };
 
   const handleRepottingSuccess = () => {
     setShowRepottingForm(false);
-    queryClient.invalidateQueries({ queryKey: ['/api/plants', plant.id] });
-    queryClient.invalidateQueries({ queryKey: ['/api/plants', plant.id, 'repotting-logs'] });
+    // Enhanced cache invalidation with proper sequence for immediate UI updates
+    queryClient.removeQueries({ queryKey: ['/api/plants'] });
+    queryClient.removeQueries({ queryKey: [`/api/plants/${plant.id}`] });
+    queryClient.invalidateQueries({ queryKey: ['/api/plants'] });
+    queryClient.invalidateQueries({ queryKey: [`/api/plants/${plant.id}`] });
+    queryClient.invalidateQueries({ queryKey: [`/api/plants/${plant.id}/repotting-logs`] });
+    
+    // Force immediate refetch with proper timing
+    setTimeout(() => {
+      queryClient.refetchQueries({ queryKey: ['/api/plants'] });
+      queryClient.refetchQueries({ queryKey: [`/api/plants/${plant.id}`] });
+    }, 100);
   };
 
   const handleSoilTopUpSuccess = () => {
     setShowSoilTopUpForm(false);
-    queryClient.invalidateQueries({ queryKey: ['/api/plants', plant.id] });
-    queryClient.invalidateQueries({ queryKey: ['/api/plants', plant.id, 'soil-top-up-logs'] });
+    // Enhanced cache invalidation with proper sequence for immediate UI updates
+    queryClient.removeQueries({ queryKey: ['/api/plants'] });
+    queryClient.removeQueries({ queryKey: [`/api/plants/${plant.id}`] });
+    queryClient.invalidateQueries({ queryKey: ['/api/plants'] });
+    queryClient.invalidateQueries({ queryKey: [`/api/plants/${plant.id}`] });
+    queryClient.invalidateQueries({ queryKey: [`/api/plants/${plant.id}/soil-top-up-logs`] });
+    
+    // Force immediate refetch with proper timing
+    setTimeout(() => {
+      queryClient.refetchQueries({ queryKey: ['/api/plants'] });
+      queryClient.refetchQueries({ queryKey: [`/api/plants/${plant.id}`] });
+    }, 100);
   };
 
   const handlePruningSuccess = () => {
     setShowPruningForm(false);
-    queryClient.invalidateQueries({ queryKey: ['/api/plants', plant.id] });
-    queryClient.invalidateQueries({ queryKey: ['/api/plants', plant.id, 'pruning-logs'] });
+    // Enhanced cache invalidation with proper sequence for immediate UI updates
+    queryClient.removeQueries({ queryKey: ['/api/plants'] });
+    queryClient.removeQueries({ queryKey: [`/api/plants/${plant.id}`] });
+    queryClient.invalidateQueries({ queryKey: ['/api/plants'] });
+    queryClient.invalidateQueries({ queryKey: [`/api/plants/${plant.id}`] });
+    queryClient.invalidateQueries({ queryKey: [`/api/plants/${plant.id}/pruning-logs`] });
+    
+    // Force immediate refetch with proper timing
+    setTimeout(() => {
+      queryClient.refetchQueries({ queryKey: ['/api/plants'] });
+      queryClient.refetchQueries({ queryKey: [`/api/plants/${plant.id}`] });
+    }, 100);
   };
 
   return (
@@ -592,28 +642,31 @@ const PlantDetails = () => {
                 variant="outline" 
                 size="sm" 
                 className="mt-2 w-full text-warning"
-                onClick={() => {
-                  // Set next check date based on plant's watering frequency
-                  const nextCheck = new Date();
-                  const frequency = plant.wateringFrequencyDays || 7;
-                  nextCheck.setDate(nextCheck.getDate() + frequency);
-
-                  // Update in local storage
-                  const plants = localData.get('plants') || [];
-                  const updatedPlants = plants.map((p: any) => 
-                    p.id === parseInt(id || '0') ? { ...p, nextCheck: nextCheck.toISOString() } : p
-                  );
-                  localData.set('plants', updatedPlants);
-
-                  // Invalidate cache and refresh
-                  queryClient.invalidateQueries({ queryKey: [`/api/plants/${plant.id}`] });
-                  queryClient.invalidateQueries({ queryKey: ['/api/plants'] });
-                  queryClient.refetchQueries({ queryKey: [`/api/plants/${plant.id}`] });
-                  queryClient.refetchQueries({ queryKey: ['/api/plants'] });
+                onClick={async () => {
+                  // Calculate next check based on both watering and feeding schedules
+                  const now = new Date();
+                  const wateringFreq = plant.wateringFrequencyDays || 7;
+                  const feedingFreq = plant.feedingFrequencyDays || 14;
+                  
+                  // Calculate next watering date
+                  const lastWatered = plant.lastWatered ? new Date(plant.lastWatered) : now;
+                  const nextWater = new Date(lastWatered);
+                  nextWater.setDate(nextWater.getDate() + wateringFreq);
+                  
+                  // Calculate next feeding date
+                  const lastFed = plant.lastFed ? new Date(plant.lastFed) : now;
+                  const nextFeed = new Date(lastFed);
+                  nextFeed.setDate(nextFeed.getDate() + feedingFreq);
+                  
+                  // Use the earlier of next water or next feed
+                  const nextCheck = nextWater < nextFeed ? nextWater : nextFeed;
+                  const isWatering = nextWater < nextFeed;
+                  
+                  updateNextCheckMutation.mutate(nextCheck.toISOString());
                   
                   toast({
                     title: "Reminder set",
-                    description: `Your plant's next check has been scheduled for ${frequency} days from now`,
+                    description: `Next check scheduled for ${format(nextCheck, "MMM d, yyyy")} (${isWatering ? 'watering' : 'feeding'})`,
                   });
                 }}
               >

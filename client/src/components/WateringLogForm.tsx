@@ -89,7 +89,26 @@ export default function WateringLogForm({ plantId, onSuccess, onCancel }: Wateri
         throw new Error('Failed to save watering log');
       }
 
-      // Update the plant's lastWatered date via Firebase API
+      // Get plant data to calculate next check date
+      const plantResponse = await fetch(`/api/plants/${plantId}`, {
+        headers: { 'X-User-ID': 'dev-user' }
+      });
+      const plant = await plantResponse.json();
+      
+      // Calculate next watering date
+      const nextWater = new Date(data.wateredAt);
+      nextWater.setDate(nextWater.getDate() + (plant.wateringFrequencyDays || 7));
+      
+      // Calculate next feeding date (if lastFed exists)
+      let nextCheck = nextWater;
+      if (plant.lastFed && plant.feedingFrequencyDays) {
+        const nextFeed = new Date(plant.lastFed);
+        nextFeed.setDate(nextFeed.getDate() + plant.feedingFrequencyDays);
+        // Use the earlier of next water or next feed
+        nextCheck = nextWater < nextFeed ? nextWater : nextFeed;
+      }
+
+      // Update the plant's lastWatered and nextCheck dates via Firebase API
       const updateResponse = await fetch(`/api/plants/${plantId}`, {
         method: 'PUT',
         headers: {
@@ -98,6 +117,7 @@ export default function WateringLogForm({ plantId, onSuccess, onCancel }: Wateri
         },
         body: JSON.stringify({
           lastWatered: data.wateredAt.toISOString(),
+          nextCheck: nextCheck.toISOString(),
           updatedAt: new Date().toISOString()
         })
       });
