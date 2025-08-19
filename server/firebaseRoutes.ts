@@ -324,35 +324,29 @@ export async function registerFirebaseRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Manual backup endpoint
-  app.post('/api/backup/create', requireAuth, async (req: any, res) => {
+  // Manual backup endpoint - direct download
+  app.get('/api/backup/create', requireAuth, async (req: any, res) => {
     try {
       const userId = req.userId || 'dev-user';
       const plants = await mockFirebaseStorage.getPlants(userId);
       
       const backup = {
-        plants,
-        metadata: {
-          exportDate: new Date().toISOString(),
-          userId,
-          trigger: 'manual_backup',
-          totalPlants: plants.length
-        }
+        userId: userId,
+        plants: plants,
+        exportDate: new Date().toISOString(),
+        version: "2.0",
+        trigger: 'manual_backup',
+        totalPlants: plants.length
       };
 
-      const filename = `manual_backup_${userId}_${Date.now()}.json`;
-      const backupPath = join(process.cwd(), 'public', filename);
-      writeFileSync(backupPath, JSON.stringify(backup, null, 2));
+      const filename = `plant-data-backup-${new Date().toISOString().split('T')[0]}-${Date.now()}.json`;
       
-      console.log(`Manual backup created: ${backupPath}`);
+      // Send the backup data directly as a downloadable file
+      res.setHeader('Content-Type', 'application/json');
+      res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+      res.send(JSON.stringify(backup, null, 2));
       
-      res.json({ 
-        success: true, 
-        message: 'Backup created successfully',
-        filename,
-        downloadUrl: `/public/${filename}`,
-        totalPlants: plants.length
-      });
+      console.log(`Manual backup downloaded: ${filename} (${plants.length} plants)`);
     } catch (error) {
       console.error('Failed to create manual backup:', error);
       res.status(500).json({ error: 'Failed to create backup' });
@@ -365,26 +359,33 @@ export async function registerFirebaseRoutes(app: Express): Promise<Server> {
       const userId = req.userId || 'dev-user';
       const importData = req.body;
       
-      if (!importData || !importData.plants || !Array.isArray(importData.plants)) {
-        return res.status(400).json({ message: 'Invalid backup data format' });
+      // Handle both old and new backup formats
+      let plantsToImport = [];
+      if (importData.plants && Array.isArray(importData.plants)) {
+        plantsToImport = importData.plants;
+      } else if (Array.isArray(importData)) {
+        // Old format where plants were directly in an array
+        plantsToImport = importData;
+      } else {
+        return res.status(400).json({ message: 'Invalid backup data format - no plants array found' });
       }
       
-      console.log(`Importing ${importData.plants.length} plants for user ${userId}`);
+      console.log(`Importing ${plantsToImport.length} plants for user ${userId}`);
       
       // Clear existing plants first
       await mockFirebaseStorage.clearUserData(userId);
       
       // Import each plant
       let importedCount = 0;
-      for (const plantData of importData.plants) {
+      for (const plantData of plantsToImport) {
         try {
           // Generate new Firebase-compatible ID and plant number
           const newPlant = {
             ...plantData,
             userId,
             plantNumber: importedCount + 1,
-            createdAt: new Date().toISOString(),
-            updatedAt: new Date().toISOString()
+            createdAt: plantData.createdAt ? new Date(plantData.createdAt) : new Date(),
+            updatedAt: new Date()
           };
           
           // Remove old ID if present, let Firebase create new one

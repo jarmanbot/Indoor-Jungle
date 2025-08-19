@@ -103,32 +103,17 @@ const Settings = () => {
 
   const handleExport = async () => {
     try {
-      // Export Firebase data instead of localStorage
-      const response = await fetch('/api/backup/create', {
-        method: 'POST',
-        headers: {
-          'X-User-ID': 'dev-user'
-        }
-      });
-      
-      if (!response.ok) {
-        throw new Error('Failed to create backup');
-      }
-      
-      const result = await response.json();
-      
-      // Download the backup file
-      const downloadUrl = result.downloadUrl;
+      // Create a direct download link to the backup endpoint
       const link = document.createElement('a');
-      link.href = downloadUrl;
-      link.download = result.filename;
+      link.href = '/api/backup/create';
+      link.style.display = 'none';
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
       
       toast({
-        title: "Firebase Export Successful",
-        description: `Data exported successfully (${result.totalPlants} plants)`,
+        title: "Export Started",
+        description: "Your plant data backup is downloading...",
       });
     } catch (error: any) {
       console.error("Failed to export Firebase data:", error);
