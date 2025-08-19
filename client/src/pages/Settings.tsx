@@ -266,6 +266,30 @@ const Settings = () => {
   };
 
   const handleDemoPlantToggle = async () => {
+    // If enabling demo plant and there are existing plants, check for plant #1
+    if (!demoPlantEnabled) {
+      try {
+        const plants = await queryClient.fetchQuery({ queryKey: ['/api/plants'] });
+        const hasPlant1 = plants?.some((p: any) => 
+          p.plantNumber === 1 && 
+          !p.notes?.includes('This is your demo plant to explore the app!')
+        );
+      
+        if (hasPlant1) {
+          // Show warning dialog before proceeding
+          setShowDemoPlantDialog(true);
+          return;
+        }
+      } catch (error) {
+        console.error("Failed to check plants:", error);
+      }
+    }
+    
+    // Proceed with toggle
+    await performDemoPlantToggle();
+  };
+
+  const performDemoPlantToggle = async () => {
     try {
       const response = await fetch('/api/demo-plant/toggle', {
         method: 'POST',
@@ -302,7 +326,7 @@ const Settings = () => {
 
   const addDemoPlant = async () => {
     setShowDemoPlantDialog(false);
-    await handleDemoPlantToggle();
+    await performDemoPlantToggle();
   };
 
   return (

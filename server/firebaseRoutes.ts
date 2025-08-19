@@ -251,7 +251,14 @@ export async function registerFirebaseRoutes(app: Express): Promise<Server> {
           return;
         }
         
-        // Add demo plant
+        // Check if there's already a plant with number 1
+        const existingPlant1 = plants.find(p => p.plantNumber === 1);
+        if (existingPlant1 && !existingPlant1.notes?.includes('This is your demo plant to explore the app!')) {
+          // Remove the existing plant #1 (will be overwritten)
+          await mockFirebaseStorage.deletePlant(userId, existingPlant1.id!);
+        }
+        
+        // Add demo plant with forced plant number 1
         const demoPlant = {
           id: 1,
           plantNumber: 1,
@@ -274,7 +281,7 @@ export async function registerFirebaseRoutes(app: Express): Promise<Server> {
         };
         
         await mockFirebaseStorage.createPlant(userId, demoPlant);
-        res.json({ success: true, message: 'Demo plant added successfully' });
+        res.json({ success: true, message: 'Demo plant added as plant #1' });
       } else {
         // Remove demo plant
         const plants = await mockFirebaseStorage.getPlants(userId);
@@ -287,7 +294,7 @@ export async function registerFirebaseRoutes(app: Express): Promise<Server> {
           await mockFirebaseStorage.deletePlant(userId, demoPlant.id!);
         }
         
-        res.json({ success: true, message: 'Demo plant removed successfully' });
+        res.json({ success: true, message: 'Demo plant removed - position #1 now available' });
       }
     } catch (error) {
       console.error('Error toggling demo plant:', error);
