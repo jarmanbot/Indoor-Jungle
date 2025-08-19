@@ -52,28 +52,37 @@ export default function SoilTopUpLogForm({ plantId, onSuccess, onCancel }: SoilT
   const handleFormSubmit = async (data: FormValues) => {
     setIsSubmitting(true);
     try {
-      // Always use local storage - save soil top up log
-      const soilTopUpLogs = localData.get('soilTopUpLogs') || [];
-      const newId = soilTopUpLogs.length > 0 ? Math.max(...soilTopUpLogs.map((log: any) => log.id)) + 1 : 1;
+      // Save soil top-up log to Firebase
+      const response = await fetch(`/api/plants/${plantId}/soil-top-up-logs`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-User-ID': 'dev-user'
+        },
+        body: JSON.stringify({
+          toppedUpAt: date?.toISOString() || new Date().toISOString(),
+          soilType: data.soilType || "",
+          amount: data.amount || "",
+          notes: data.notes || ""
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to save soil top-up log');
+      }
       
-      const newLog = {
-        id: newId,
-        plantId: plantId,
-        toppedUpAt: date?.toISOString() || new Date().toISOString(),
-        soilType: data.soilType || "",
-        amount: data.amount || "",
-        notes: data.notes || "",
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString()
-      };
-      
-      soilTopUpLogs.push(newLog);
-      localData.set('soilTopUpLogs', soilTopUpLogs);
-      
-      // Invalidate queries to refresh UI
+      // Enhanced cache invalidation for immediate UI updates
       queryClient.invalidateQueries({ queryKey: ['/api/plants'] });
       queryClient.invalidateQueries({ queryKey: [`/api/plants/${plantId}`] });
       queryClient.invalidateQueries({ queryKey: [`/api/plants/${plantId}/soil-top-up-logs`] });
+      queryClient.removeQueries({ queryKey: ['/api/plants'] });
+      queryClient.removeQueries({ queryKey: [`/api/plants/${plantId}`] });
+      
+      // Force immediate refetch
+      setTimeout(() => {
+        queryClient.refetchQueries({ queryKey: ['/api/plants'] });
+        queryClient.refetchQueries({ queryKey: [`/api/plants/${plantId}`] });
+      }, 50);
       
       toast({
         title: "Success",

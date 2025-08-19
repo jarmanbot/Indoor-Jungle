@@ -52,28 +52,37 @@ export default function RepottingLogForm({ plantId, onSuccess, onCancel }: Repot
   const handleFormSubmit = async (data: FormValues) => {
     setIsSubmitting(true);
     try {
-      // Always use local storage - save repotting log
-      const repottingLogs = localData.get('repottingLogs') || [];
-      const newId = repottingLogs.length > 0 ? Math.max(...repottingLogs.map((log: any) => log.id)) + 1 : 1;
+      // Save repotting log to Firebase
+      const response = await fetch(`/api/plants/${plantId}/repotting-logs`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-User-ID': 'dev-user'
+        },
+        body: JSON.stringify({
+          repottedAt: date?.toISOString() || new Date().toISOString(),
+          potSize: data.potSize || "",
+          soilType: data.soilType || "",
+          notes: data.notes || ""
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to save repotting log');
+      }
       
-      const newLog = {
-        id: newId,
-        plantId: plantId,
-        repottedAt: date?.toISOString() || new Date().toISOString(),
-        potSize: data.potSize || "",
-        soilType: data.soilType || "",
-        notes: data.notes || "",
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString()
-      };
-      
-      repottingLogs.push(newLog);
-      localData.set('repottingLogs', repottingLogs);
-      
-      // Invalidate queries to refresh UI
+      // Enhanced cache invalidation for immediate UI updates
       queryClient.invalidateQueries({ queryKey: ['/api/plants'] });
       queryClient.invalidateQueries({ queryKey: [`/api/plants/${plantId}`] });
       queryClient.invalidateQueries({ queryKey: [`/api/plants/${plantId}/repotting-logs`] });
+      queryClient.removeQueries({ queryKey: ['/api/plants'] });
+      queryClient.removeQueries({ queryKey: [`/api/plants/${plantId}`] });
+      
+      // Force immediate refetch
+      setTimeout(() => {
+        queryClient.refetchQueries({ queryKey: ['/api/plants'] });
+        queryClient.refetchQueries({ queryKey: [`/api/plants/${plantId}`] });
+      }, 50);
       
       toast({
         title: "Success",

@@ -102,15 +102,31 @@ const PlantDetails = () => {
 
   const updateWateringFrequencyMutation = useMutation({
     mutationFn: async (newFrequency: number) => {
-      // Update in local storage
-      const plants = localData.get('plants') || [];
-      const updatedPlants = plants.map((p: any) => 
-        p.id === parseInt(id || '0') ? { ...p, wateringFrequencyDays: newFrequency } : p
-      );
-      localData.set('plants', updatedPlants);
+      // Update via Firebase API
+      const response = await fetch(`/api/plants/${id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-User-ID': 'dev-user'
+        },
+        body: JSON.stringify({
+          wateringFrequencyDays: newFrequency,
+          updatedAt: new Date().toISOString()
+        })
+      });
+      
+      if (!response.ok) {
+        throw new Error('Failed to update watering frequency');
+      }
     },
     onSuccess: () => {
+      // Enhanced cache invalidation for immediate UI updates
+      queryClient.invalidateQueries({ queryKey: ['/api/plants'] });
       queryClient.invalidateQueries({ queryKey: [`/api/plants/${id}`] });
+      queryClient.removeQueries({ queryKey: [`/api/plants/${id}`] });
+      queryClient.refetchQueries({ queryKey: [`/api/plants/${id}`] });
+      queryClient.refetchQueries({ queryKey: ['/api/plants'] });
+      
       setEditingWateringFrequency(false);
       toast({
         title: "Watering frequency updated",
@@ -128,15 +144,31 @@ const PlantDetails = () => {
 
   const updateFeedingFrequencyMutation = useMutation({
     mutationFn: async (newFrequency: number) => {
-      // Update in local storage
-      const plants = localData.get('plants') || [];
-      const updatedPlants = plants.map((p: any) => 
-        p.id === parseInt(id || '0') ? { ...p, feedingFrequencyDays: newFrequency } : p
-      );
-      localData.set('plants', updatedPlants);
+      // Update via Firebase API
+      const response = await fetch(`/api/plants/${id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-User-ID': 'dev-user'
+        },
+        body: JSON.stringify({
+          feedingFrequencyDays: newFrequency,
+          updatedAt: new Date().toISOString()
+        })
+      });
+      
+      if (!response.ok) {
+        throw new Error('Failed to update feeding frequency');
+      }
     },
     onSuccess: () => {
+      // Enhanced cache invalidation for immediate UI updates
+      queryClient.invalidateQueries({ queryKey: ['/api/plants'] });
       queryClient.invalidateQueries({ queryKey: [`/api/plants/${id}`] });
+      queryClient.removeQueries({ queryKey: [`/api/plants/${id}`] });
+      queryClient.refetchQueries({ queryKey: [`/api/plants/${id}`] });
+      queryClient.refetchQueries({ queryKey: ['/api/plants'] });
+      
       setEditingFeedingFrequency(false);
       toast({
         title: "Feeding frequency updated",
@@ -201,20 +233,34 @@ const PlantDetails = () => {
   // Next Check Date editing handlers
   const updateNextCheckMutation = useMutation({
     mutationFn: async (newDate: string) => {
-      // Update in local storage
-      const plants = localData.get('plants') || [];
-      const updatedPlants = plants.map((p: any) => 
-        p.id === parseInt(id || '0') ? { ...p, nextCheck: newDate } : p
-      );
-      localData.set('plants', updatedPlants);
+      // Update via Firebase API
+      const response = await fetch(`/api/plants/${id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-User-ID': 'dev-user'
+        },
+        body: JSON.stringify({
+          nextCheck: newDate,
+          updatedAt: new Date().toISOString()
+        })
+      });
+      
+      if (!response.ok) {
+        throw new Error('Failed to update next check date');
+      }
     },
     onSuccess: () => {
       setEditingNextCheck(false);
       setNextCheckValue("");
-      queryClient.invalidateQueries({ queryKey: [`/api/plants/${id}`] });
+      
+      // Enhanced cache invalidation for immediate UI updates
       queryClient.invalidateQueries({ queryKey: ['/api/plants'] });
+      queryClient.invalidateQueries({ queryKey: [`/api/plants/${id}`] });
+      queryClient.removeQueries({ queryKey: [`/api/plants/${id}`] });
       queryClient.refetchQueries({ queryKey: [`/api/plants/${id}`] });
       queryClient.refetchQueries({ queryKey: ['/api/plants'] });
+      
       toast({
         title: "Next check updated",
         description: "Plant check date has been updated successfully",
@@ -257,18 +303,34 @@ const PlantDetails = () => {
   // Location editing handlers
   const updateLocationMutation = useMutation({
     mutationFn: async (newLocation: string) => {
-      // Update in local storage
-      const plants = localData.get('plants') || [];
-      const updatedPlants = plants.map((p: any) => 
-        p.id === parseInt(id || '0') ? { ...p, location: newLocation } : p
-      );
-      localData.set('plants', updatedPlants);
+      // Update via Firebase API
+      const response = await fetch(`/api/plants/${id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-User-ID': 'dev-user'
+        },
+        body: JSON.stringify({
+          location: newLocation,
+          updatedAt: new Date().toISOString()
+        })
+      });
+      
+      if (!response.ok) {
+        throw new Error('Failed to update location');
+      }
     },
     onSuccess: () => {
       setEditingLocation(false);
       setLocationValue("");
+      
+      // Enhanced cache invalidation for immediate UI updates
+      queryClient.invalidateQueries({ queryKey: ['/api/plants'] });
       queryClient.invalidateQueries({ queryKey: [`/api/plants/${id}`] });
+      queryClient.removeQueries({ queryKey: [`/api/plants/${id}`] });
       queryClient.refetchQueries({ queryKey: [`/api/plants/${id}`] });
+      queryClient.refetchQueries({ queryKey: ['/api/plants'] });
+      
       toast({
         title: "Location updated",
         description: "Plant location has been updated successfully",

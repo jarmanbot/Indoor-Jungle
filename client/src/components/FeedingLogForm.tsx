@@ -60,40 +60,54 @@ export default function FeedingLogForm({ plantId, onSuccess, onCancel }: Feeding
   const onSubmit = async (data: FormValues) => {
     setIsSubmitting(true);
     try {
-      // Always use local storage - save feeding log
-      const feedingLogs = localData.get('feedingLogs') || [];
-      const newId = feedingLogs.length > 0 ? Math.max(...feedingLogs.map((log: any) => log.id)) + 1 : 1;
-      
-      const newLog = {
-        id: newId,
-        plantId: plantId,
-        fedAt: data.fedAt.toISOString(),
-        fertilizer: data.fertilizer || "",
-        amount: data.amount || "",
-        notes: data.notes || "",
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString()
-      };
-      
-      feedingLogs.push(newLog);
-      localData.set('feedingLogs', feedingLogs);
-      
-      // Update plant's lastFed timestamp and calculate new nextCheck date
-      const plants = localData.get('plants') || [];
-      const plantIndex = plants.findIndex((p: any) => p.id === plantId);
-      if (plantIndex !== -1) {
-        // Calculate the new next check date based on watering and feeding frequencies
-        const nextCheck = calculateNextCheckDate(plants[plantIndex], undefined, data.fedAt);
-        plants[plantIndex].lastFed = data.fedAt.toISOString();
-        plants[plantIndex].nextCheck = nextCheck;
-        plants[plantIndex].updatedAt = new Date().toISOString();
-        localData.set('plants', plants);
+      // Save feeding log to Firebase
+      const response = await fetch(`/api/plants/${plantId}/feeding-logs`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-User-ID': 'dev-user'
+        },
+        body: JSON.stringify({
+          fedAt: data.fedAt.toISOString(),
+          fertilizer: data.fertilizer || "",
+          amount: data.amount || "",
+          notes: data.notes || ""
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to save feeding log');
+      }
+
+      // Update the plant's lastFed date via Firebase API
+      const updateResponse = await fetch(`/api/plants/${plantId}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-User-ID': 'dev-user'
+        },
+        body: JSON.stringify({
+          lastFed: data.fedAt.toISOString(),
+          updatedAt: new Date().toISOString()
+        })
+      });
+
+      if (!updateResponse.ok) {
+        throw new Error('Failed to update plant');
       }
       
-      // Invalidate queries to refresh UI
+      // Enhanced cache invalidation for immediate UI updates
       queryClient.invalidateQueries({ queryKey: ['/api/plants'] });
       queryClient.invalidateQueries({ queryKey: [`/api/plants/${plantId}`] });
       queryClient.invalidateQueries({ queryKey: [`/api/plants/${plantId}/feeding-logs`] });
+      queryClient.removeQueries({ queryKey: ['/api/plants'] });
+      queryClient.removeQueries({ queryKey: [`/api/plants/${plantId}`] });
+      
+      // Force immediate refetch
+      setTimeout(() => {
+        queryClient.refetchQueries({ queryKey: ['/api/plants'] });
+        queryClient.refetchQueries({ queryKey: [`/api/plants/${plantId}`] });
+      }, 50);
       
       toast({
         title: "Feeding logged",

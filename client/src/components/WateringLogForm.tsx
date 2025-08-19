@@ -71,42 +71,53 @@ export default function WateringLogForm({ plantId, onSuccess, onCancel }: Wateri
   const onSubmit = async (data: FormValues) => {
     setIsSubmitting(true);
     try {
-      // Use local storage for watering logs
-      const wateringLog = {
-        id: getNextId(),
-        plantId: plantId,
-        wateredAt: data.wateredAt.toISOString(),
-        amount: data.amount || "moderate",
-        notes: data.notes || "",
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString()
-      };
-      
-      // Add to local storage
-      const existingLogs = localData.get('wateringLogs') || [];
-      localData.set('wateringLogs', [...existingLogs, wateringLog]);
-      
-      // Update plant's lastWatered date and calculate new nextCheck date
-      const plants = localData.get('plants') || [];
-      const updatedPlants = plants.map((p: any) => {
-        if (p.id === plantId) {
-          // Calculate the new next check date based on watering and feeding frequencies
-          const nextCheck = calculateNextCheckDate(p, data.wateredAt);
-          return { 
-            ...p, 
-            lastWatered: data.wateredAt.toISOString(),
-            nextCheck: nextCheck,
-            updatedAt: new Date().toISOString()
-          };
-        }
-        return p;
+      // Save watering log to Firebase
+      const response = await fetch(`/api/plants/${plantId}/watering-logs`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-User-ID': 'dev-user'
+        },
+        body: JSON.stringify({
+          wateredAt: data.wateredAt.toISOString(),
+          amount: data.amount || "moderate",
+          notes: data.notes || ""
+        })
       });
-      localData.set('plants', updatedPlants);
+
+      if (!response.ok) {
+        throw new Error('Failed to save watering log');
+      }
+
+      // Update the plant's lastWatered date via Firebase API
+      const updateResponse = await fetch(`/api/plants/${plantId}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-User-ID': 'dev-user'
+        },
+        body: JSON.stringify({
+          lastWatered: data.wateredAt.toISOString(),
+          updatedAt: new Date().toISOString()
+        })
+      });
+
+      if (!updateResponse.ok) {
+        throw new Error('Failed to update plant');
+      }
       
-      // Invalidate queries to refresh UI
+      // Enhanced cache invalidation for immediate UI updates
       queryClient.invalidateQueries({ queryKey: ['/api/plants'] });
       queryClient.invalidateQueries({ queryKey: [`/api/plants/${plantId}`] });
       queryClient.invalidateQueries({ queryKey: [`/api/plants/${plantId}/watering-logs`] });
+      queryClient.removeQueries({ queryKey: ['/api/plants'] });
+      queryClient.removeQueries({ queryKey: [`/api/plants/${plantId}`] });
+      
+      // Force immediate refetch
+      setTimeout(() => {
+        queryClient.refetchQueries({ queryKey: ['/api/plants'] });
+        queryClient.refetchQueries({ queryKey: [`/api/plants/${plantId}`] });
+      }, 50);
       toast({
         title: "Watering logged",
         description: "The watering has been successfully recorded",
