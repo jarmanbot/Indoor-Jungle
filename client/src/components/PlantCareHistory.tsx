@@ -39,7 +39,7 @@ import RepottingLogForm from "./RepottingLogForm";
 import SoilTopUpLogForm from "./SoilTopUpLogForm";
 import PruningLogForm from "./PruningLogForm";
 import type { Plant, WateringLog, FeedingLog, RepottingLog, SoilTopUpLog, PruningLog } from "@shared/schema";
-import { localStorage as localData } from "@/lib/localDataStorage";
+
 
 interface PlantCareHistoryProps {
   plant: Plant;
@@ -73,63 +73,73 @@ export default function PlantCareHistory({
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
-  // Fetch watering logs
+  // Fetch watering logs from Firebase
   const { data: wateringLogs, isLoading: wateringLogsLoading, error: wateringLogsError } = useQuery({
-    queryKey: ['/api/plants', plant.id, 'watering-logs'],
+    queryKey: [`/api/plants/${plant.id}/watering-logs`],
     queryFn: async () => {
-      // Always use local storage mode now
-      const allLogs = localData.get('wateringLogs') || [];
-      return allLogs
-        .filter((log: any) => log.plantId === plant.id)
-        .sort((a: any, b: any) => new Date(b.wateredAt).getTime() - new Date(a.wateredAt).getTime());
+      const response = await fetch(`/api/plants/${plant.id}/watering-logs`, {
+        headers: { 'X-User-ID': 'dev-user' }
+      });
+      if (!response.ok) {
+        throw new Error('Failed to fetch watering logs');
+      }
+      return response.json();
     }
   });
 
-  // Fetch feeding logs
+  // Fetch feeding logs from Firebase
   const { data: feedingLogs, isLoading: feedingLogsLoading, error: feedingLogsError } = useQuery({
-    queryKey: ['/api/plants', plant.id, 'feeding-logs'],
+    queryKey: [`/api/plants/${plant.id}/feeding-logs`],
     queryFn: async () => {
-      // Always use local storage mode now
-      const allLogs = localData.get('feedingLogs') || [];
-      return allLogs
-        .filter((log: any) => log.plantId === plant.id)
-        .sort((a: any, b: any) => new Date(b.fedAt).getTime() - new Date(a.fedAt).getTime());
+      const response = await fetch(`/api/plants/${plant.id}/feeding-logs`, {
+        headers: { 'X-User-ID': 'dev-user' }
+      });
+      if (!response.ok) {
+        throw new Error('Failed to fetch feeding logs');
+      }
+      return response.json();
     }
   });
 
-  // Fetch repotting logs
+  // Fetch repotting logs from Firebase
   const { data: repottingLogs, isLoading: repottingLogsLoading, error: repottingLogsError } = useQuery({
-    queryKey: ['/api/plants', plant.id, 'repotting-logs'],
+    queryKey: [`/api/plants/${plant.id}/repotting-logs`],
     queryFn: async () => {
-      // Always use local storage mode now
-      const allLogs = localData.get('repottingLogs') || [];
-      return allLogs
-        .filter((log: any) => log.plantId === plant.id)
-        .sort((a: any, b: any) => new Date(b.repottedAt).getTime() - new Date(a.repottedAt).getTime());
+      const response = await fetch(`/api/plants/${plant.id}/repotting-logs`, {
+        headers: { 'X-User-ID': 'dev-user' }
+      });
+      if (!response.ok) {
+        throw new Error('Failed to fetch repotting logs');
+      }
+      return response.json();
     }
   });
 
-  // Fetch soil top up logs
+  // Fetch soil top up logs from Firebase
   const { data: soilTopUpLogs, isLoading: soilTopUpLogsLoading, error: soilTopUpLogsError } = useQuery({
-    queryKey: ['/api/plants', plant.id, 'soil-top-up-logs'],
+    queryKey: [`/api/plants/${plant.id}/soil-top-up-logs`],
     queryFn: async () => {
-      // Always use local storage mode now
-      const allLogs = localData.get('soilTopUpLogs') || [];
-      return allLogs
-        .filter((log: any) => log.plantId === plant.id)
-        .sort((a: any, b: any) => new Date(b.toppedUpAt).getTime() - new Date(a.toppedUpAt).getTime());
+      const response = await fetch(`/api/plants/${plant.id}/soil-top-up-logs`, {
+        headers: { 'X-User-ID': 'dev-user' }
+      });
+      if (!response.ok) {
+        throw new Error('Failed to fetch soil top up logs');
+      }
+      return response.json();
     }
   });
 
-  // Fetch pruning logs
+  // Fetch pruning logs from Firebase
   const { data: pruningLogs, isLoading: pruningLogsLoading, error: pruningLogsError } = useQuery({
-    queryKey: ['/api/plants', plant.id, 'pruning-logs'],
+    queryKey: [`/api/plants/${plant.id}/pruning-logs`],
     queryFn: async () => {
-      // Always use local storage mode now
-      const allLogs = localData.get('pruningLogs') || [];
-      return allLogs
-        .filter((log: any) => log.plantId === plant.id)
-        .sort((a: any, b: any) => new Date(b.prunedAt).getTime() - new Date(a.prunedAt).getTime());
+      const response = await fetch(`/api/plants/${plant.id}/pruning-logs`, {
+        headers: { 'X-User-ID': 'dev-user' }
+      });
+      if (!response.ok) {
+        throw new Error('Failed to fetch pruning logs');
+      }
+      return response.json();
     }
   });
 
@@ -308,7 +318,7 @@ export default function PlantCareHistory({
             <div>
               <CardTitle className="text-md flex items-center">
                 <Droplets className="h-4 w-4 mr-2 text-blue-500" />
-                {format(new Date(log.wateredAt), "PPP")}
+                {log.wateredAt ? format(new Date(log.wateredAt), "PPP") : "Unknown date"}
               </CardTitle>
               {log.amount && (
                 <CardDescription>
@@ -328,7 +338,7 @@ export default function PlantCareHistory({
                 {deleteWateringLogMutation.isPending ? "..." : "Undo"}
               </Button>
               <Badge variant="outline" className="text-xs">
-                {format(new Date(log.wateredAt), "p")}
+                {log.wateredAt ? format(new Date(log.wateredAt), "p") : "?"}
               </Badge>
             </div>
           </div>
@@ -376,7 +386,7 @@ export default function PlantCareHistory({
             <div>
               <CardTitle className="text-md flex items-center">
                 <Flower className="h-4 w-4 mr-2 text-green-500" />
-                {format(new Date(log.fedAt), "PPP")}
+                {log.fedAt ? format(new Date(log.fedAt), "PPP") : "Unknown date"}
               </CardTitle>
               {(log.fertilizer || log.amount) && (
                 <CardDescription>
@@ -398,7 +408,7 @@ export default function PlantCareHistory({
                 {deleteFeedingLogMutation.isPending ? "..." : "Undo"}
               </Button>
               <Badge variant="outline" className="text-xs">
-                {format(new Date(log.fedAt), "p")}
+                {log.fedAt ? format(new Date(log.fedAt), "p") : "?"}
               </Badge>
             </div>
           </div>
@@ -446,7 +456,7 @@ export default function PlantCareHistory({
             <div>
               <CardTitle className="text-md flex items-center">
                 <Shovel className="h-4 w-4 mr-2 text-orange-500" />
-                {format(new Date(log.repottedAt), "PPP")}
+                {log.repottedAt ? format(new Date(log.repottedAt), "PPP") : "Unknown date"}
               </CardTitle>
               {(log.potSize || log.soilType) && (
                 <CardDescription>
@@ -468,7 +478,7 @@ export default function PlantCareHistory({
                 {deleteRepottingLogMutation.isPending ? "..." : "Undo"}
               </Button>
               <Badge variant="outline" className="text-xs">
-                {format(new Date(log.repottedAt), "p")}
+                {log.repottedAt ? format(new Date(log.repottedAt), "p") : "?"}
               </Badge>
             </div>
           </div>
@@ -516,7 +526,7 @@ export default function PlantCareHistory({
             <div>
               <CardTitle className="text-md flex items-center">
                 <Mountain className="h-4 w-4 mr-2 text-brown-500" />
-                {format(new Date(log.toppedUpAt), "PPP")}
+                {log.toppedUpAt ? format(new Date(log.toppedUpAt), "PPP") : "Unknown date"}
               </CardTitle>
               {(log.soilType || log.amount) && (
                 <CardDescription>
@@ -538,7 +548,7 @@ export default function PlantCareHistory({
                 {deleteSoilTopUpLogMutation.isPending ? "..." : "Undo"}
               </Button>
               <Badge variant="outline" className="text-xs">
-                {format(new Date(log.toppedUpAt), "p")}
+                {log.toppedUpAt ? format(new Date(log.toppedUpAt), "p") : "?"}
               </Badge>
             </div>
           </div>
@@ -586,7 +596,7 @@ export default function PlantCareHistory({
             <div>
               <CardTitle className="text-md flex items-center">
                 <Scissors className="h-4 w-4 mr-2 text-purple-500" />
-                {format(new Date(log.prunedAt), "PPP")}
+                {log.prunedAt ? format(new Date(log.prunedAt), "PPP") : "Unknown date"}
               </CardTitle>
               {(log.partsRemoved || log.reason) && (
                 <CardDescription>
@@ -608,7 +618,7 @@ export default function PlantCareHistory({
                 {deletePruningLogMutation.isPending ? "..." : "Undo"}
               </Button>
               <Badge variant="outline" className="text-xs">
-                {format(new Date(log.prunedAt), "p")}
+                {log.prunedAt ? format(new Date(log.prunedAt), "p") : "?"}
               </Badge>
             </div>
           </div>
