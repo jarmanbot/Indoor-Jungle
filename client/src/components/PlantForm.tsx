@@ -34,6 +34,7 @@ import {
   type InsertCustomLocation 
 } from "@shared/schema";
 import { localStorage as localData, getNextId, getNextPlantNumber, compressPlantImage, getStorageUsage } from "@/lib/localDataStorage";
+import { queryClient } from "@/lib/queryClient";
 import ImageUpload from "./ImageUpload";
 import { PlusCircle, Shuffle } from "lucide-react";
 
@@ -312,18 +313,22 @@ const PlantForm = ({ onSuccess, initialValues, plantId }: PlantFormProps) => {
           console.log("New plant saved to Firebase:", result);
         }
       
-      // Enhanced cache management for immediate UI update
+      // Enhanced cache invalidation with proper timing for immediate updates
+      queryClient.removeQueries({ queryKey: ['/api/plants'] });
       queryClient.invalidateQueries({ queryKey: ['/api/plants'] });
-      queryClient.invalidateQueries({ queryKey: ['/api/plants/local'] });
+      
       if (plantId) {
+        queryClient.removeQueries({ queryKey: [`/api/plants/${plantId}`] });
         queryClient.invalidateQueries({ queryKey: [`/api/plants/${plantId}`] });
       }
-      queryClient.removeQueries({ queryKey: ['/api/plants'] });
       
-      // Force refetch to ensure immediate update
+      // Force immediate refetch with slight delay to ensure cache clearing
       setTimeout(() => {
         queryClient.refetchQueries({ queryKey: ['/api/plants'] });
-      }, 50);
+        if (plantId) {
+          queryClient.refetchQueries({ queryKey: [`/api/plants/${plantId}`] });
+        }
+      }, 100);
       
       // Show success message
       toast({

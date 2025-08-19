@@ -71,18 +71,18 @@ export default function RepottingLogForm({ plantId, onSuccess, onCancel }: Repot
         throw new Error('Failed to save repotting log');
       }
       
-      // Enhanced cache invalidation for immediate UI updates
+      // Enhanced cache invalidation with proper sequence for immediate UI updates
+      queryClient.removeQueries({ queryKey: ['/api/plants'] });
+      queryClient.removeQueries({ queryKey: [`/api/plants/${plantId}`] });
       queryClient.invalidateQueries({ queryKey: ['/api/plants'] });
       queryClient.invalidateQueries({ queryKey: [`/api/plants/${plantId}`] });
       queryClient.invalidateQueries({ queryKey: [`/api/plants/${plantId}/repotting-logs`] });
-      queryClient.removeQueries({ queryKey: ['/api/plants'] });
-      queryClient.removeQueries({ queryKey: [`/api/plants/${plantId}`] });
       
-      // Force immediate refetch
+      // Force immediate refetch with proper timing
       setTimeout(() => {
         queryClient.refetchQueries({ queryKey: ['/api/plants'] });
         queryClient.refetchQueries({ queryKey: [`/api/plants/${plantId}`] });
-      }, 50);
+      }, 100);
       
       toast({
         title: "Success",

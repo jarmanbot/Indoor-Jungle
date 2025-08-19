@@ -120,14 +120,20 @@ const PlantDetails = () => {
       }
     },
     onSuccess: () => {
-      // Enhanced cache invalidation for immediate UI updates
+      setEditingWateringFrequency(false);
+      
+      // Enhanced cache invalidation with proper sequence for immediate UI updates
+      queryClient.removeQueries({ queryKey: ['/api/plants'] });
+      queryClient.removeQueries({ queryKey: [`/api/plants/${id}`] });
       queryClient.invalidateQueries({ queryKey: ['/api/plants'] });
       queryClient.invalidateQueries({ queryKey: [`/api/plants/${id}`] });
-      queryClient.removeQueries({ queryKey: [`/api/plants/${id}`] });
-      queryClient.refetchQueries({ queryKey: [`/api/plants/${id}`] });
-      queryClient.refetchQueries({ queryKey: ['/api/plants'] });
       
-      setEditingWateringFrequency(false);
+      // Force immediate refetch with proper timing
+      setTimeout(() => {
+        queryClient.refetchQueries({ queryKey: ['/api/plants'] });
+        queryClient.refetchQueries({ queryKey: [`/api/plants/${id}`] });
+      }, 100);
+      
       toast({
         title: "Watering frequency updated",
         description: "Your plant's watering schedule has been updated",
@@ -162,14 +168,20 @@ const PlantDetails = () => {
       }
     },
     onSuccess: () => {
-      // Enhanced cache invalidation for immediate UI updates
+      setEditingFeedingFrequency(false);
+      
+      // Enhanced cache invalidation with proper sequence for immediate UI updates
+      queryClient.removeQueries({ queryKey: ['/api/plants'] });
+      queryClient.removeQueries({ queryKey: [`/api/plants/${id}`] });
       queryClient.invalidateQueries({ queryKey: ['/api/plants'] });
       queryClient.invalidateQueries({ queryKey: [`/api/plants/${id}`] });
-      queryClient.removeQueries({ queryKey: [`/api/plants/${id}`] });
-      queryClient.refetchQueries({ queryKey: [`/api/plants/${id}`] });
-      queryClient.refetchQueries({ queryKey: ['/api/plants'] });
       
-      setEditingFeedingFrequency(false);
+      // Force immediate refetch with proper timing
+      setTimeout(() => {
+        queryClient.refetchQueries({ queryKey: ['/api/plants'] });
+        queryClient.refetchQueries({ queryKey: [`/api/plants/${id}`] });
+      }, 100);
+      
       toast({
         title: "Feeding frequency updated",
         description: "Your plant's feeding schedule has been updated",
@@ -254,12 +266,17 @@ const PlantDetails = () => {
       setEditingNextCheck(false);
       setNextCheckValue("");
       
-      // Enhanced cache invalidation for immediate UI updates
+      // Enhanced cache invalidation with proper sequence for immediate UI updates
+      queryClient.removeQueries({ queryKey: ['/api/plants'] });
+      queryClient.removeQueries({ queryKey: [`/api/plants/${id}`] });
       queryClient.invalidateQueries({ queryKey: ['/api/plants'] });
       queryClient.invalidateQueries({ queryKey: [`/api/plants/${id}`] });
-      queryClient.removeQueries({ queryKey: [`/api/plants/${id}`] });
-      queryClient.refetchQueries({ queryKey: [`/api/plants/${id}`] });
-      queryClient.refetchQueries({ queryKey: ['/api/plants'] });
+      
+      // Force immediate refetch with proper timing
+      setTimeout(() => {
+        queryClient.refetchQueries({ queryKey: ['/api/plants'] });
+        queryClient.refetchQueries({ queryKey: [`/api/plants/${id}`] });
+      }, 100);
       
       toast({
         title: "Next check updated",
@@ -324,12 +341,17 @@ const PlantDetails = () => {
       setEditingLocation(false);
       setLocationValue("");
       
-      // Enhanced cache invalidation for immediate UI updates
+      // Enhanced cache invalidation with proper sequence for immediate UI updates
+      queryClient.removeQueries({ queryKey: ['/api/plants'] });
+      queryClient.removeQueries({ queryKey: [`/api/plants/${id}`] });
       queryClient.invalidateQueries({ queryKey: ['/api/plants'] });
       queryClient.invalidateQueries({ queryKey: [`/api/plants/${id}`] });
-      queryClient.removeQueries({ queryKey: [`/api/plants/${id}`] });
-      queryClient.refetchQueries({ queryKey: [`/api/plants/${id}`] });
-      queryClient.refetchQueries({ queryKey: ['/api/plants'] });
+      
+      // Force immediate refetch with proper timing
+      setTimeout(() => {
+        queryClient.refetchQueries({ queryKey: ['/api/plants'] });
+        queryClient.refetchQueries({ queryKey: [`/api/plants/${id}`] });
+      }, 100);
       
       toast({
         title: "Location updated",
