@@ -268,6 +268,12 @@ const PlantForm = ({ onSuccess, initialValues, plantId }: PlantFormProps) => {
           }
           
           console.log("Plant updated via Firebase API");
+          
+          // Invalidate cache for immediate updates
+          queryClient.invalidateQueries({ queryKey: ['/api/plants'] });
+          queryClient.invalidateQueries({ queryKey: [`/api/plants/${plantId}`] });
+          queryClient.refetchQueries({ queryKey: ['/api/plants'] });
+          queryClient.refetchQueries({ queryKey: [`/api/plants/${plantId}`] });
         } else {
           // Create new plant
           let imageUrl = undefined;
@@ -305,6 +311,19 @@ const PlantForm = ({ onSuccess, initialValues, plantId }: PlantFormProps) => {
           const result = await response.json();
           console.log("New plant saved to Firebase:", result);
         }
+      
+      // Enhanced cache management for immediate UI update
+      queryClient.invalidateQueries({ queryKey: ['/api/plants'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/plants/local'] });
+      if (plantId) {
+        queryClient.invalidateQueries({ queryKey: [`/api/plants/${plantId}`] });
+      }
+      queryClient.removeQueries({ queryKey: ['/api/plants'] });
+      
+      // Force refetch to ensure immediate update
+      setTimeout(() => {
+        queryClient.refetchQueries({ queryKey: ['/api/plants'] });
+      }, 50);
       
       // Show success message
       toast({

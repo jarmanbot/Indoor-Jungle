@@ -269,7 +269,7 @@ const Settings = () => {
     // If enabling demo plant and there are existing plants, check for plant #1
     if (!demoPlantEnabled) {
       try {
-        const plants = await queryClient.fetchQuery({ queryKey: ['/api/plants'] });
+        const plants = await queryClient.fetchQuery({ queryKey: ['/api/plants'] }) as any[];
         const hasPlant1 = plants?.some((p: any) => 
           p.plantNumber === 1 && 
           !p.notes?.includes('This is your demo plant to explore the app!')
@@ -311,9 +311,16 @@ const Settings = () => {
         description: result.message,
       });
       
-      // Clear cache to refresh plant list immediately
+      // Enhanced cache management for immediate UI update
       queryClient.invalidateQueries({ queryKey: ['/api/plants'] });
       queryClient.invalidateQueries({ queryKey: ['/api/plants/local'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/demo-plant/status'] });
+      queryClient.removeQueries({ queryKey: ['/api/plants'] });
+      
+      // Force refetch to ensure immediate update
+      setTimeout(() => {
+        queryClient.refetchQueries({ queryKey: ['/api/plants'] });
+      }, 100);
     } catch (error) {
       console.error("Failed to toggle demo plant:", error);
       toast({

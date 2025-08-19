@@ -25,7 +25,7 @@ const Home = () => {
   
   const { data: plants, isLoading, error, refetch } = useQuery<Plant[]>({
     queryKey: isUsingFirebase ? ['/api/plants'] : ['/api/plants/local'],
-    queryFn: async () => {
+    queryFn: async (): Promise<Plant[]> => {
       if (isUsingFirebase) {
         // Firebase API call
         const response = await fetch('/api/plants', {
@@ -34,14 +34,16 @@ const Home = () => {
           }
         });
         if (!response.ok) throw new Error('Failed to fetch plants');
-        const plantsData = await response.json();
+        const plantsData: Plant[] = await response.json();
         console.log('Fetched plants from Firebase:', plantsData.length, 'plants');
         return plantsData;
       }
+      return [];
     },
-    staleTime: 10 * 1000, // 10 seconds
-    cacheTime: 30 * 1000, // 30 seconds
-    refetchOnWindowFocus: true
+    staleTime: 0, // Always consider data stale for immediate updates
+    gcTime: 5 * 60 * 1000, // 5 minutes (renamed from cacheTime in v5)
+    refetchOnWindowFocus: true,
+    refetchOnMount: true
   });
 
   // Remove excessive debug logging to improve performance
