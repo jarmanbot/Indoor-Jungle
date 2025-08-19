@@ -489,7 +489,7 @@ const PlantDetails = () => {
     queryClient.removeQueries({ queryKey: [`/api/plants/${plant.id}`] });
     queryClient.invalidateQueries({ queryKey: ['/api/plants'] });
     queryClient.invalidateQueries({ queryKey: [`/api/plants/${plant.id}`] });
-    queryClient.invalidateQueries({ queryKey: [`/api/plants/${plant.id}/soil-top-up-logs`] });
+    queryClient.invalidateQueries({ queryKey: [`/api/plants/${plant.id}/soilTopUp-logs`] });
     
     // Force immediate refetch with proper timing
     setTimeout(() => {

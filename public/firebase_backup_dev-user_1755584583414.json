@@ -1,0 +1,30 @@
+{
+  "plants": [
+    {
+      "id": "plant_1755584583414_9781vey65",
+      "userId": "dev-user",
+      "name": "Test Plant",
+      "babyName": "Testy",
+      "commonName": "Test Plant",
+      "latinName": "",
+      "location": "living_room",
+      "plantNumber": 1,
+      "lastWatered": null,
+      "lastFed": null,
+      "nextCheck": null,
+      "wateringFrequencyDays": 7,
+      "feedingFrequencyDays": 14,
+      "notes": "",
+      "imageUrl": null,
+      "status": "healthy",
+      "createdAt": "2025-08-19T06:23:03.414Z",
+      "updatedAt": "2025-08-19T06:23:03.414Z"
+    }
+  ],
+  "metadata": {
+    "exportDate": "2025-08-19T06:23:03.414Z",
+    "userId": "dev-user",
+    "trigger": "plant_added",
+    "totalPlants": 1
+  }
+}

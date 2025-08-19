@@ -414,11 +414,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Get watering logs for a plant
   app.get("/api/plants/:id/watering-logs", async (req: Request, res: Response) => {
     try {
-      const plantId = parseInt(req.params.id);
-      if (isNaN(plantId)) {
-        return res.status(400).json({ message: "Invalid plant ID" });
-      }
-
+      const userId = (req as any).headers['x-user-id'] || 'dev-user';
+      const plantId = req.params.id;
+      
+      console.log(`Mock Firebase: Getting wateringLogs for plant ${plantId}, user ${userId}`);
       const logs = await storage.getWateringLogs(plantId);
       res.json(logs);
     } catch (error) {
@@ -462,11 +461,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Get feeding logs for a plant
   app.get("/api/plants/:id/feeding-logs", async (req: Request, res: Response) => {
     try {
-      const plantId = parseInt(req.params.id);
-      if (isNaN(plantId)) {
-        return res.status(400).json({ message: "Invalid plant ID" });
-      }
-
+      const userId = (req as any).headers['x-user-id'] || 'dev-user';
+      const plantId = req.params.id;
+      
+      console.log(`Mock Firebase: Getting feedingLogs for plant ${plantId}, user ${userId}`);
       const logs = await storage.getFeedingLogs(plantId);
       res.json(logs);
     } catch (error) {
@@ -552,11 +550,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Get repotting logs for a plant
   app.get("/api/plants/:id/repotting-logs", async (req: Request, res: Response) => {
     try {
-      const plantId = parseInt(req.params.id);
-      if (isNaN(plantId)) {
-        return res.status(400).json({ message: "Invalid plant ID" });
-      }
-
+      const userId = (req as any).headers['x-user-id'] || 'dev-user';
+      const plantId = req.params.id;
+      
+      console.log(`Mock Firebase: Getting repottingLogs for plant ${plantId}, user ${userId}`);
       const logs = await storage.getRepottingLogs(plantId);
       res.json(logs);
     } catch (error) {
@@ -616,53 +613,59 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Get soil top up logs for a plant
   app.get("/api/plants/:id/soil-top-up-logs", async (req: Request, res: Response) => {
     try {
-      const plantId = parseInt(req.params.id);
-      if (isNaN(plantId)) {
-        return res.status(400).json({ message: "Invalid plant ID" });
-      }
-
+      const userId = (req as any).headers['x-user-id'] || 'dev-user';
+      const plantId = req.params.id;
+      
+      console.log("DEBUG: soil-top-up GET route called for plantId:", plantId);
       const logs = await storage.getSoilTopUpLogs(plantId);
+      console.log("DEBUG: storage returned logs:", logs);
       res.json(logs);
     } catch (error) {
-      console.error("Error fetching soil top up logs:", error);
-      res.status(500).json({ message: "Error fetching soil top up logs" });
+      console.error("DEBUG: caught error in soil-top-up GET route:", error);
+      res.status(500).json({ message: "Error fetching soil top up logs", error: error.message });
     }
   });
 
   // Add a soil top up log
   app.post("/api/plants/:id/soil-top-up-logs", express.json(), async (req: Request, res: Response) => {
     try {
-      const plantId = parseInt(req.params.id);
-      if (isNaN(plantId)) {
-        return res.status(400).json({ message: "Invalid plant ID" });
-      }
-
+      const userId = (req as any).headers['x-user-id'] || 'dev-user';
+      const plantId = req.params.id;
+      
+      console.log("DEBUG: soil-top-up POST route called with body:", req.body);
+      console.log("DEBUG: plantId:", plantId);
+      
       const logData = { ...req.body, plantId };
+      console.log("DEBUG: logData before validation:", logData);
+      
       const result = insertSoilTopUpLogSchema.safeParse(logData);
+      console.log("DEBUG: validation result:", result);
       
       if (!result.success) {
+        console.log("DEBUG: validation failed:", result.error.errors);
         return res.status(400).json({ 
           message: "Invalid soil top up log data", 
           errors: result.error.errors 
         });
       }
 
+      console.log("DEBUG: about to call storage.addSoilTopUpLog with:", result.data);
       const newLog = await storage.addSoilTopUpLog(result.data);
+      console.log("DEBUG: storage returned:", newLog);
       res.status(201).json(newLog);
     } catch (error) {
-      console.error("Error adding soil top up log:", error);
-      res.status(500).json({ message: "Error adding soil top up log" });
+      console.error("DEBUG: caught error in soil-top-up POST route:", error);
+      res.status(500).json({ message: "Error adding soil top up log", error: error.message });
     }
   });
 
   // Delete a soil top up log
   app.delete("/api/soil-top-up-logs/:id", async (req: Request, res: Response) => {
     try {
-      const id = parseInt(req.params.id);
-      if (isNaN(id)) {
-        return res.status(400).json({ message: "Invalid log ID" });
-      }
+      const userId = (req as any).headers['x-user-id'] || 'dev-user';
+      const id = req.params.id;
 
+      console.log(`Mock Firebase: Deleting soilTopUpLogs log ${id} for user ${userId}`);
       const deleted = await storage.deleteSoilTopUpLog(id);
       if (!deleted) {
         return res.status(404).json({ message: "Soil top up log not found" });
@@ -680,11 +683,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Get pruning logs for a plant
   app.get("/api/plants/:id/pruning-logs", async (req: Request, res: Response) => {
     try {
-      const plantId = parseInt(req.params.id);
-      if (isNaN(plantId)) {
-        return res.status(400).json({ message: "Invalid plant ID" });
-      }
-
+      const userId = (req as any).headers['x-user-id'] || 'dev-user';
+      const plantId = req.params.id;
+      
+      console.log(`Mock Firebase: Getting pruningLogs for plant ${plantId}, user ${userId}`);
       const logs = await storage.getPruningLogs(plantId);
       res.json(logs);
     } catch (error) {
@@ -696,10 +698,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Add a pruning log
   app.post("/api/plants/:id/pruning-logs", express.json(), async (req: Request, res: Response) => {
     try {
-      const plantId = parseInt(req.params.id);
-      if (isNaN(plantId)) {
-        return res.status(400).json({ message: "Invalid plant ID" });
-      }
+      const userId = (req as any).headers['x-user-id'] || 'dev-user';
+      const plantId = req.params.id;
 
       const logData = { ...req.body, plantId };
       const result = insertPruningLogSchema.safeParse(logData);
@@ -711,7 +711,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
         });
       }
 
+      console.log(`Mock Firebase: Adding pruningLogs log for user ${userId}`);
       const newLog = await storage.addPruningLog(result.data);
+      console.log(`Mock Firebase: Added pruningLogs log with ID ${newLog.id}`);
       res.status(201).json(newLog);
     } catch (error) {
       console.error("Error adding pruning log:", error);
@@ -722,11 +724,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Delete a pruning log
   app.delete("/api/pruning-logs/:id", async (req: Request, res: Response) => {
     try {
-      const id = parseInt(req.params.id);
-      if (isNaN(id)) {
-        return res.status(400).json({ message: "Invalid log ID" });
-      }
+      const userId = (req as any).headers['x-user-id'] || 'dev-user';
+      const id = req.params.id;
 
+      console.log(`Mock Firebase: Deleting pruningLogs log ${id} for user ${userId}`);
       const deleted = await storage.deletePruningLog(id);
       if (!deleted) {
         return res.status(404).json({ message: "Pruning log not found" });

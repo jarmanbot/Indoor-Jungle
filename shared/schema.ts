@@ -173,8 +173,8 @@ export const feedingLogs = pgTable("feeding_logs", {
 
 // Repotting logs to track when plants are repotted
 export const repottingLogs = pgTable("repotting_logs", {
-  id: serial("id").primaryKey(),
-  plantId: integer("plant_id").notNull().references(() => plants.id, { onDelete: 'cascade' }),
+  id: varchar("id").primaryKey(),
+  plantId: varchar("plant_id").notNull(),
   repottedAt: timestamp("repotted_at").defaultNow().notNull(),
   potSize: varchar("pot_size", { length: 50 }),
   soilType: varchar("soil_type", { length: 100 }),
@@ -184,8 +184,8 @@ export const repottingLogs = pgTable("repotting_logs", {
 
 // Soil top up logs to track soil additions
 export const soilTopUpLogs = pgTable("soil_top_up_logs", {
-  id: serial("id").primaryKey(),
-  plantId: integer("plant_id").notNull().references(() => plants.id, { onDelete: 'cascade' }),
+  id: varchar("id").primaryKey(),
+  plantId: varchar("plant_id").notNull(),
   toppedUpAt: timestamp("topped_up_at").defaultNow().notNull(),
   soilType: varchar("soil_type", { length: 100 }),
   amount: varchar("amount", { length: 50 }),
@@ -195,8 +195,8 @@ export const soilTopUpLogs = pgTable("soil_top_up_logs", {
 
 // Pruning logs to track pruning activities
 export const pruningLogs = pgTable("pruning_logs", {
-  id: serial("id").primaryKey(),
-  plantId: integer("plant_id").notNull().references(() => plants.id, { onDelete: 'cascade' }),
+  id: varchar("id").primaryKey(),
+  plantId: varchar("plant_id").notNull(),
   prunedAt: timestamp("pruned_at").defaultNow().notNull(),
   partsRemoved: varchar("parts_removed", { length: 200 }),
   reason: varchar("reason", { length: 100 }),
@@ -225,6 +225,7 @@ export const insertFeedingLogSchema = createInsertSchema(feedingLogs, {
 });
 
 export const insertRepottingLogSchema = createInsertSchema(repottingLogs, {
+  plantId: z.string(),
   repottedAt: z.union([z.string(), z.date()]).optional(),
   potSize: z.string().optional(),
   soilType: z.string().optional(),
@@ -235,6 +236,7 @@ export const insertRepottingLogSchema = createInsertSchema(repottingLogs, {
 });
 
 export const insertSoilTopUpLogSchema = createInsertSchema(soilTopUpLogs, {
+  plantId: z.string(),
   toppedUpAt: z.union([z.string(), z.date()]).optional(),
   soilType: z.string().optional(),
   amount: z.string().optional(),
@@ -245,6 +247,7 @@ export const insertSoilTopUpLogSchema = createInsertSchema(soilTopUpLogs, {
 });
 
 export const insertPruningLogSchema = createInsertSchema(pruningLogs, {
+  plantId: z.string(),
   prunedAt: z.union([z.string(), z.date()]).optional(),
   partsRemoved: z.string().optional(),
   reason: z.string().optional(),

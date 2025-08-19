@@ -53,7 +53,7 @@ export default function SoilTopUpLogForm({ plantId, onSuccess, onCancel }: SoilT
     setIsSubmitting(true);
     try {
       // Save soil top-up log to Firebase
-      const response = await fetch(`/api/plants/${plantId}/soil-top-up-logs`, {
+      const response = await fetch(`/api/plants/${plantId}/soilTopUp-logs`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -76,7 +76,7 @@ export default function SoilTopUpLogForm({ plantId, onSuccess, onCancel }: SoilT
       queryClient.removeQueries({ queryKey: [`/api/plants/${plantId}`] });
       queryClient.invalidateQueries({ queryKey: ['/api/plants'] });
       queryClient.invalidateQueries({ queryKey: [`/api/plants/${plantId}`] });
-      queryClient.invalidateQueries({ queryKey: [`/api/plants/${plantId}/soil-top-up-logs`] });
+      queryClient.invalidateQueries({ queryKey: [`/api/plants/${plantId}/soilTopUp-logs`] });
       
       // Force immediate refetch with proper timing
       setTimeout(() => {

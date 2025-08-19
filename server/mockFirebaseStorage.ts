@@ -26,8 +26,18 @@ interface MockCareLog {
   id: string;
   userId: string;
   plantId: string;
-  date: Date;
+  wateredAt?: Date;  // For watering logs
+  fedAt?: Date;      // For feeding logs
+  repottedAt?: Date; // For repotting logs
+  toppedUpAt?: Date; // For soil top-up logs
+  prunedAt?: Date;   // For pruning logs
   notes?: string;
+  amount?: string;
+  fertilizer?: string;
+  potSize?: string;
+  soilType?: string;
+  partsRemoved?: string;
+  reason?: string;
   createdAt: Date;
 }
 
@@ -144,10 +154,38 @@ class MockFirebaseStorage {
       id: `log_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
       userId,
       plantId: logData.plantId,
-      date: logData.date ? new Date(logData.date) : new Date(),
       notes: logData.notes || '',
       createdAt: new Date(),
     };
+
+    // Map the correct date field based on log type
+    const now = new Date();
+    switch (logType) {
+      case 'wateringLogs':
+        newLog.wateredAt = logData.wateredAt ? new Date(logData.wateredAt) : now;
+        newLog.amount = logData.amount;
+        break;
+      case 'feedingLogs':
+        newLog.fedAt = logData.fedAt ? new Date(logData.fedAt) : now;
+        newLog.fertilizer = logData.fertilizer;
+        newLog.amount = logData.amount;
+        break;
+      case 'repottingLogs':
+        newLog.repottedAt = logData.repottedAt ? new Date(logData.repottedAt) : now;
+        newLog.potSize = logData.potSize;
+        newLog.soilType = logData.soilType;
+        break;
+      case 'soilTopUpLogs':
+        newLog.toppedUpAt = logData.toppedUpAt ? new Date(logData.toppedUpAt) : now;
+        newLog.soilType = logData.soilType;
+        newLog.amount = logData.amount;
+        break;
+      case 'pruningLogs':
+        newLog.prunedAt = logData.prunedAt ? new Date(logData.prunedAt) : now;
+        newLog.partsRemoved = logData.partsRemoved;
+        newLog.reason = logData.reason;
+        break;
+    }
 
     const logKey = `${userId}_${logType}`;
     const userLogs = this.careLogs.get(logKey) || [];

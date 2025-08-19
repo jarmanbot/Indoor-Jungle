@@ -69,7 +69,7 @@ export default function PlantCareHistory({
   setShowPruningForm = () => {}
 }: PlantCareHistoryProps) {
   const [activeTab, setActiveTab] = useState("watering");
-  const [deletedLogIds, setDeletedLogIds] = useState<Set<number>>(new Set());
+  const [deletedLogIds, setDeletedLogIds] = useState<Set<string>>(new Set());
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
@@ -117,9 +117,9 @@ export default function PlantCareHistory({
 
   // Fetch soil top up logs from Firebase
   const { data: soilTopUpLogs, isLoading: soilTopUpLogsLoading, error: soilTopUpLogsError } = useQuery({
-    queryKey: [`/api/plants/${plant.id}/soil-top-up-logs`],
+    queryKey: [`/api/plants/${plant.id}/soilTopUp-logs`],
     queryFn: async () => {
-      const response = await fetch(`/api/plants/${plant.id}/soil-top-up-logs`, {
+      const response = await fetch(`/api/plants/${plant.id}/soilTopUp-logs`, {
         headers: { 'X-User-ID': 'dev-user' }
       });
       if (!response.ok) {
@@ -145,11 +145,15 @@ export default function PlantCareHistory({
 
   // Delete mutations
   const deleteWateringLogMutation = useMutation({
-    mutationFn: async (logId: number) => {
-      console.log('Deleting watering log from localStorage:', logId);
-      const logs = localData.get('wateringLogs') || [];
-      const filteredLogs = logs.filter((log: any) => log.id !== logId);
-      localData.set('wateringLogs', filteredLogs);
+    mutationFn: async (logId: string) => {
+      console.log('Deleting watering log from Firebase:', logId);
+      const response = await fetch(`/api/watering-logs/${logId}`, {
+        method: 'DELETE',
+        headers: { 'X-User-ID': 'dev-user' }
+      });
+      if (!response.ok) {
+        throw new Error('Failed to delete watering log');
+      }
       return logId;
     },
     onSuccess: (_, logId) => {
@@ -176,11 +180,15 @@ export default function PlantCareHistory({
   });
 
   const deleteFeedingLogMutation = useMutation({
-    mutationFn: async (logId: number) => {
-      console.log('Deleting feeding log from localStorage:', logId);
-      const logs = localData.get('feedingLogs') || [];
-      const filteredLogs = logs.filter((log: any) => log.id !== logId);
-      localData.set('feedingLogs', filteredLogs);
+    mutationFn: async (logId: string) => {
+      console.log('Deleting feeding log from Firebase:', logId);
+      const response = await fetch(`/api/feeding-logs/${logId}`, {
+        method: 'DELETE',
+        headers: { 'X-User-ID': 'dev-user' }
+      });
+      if (!response.ok) {
+        throw new Error('Failed to delete feeding log');
+      }
       return logId;
     },
     onSuccess: (_, logId) => {
@@ -207,11 +215,15 @@ export default function PlantCareHistory({
   });
 
   const deleteRepottingLogMutation = useMutation({
-    mutationFn: async (logId: number) => {
-      console.log('Deleting repotting log from localStorage:', logId);
-      const logs = localData.get('repottingLogs') || [];
-      const filteredLogs = logs.filter((log: any) => log.id !== logId);
-      localData.set('repottingLogs', filteredLogs);
+    mutationFn: async (logId: string) => {
+      console.log('Deleting repotting log from Firebase:', logId);
+      const response = await fetch(`/api/repotting-logs/${logId}`, {
+        method: 'DELETE',
+        headers: { 'X-User-ID': 'dev-user' }
+      });
+      if (!response.ok) {
+        throw new Error('Failed to delete repotting log');
+      }
       return logId;
     },
     onSuccess: (_, logId) => {
@@ -224,28 +236,36 @@ export default function PlantCareHistory({
   });
 
   const deleteSoilTopUpLogMutation = useMutation({
-    mutationFn: async (logId: number) => {
-      console.log('Deleting soil top up log from localStorage:', logId);
-      const logs = localData.get('soilTopUpLogs') || [];
-      const filteredLogs = logs.filter((log: any) => log.id !== logId);
-      localData.set('soilTopUpLogs', filteredLogs);
+    mutationFn: async (logId: string) => {
+      console.log('Deleting soil top up log from Firebase:', logId);
+      const response = await fetch(`/api/soilTopUp-logs/${logId}`, {
+        method: 'DELETE',
+        headers: { 'X-User-ID': 'dev-user' }
+      });
+      if (!response.ok) {
+        throw new Error('Failed to delete soil top up log');
+      }
       return logId;
     },
     onSuccess: (_, logId) => {
       // Add to deleted set for immediate UI update
       setDeletedLogIds(prev => new Set(prev).add(logId));
       
-      queryClient.invalidateQueries({ queryKey: ['/api/plants', plant.id, 'soil-top-up-logs'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/plants', plant.id, 'soilTopUp-logs'] });
       toast({ title: "Soil top up log deleted", description: "The log entry has been removed" });
     }
   });
 
   const deletePruningLogMutation = useMutation({
-    mutationFn: async (logId: number) => {
-      console.log('Deleting pruning log from localStorage:', logId);
-      const logs = localData.get('pruningLogs') || [];
-      const filteredLogs = logs.filter((log: any) => log.id !== logId);
-      localData.set('pruningLogs', filteredLogs);
+    mutationFn: async (logId: string) => {
+      console.log('Deleting pruning log from Firebase:', logId);
+      const response = await fetch(`/api/pruning-logs/${logId}`, {
+        method: 'DELETE',
+        headers: { 'X-User-ID': 'dev-user' }
+      });
+      if (!response.ok) {
+        throw new Error('Failed to delete pruning log');
+      }
       return logId;
     },
     onSuccess: (_, logId) => {
@@ -275,7 +295,7 @@ export default function PlantCareHistory({
 
   const handleSoilTopUpSuccess = () => {
     setShowSoilTopUpForm(false);
-    queryClient.invalidateQueries({ queryKey: ['/api/plants', plant.id, 'soil-top-up-logs'] });
+    queryClient.invalidateQueries({ queryKey: ['/api/plants', plant.id, 'soilTopUp-logs'] });
   };
 
   const handlePruningSuccess = () => {
@@ -311,7 +331,7 @@ export default function PlantCareHistory({
       );
     }
 
-    return wateringLogs.filter((log: any) => !deletedLogIds.has(log.id)).map((log) => (
+    return wateringLogs.filter((log: WateringLog) => !deletedLogIds.has(String(log.id))).map((log: WateringLog) => (
       <Card key={log.id} className="mb-3">
         <CardHeader className="py-3 px-4">
           <div className="flex justify-between items-start">
@@ -331,7 +351,7 @@ export default function PlantCareHistory({
                 variant="ghost" 
                 size="sm" 
                 className="h-7 px-2 text-destructive"
-                onClick={() => deleteWateringLogMutation.mutate(log.id)}
+                onClick={() => deleteWateringLogMutation.mutate(String(log.id))}
                 disabled={deleteWateringLogMutation.isPending}
               >
                 <Trash2 className="h-3 w-3 mr-1" />
@@ -379,7 +399,7 @@ export default function PlantCareHistory({
       );
     }
 
-    return feedingLogs.filter((log: any) => !deletedLogIds.has(log.id)).map((log) => (
+    return feedingLogs.filter((log: FeedingLog) => !deletedLogIds.has(String(log.id))).map((log: FeedingLog) => (
       <Card key={log.id} className="mb-3">
         <CardHeader className="py-3 px-4">
           <div className="flex justify-between items-start">
@@ -401,7 +421,7 @@ export default function PlantCareHistory({
                 variant="ghost" 
                 size="sm" 
                 className="h-7 px-2 text-destructive"
-                onClick={() => deleteFeedingLogMutation.mutate(log.id)}
+                onClick={() => deleteFeedingLogMutation.mutate(String(log.id))}
                 disabled={deleteFeedingLogMutation.isPending}
               >
                 <Trash2 className="h-3 w-3 mr-1" />
@@ -449,7 +469,7 @@ export default function PlantCareHistory({
       );
     }
 
-    return repottingLogs.filter((log: any) => !deletedLogIds.has(log.id)).map((log) => (
+    return repottingLogs.filter((log: RepottingLog) => !deletedLogIds.has(log.id)).map((log: RepottingLog) => (
       <Card key={log.id} className="mb-3">
         <CardHeader className="py-3 px-4">
           <div className="flex justify-between items-start">
@@ -519,7 +539,7 @@ export default function PlantCareHistory({
       );
     }
 
-    return soilTopUpLogs.filter((log: any) => !deletedLogIds.has(log.id)).map((log) => (
+    return soilTopUpLogs.filter((log: SoilTopUpLog) => !deletedLogIds.has(log.id)).map((log: SoilTopUpLog) => (
       <Card key={log.id} className="mb-3">
         <CardHeader className="py-3 px-4">
           <div className="flex justify-between items-start">
@@ -589,7 +609,7 @@ export default function PlantCareHistory({
       );
     }
 
-    return pruningLogs.filter((log: any) => !deletedLogIds.has(log.id)).map((log) => (
+    return pruningLogs.filter((log: PruningLog) => !deletedLogIds.has(log.id)).map((log: PruningLog) => (
       <Card key={log.id} className="mb-3">
         <CardHeader className="py-3 px-4">
           <div className="flex justify-between items-start">
