@@ -212,20 +212,50 @@ const Settings = () => {
     setShowClearDataDialog(true);
   };
 
-  const handleClearDataPasswordSubmit = () => {
+  const handleClearDataPasswordSubmit = async () => {
     const adminPassword = 'digipl@nts'; // Keep same admin password for data protection
     if (clearDataPassword === adminPassword) {
-      localData.clear();
-      setShowClearDataDialog(false);
-      setClearDataPassword("");
-      toast({
-        title: "All data cleared",
-        description: "All plant data has been removed from this device",
-      });
-      // Enhanced cache management for immediate UI update
-      queryClient.invalidateQueries({ queryKey: ['/api/plants'] });
-      queryClient.removeQueries();
-      queryClient.refetchQueries({ queryKey: ['/api/plants'] });
+      try {
+        // Call Firebase API to clear all user data
+        const response = await fetch('/api/debug/clear-all-data', {
+          method: 'DELETE',
+          headers: {
+            'X-User-ID': 'dev-user'
+          }
+        });
+        
+        if (!response.ok) {
+          throw new Error('Failed to clear data from Firebase');
+        }
+        
+        // Also clear localStorage as backup
+        localData.clear();
+        
+        setShowClearDataDialog(false);
+        setClearDataPassword("");
+        
+        toast({
+          title: "All data cleared",
+          description: "All plant data has been removed from Firebase and this device",
+        });
+        
+        // Enhanced cache management for immediate UI update
+        queryClient.invalidateQueries({ queryKey: ['/api/plants'] });
+        queryClient.removeQueries();
+        queryClient.refetchQueries({ queryKey: ['/api/plants'] });
+        
+        // Force page reload to ensure clean state
+        setTimeout(() => {
+          window.location.reload();
+        }, 1000);
+      } catch (error) {
+        console.error("Failed to clear data:", error);
+        toast({
+          title: "Clear Failed",
+          description: "Failed to clear all data. Please try again.",
+          variant: "destructive",
+        });
+      }
     } else {
       toast({
         title: "Incorrect password",
@@ -606,11 +636,16 @@ const Settings = () => {
           </DialogHeader>
           <div className="space-y-4">
             <p className="text-sm text-muted-foreground">
-              Enter the admin password to permanently clear all plant data from this device:
+              Enter the admin password to permanently clear all plant data from Firebase and this device:
             </p>
-            <p className="text-sm font-medium text-destructive">
-              ⚠️ This action cannot be undone. All plants and care history will be lost.
-            </p>
+            <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3 space-y-2">
+              <p className="text-sm font-medium text-yellow-800">
+                ⚠️ Important: Create a manual backup first!
+              </p>
+              <p className="text-xs text-yellow-700">
+                Use "Export Data" above to backup your plants before clearing. This action cannot be undone and all plants and care history will be permanently lost.
+              </p>
+            </div>
             <Input
               type="password"
               placeholder="Enter admin password"
