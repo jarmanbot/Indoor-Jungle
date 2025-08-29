@@ -46,7 +46,7 @@ app.use((req, res, next) => {
     // Initialize Firebase
     console.log("Firebase app initialized successfully");
   } catch (error) {
-    console.warn("Firebase initialization failed:", error.message);
+    console.warn("Firebase initialization failed:", error instanceof Error ? error.message : String(error));
   }
 
   const server = await registerFirebaseRoutes(app);
