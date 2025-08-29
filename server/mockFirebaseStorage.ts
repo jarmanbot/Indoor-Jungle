@@ -1,6 +1,9 @@
 // Mock Firebase storage service for testing Firebase API endpoints
 // This simulates Firebase functionality without requiring full authentication
 
+import fs from 'fs';
+import path from 'path';
+
 interface MockPlant {
   id: string;
   userId: string;
@@ -10,9 +13,9 @@ interface MockPlant {
   latinName?: string;
   location: string;
   plantNumber?: number;
-  lastWatered?: Date;
-  lastFed?: Date;
-  nextCheck?: Date;
+  lastWatered?: Date | null;
+  lastFed?: Date | null;
+  nextCheck?: Date | null;
   wateringFrequencyDays: number;
   feedingFrequencyDays: number;
   notes?: string;
@@ -44,6 +47,44 @@ interface MockCareLog {
 class MockFirebaseStorage {
   private plants: Map<string, MockPlant[]> = new Map();
   private careLogs: Map<string, MockCareLog[]> = new Map();
+  private dataFile: string;
+
+  constructor() {
+    this.dataFile = path.join(process.cwd(), 'firebase_storage_data.json');
+    this.loadDataFromFile();
+  }
+
+  // Load data from file on startup
+  private loadDataFromFile(): void {
+    try {
+      if (fs.existsSync(this.dataFile)) {
+        const data = JSON.parse(fs.readFileSync(this.dataFile, 'utf8'));
+        // Convert arrays back to Maps
+        if (data.plants) {
+          this.plants = new Map(Object.entries(data.plants));
+        }
+        if (data.careLogs) {
+          this.careLogs = new Map(Object.entries(data.careLogs));
+        }
+        console.log('Mock Firebase: Loaded data from persistent storage');
+      }
+    } catch (error) {
+      console.warn('Mock Firebase: Could not load data from file:', error);
+    }
+  }
+
+  // Save data to file for persistence
+  private saveDataToFile(): void {
+    try {
+      const data = {
+        plants: Object.fromEntries(this.plants),
+        careLogs: Object.fromEntries(this.careLogs)
+      };
+      fs.writeFileSync(this.dataFile, JSON.stringify(data, null, 2));
+    } catch (error) {
+      console.warn('Mock Firebase: Could not save data to file:', error);
+    }
+  }
 
   // Get all plants for a user
   async getPlants(userId: string): Promise<MockPlant[]> {
@@ -104,6 +145,7 @@ class MockFirebaseStorage {
     const userPlants = this.plants.get(userId) || [];
     userPlants.push(newPlant);
     this.plants.set(userId, userPlants);
+    this.saveDataToFile(); // Persist to file
 
     console.log(`Mock Firebase: Created plant with ID ${newPlant.id}`);
     return newPlant;
@@ -127,6 +169,7 @@ class MockFirebaseStorage {
     };
     
     this.plants.set(userId, userPlants);
+    this.saveDataToFile(); // Persist to file
     return userPlants[plantIndex];
   }
 
@@ -137,6 +180,7 @@ class MockFirebaseStorage {
     const userPlants = this.plants.get(userId) || [];
     const filteredPlants = userPlants.filter(plant => plant.id !== plantId);
     this.plants.set(userId, filteredPlants);
+    this.saveDataToFile(); // Persist to file
   }
 
   // Get care logs for a plant
