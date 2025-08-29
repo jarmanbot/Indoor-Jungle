@@ -27,10 +27,13 @@ const Home = () => {
     queryKey: isUsingFirebase ? ['/api/plants'] : ['/api/plants/local'],
     queryFn: async (): Promise<Plant[]> => {
       if (isUsingFirebase) {
-        // Firebase API call
+        // Firebase API call with cache-busting headers
         const response = await fetch('/api/plants', {
           headers: {
-            'X-User-ID': 'dev-user'
+            'X-User-ID': 'dev-user',
+            'Cache-Control': 'no-cache, no-store, must-revalidate',
+            'Pragma': 'no-cache',
+            'Expires': '0'
           }
         });
         if (!response.ok) throw new Error('Failed to fetch plants');
@@ -41,9 +44,11 @@ const Home = () => {
       return [];
     },
     staleTime: 0, // Always consider data stale for immediate updates
-    gcTime: 5 * 60 * 1000, // 5 minutes (renamed from cacheTime in v5)
+    gcTime: 0, // Don't cache data in memory
     refetchOnWindowFocus: true,
-    refetchOnMount: true
+    refetchOnMount: true,
+    refetchOnReconnect: true,
+    networkMode: 'always' // Always try to fetch, even if offline
   });
 
   // Remove excessive debug logging to improve performance
