@@ -8,7 +8,7 @@ const firebaseConfig = {
   databaseURL: "https://indoor-jungle-bec2a-default-rtdb.asia-southeast1.firebasedatabase.app",
   projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
   storageBucket: `${import.meta.env.VITE_FIREBASE_PROJECT_ID}.appspot.com`,
-  messagingSenderId: "123456789", // This will be updated from Firebase console if needed
+  messagingSenderId: "343223436340",
   appId: import.meta.env.VITE_FIREBASE_APP_ID,
 };
 
