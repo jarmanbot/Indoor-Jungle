@@ -24,6 +24,8 @@ import FloatingActionButton from "@/components/FloatingActionButton";
 import Landing from "@/pages/Landing";
 
 import { useAuth } from "@/hooks/useAuth";
+import { useUser } from "@/hooks/useUser";
+import { UserSetup } from "@/components/UserSetup";
 // Import Game pages
 import Game from "@/pages/Game";
 import GameDashboard from "@/pages/Game/Dashboard";
@@ -35,6 +37,24 @@ import GrowToEarn from "@/pages/GrowToEarn";
 function Router() {
   const [location] = useLocation();
   const { isAuthenticated } = useAuth();
+  const { user, isLoading, setupUser } = useUser();
+  
+  // Show loading while checking for existing user
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="text-2xl">🌿</div>
+          <p className="text-gray-600 mt-2">Loading...</p>
+        </div>
+      </div>
+    );
+  }
+  
+  // Show user setup if no user exists
+  if (!user) {
+    return <UserSetup onUserSetup={setupUser} />;
+  }
 
   
   const isGameRoute = location.startsWith("/game");

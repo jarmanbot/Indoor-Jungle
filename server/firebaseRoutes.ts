@@ -1,13 +1,13 @@
 import express, { type Express, Request, Response } from "express";
 import { createServer, type Server } from "http";
-import { mockFirebaseStorage } from "./mockFirebaseStorage";
+import { firebaseStorage } from "./firebaseStorage";
 import { writeFileSync } from 'fs';
 import { join } from 'path';
 
 // Automatic backup function
 async function createBackup(userId: string, trigger: string) {
   try {
-    const plants = await mockFirebaseStorage.getPlants(userId);
+    const plants = await firebaseStorage.getPlants(userId);
     
     const backup = {
       plants,
@@ -52,7 +52,7 @@ export async function registerFirebaseRoutes(app: Express): Promise<Server> {
   app.get('/api/plants', requireAuth, async (req: any, res) => {
     try {
       const userId = req.userId || 'dev-user';
-      const plants = await mockFirebaseStorage.getPlants(userId);
+      const plants = await firebaseStorage.getPlants(userId);
       // Ensure all plants have plant numbers for display and sort by plant number
       const plantsWithNumbers = plants
         .map((plant, index) => ({
@@ -71,7 +71,7 @@ export async function registerFirebaseRoutes(app: Express): Promise<Server> {
     try {
       const userId = req.userId || 'dev-user';
       const plantId = req.params.id;
-      const plant = await mockFirebaseStorage.getPlant(userId, plantId);
+      const plant = await firebaseStorage.getPlant(userId, plantId);
       
       if (!plant) {
         return res.status(404).json({ message: "Plant not found" });
@@ -93,7 +93,7 @@ export async function registerFirebaseRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: "Plant name is required" });
       }
 
-      const plant = await mockFirebaseStorage.createPlant(userId, {
+      const plant = await firebaseStorage.createPlant(userId, {
         ...req.body,
         userId,
       });
@@ -113,7 +113,7 @@ export async function registerFirebaseRoutes(app: Express): Promise<Server> {
       const userId = req.userId || 'dev-user';
       const plantId = req.params.id;
       
-      const plant = await mockFirebaseStorage.updatePlant(userId, plantId, req.body);
+      const plant = await firebaseStorage.updatePlant(userId, plantId, req.body);
       res.json(plant);
     } catch (error) {
       console.error("Error updating plant:", error);
@@ -126,7 +126,7 @@ export async function registerFirebaseRoutes(app: Express): Promise<Server> {
       const userId = req.userId || 'dev-user';
       const plantId = req.params.id;
       
-      await mockFirebaseStorage.deletePlant(userId, plantId);
+      await firebaseStorage.deletePlant(userId, plantId);
       
       // Create automatic JSON backup after deletion
       await createBackup(userId, 'plant_deleted');
@@ -148,7 +148,7 @@ export async function registerFirebaseRoutes(app: Express): Promise<Server> {
         const userId = req.userId || 'dev-user';
         const plantId = req.params.plantId;
         
-        const logs = await mockFirebaseStorage.getCareLogsForPlant(userId, plantId, `${logType}Logs`);
+        const logs = await firebaseStorage.getCareLogsForPlant(userId, plantId, `${logType}Logs`);
         res.json(logs);
       } catch (error) {
         console.error(`Error fetching ${logType} logs:`, error);
@@ -169,7 +169,7 @@ export async function registerFirebaseRoutes(app: Express): Promise<Server> {
           date: req.body.date ? new Date(req.body.date) : new Date(),
         };
 
-        const log = await mockFirebaseStorage.addCareLog(userId, `${logType}Logs`, logData);
+        const log = await firebaseStorage.addCareLog(userId, `${logType}Logs`, logData);
         res.status(201).json(log);
       } catch (error) {
         console.error(`Error adding ${logType} log:`, error);
@@ -182,8 +182,8 @@ export async function registerFirebaseRoutes(app: Express): Promise<Server> {
   app.get('/api/firebase/status', requireAuth, async (req: any, res) => {
     try {
       const userId = req.userId || 'dev-user';
-      const plants = await mockFirebaseStorage.getPlants(userId);
-      const counts = mockFirebaseStorage.getTotalCounts();
+      const plants = await firebaseStorage.getPlants(userId);
+      const counts = firebaseStorage.getTotalCounts();
       
       res.json({
         status: 'active',
@@ -208,11 +208,11 @@ export async function registerFirebaseRoutes(app: Express): Promise<Server> {
       }
 
       // Clear existing data first to prevent duplicates
-      await mockFirebaseStorage.clearAllData(userId);
+      await firebaseStorage.clearAllData(userId);
       
       // Migrate plants
       for (const plant of data.plants) {
-        await mockFirebaseStorage.createPlant(userId, { ...plant, userId });
+        await firebaseStorage.createPlant(userId, { ...plant, userId });
       }
 
       // Migrate care logs
@@ -220,7 +220,7 @@ export async function registerFirebaseRoutes(app: Express): Promise<Server> {
       for (const logType of logTypes) {
         if (data[logType] && Array.isArray(data[logType])) {
           for (const log of data[logType]) {
-            await mockFirebaseStorage.addCareLog(userId, logType, { ...log, userId });
+            await firebaseStorage.addCareLog(userId, logType, { ...log, userId });
           }
         }
       }
@@ -240,7 +240,7 @@ export async function registerFirebaseRoutes(app: Express): Promise<Server> {
       
       if (enabled) {
         // Check if demo plant already exists
-        const plants = await mockFirebaseStorage.getPlants(userId);
+        const plants = await firebaseStorage.getPlants(userId);
         const existingDemo = plants.find(p => 
           p.babyName === 'Demo Plant' && 
           p.notes?.includes('This is your demo plant to explore the app!')
@@ -255,7 +255,7 @@ export async function registerFirebaseRoutes(app: Express): Promise<Server> {
         const existingPlant1 = plants.find(p => p.plantNumber === 1);
         if (existingPlant1 && !existingPlant1.notes?.includes('This is your demo plant to explore the app!')) {
           // Remove the existing plant #1 (will be overwritten)
-          await mockFirebaseStorage.deletePlant(userId, existingPlant1.id!);
+          await firebaseStorage.deletePlant(userId, existingPlant1.id!);
         }
         
         // Add demo plant with forced plant number 1
@@ -280,18 +280,18 @@ export async function registerFirebaseRoutes(app: Express): Promise<Server> {
           userId
         };
         
-        await mockFirebaseStorage.createPlant(userId, demoPlant);
+        await firebaseStorage.createPlant(userId, demoPlant);
         res.json({ success: true, message: 'Demo plant added as plant #1' });
       } else {
         // Remove demo plant
-        const plants = await mockFirebaseStorage.getPlants(userId);
+        const plants = await firebaseStorage.getPlants(userId);
         const demoPlant = plants.find(p => 
           p.babyName === 'Demo Plant' && 
           p.notes?.includes('This is your demo plant to explore the app!')
         );
         
         if (demoPlant) {
-          await mockFirebaseStorage.deletePlant(userId, demoPlant.id!);
+          await firebaseStorage.deletePlant(userId, demoPlant.id!);
         }
         
         res.json({ success: true, message: 'Demo plant removed - position #1 now available' });
@@ -306,7 +306,7 @@ export async function registerFirebaseRoutes(app: Express): Promise<Server> {
   app.get('/api/demo-plant/status', requireAuth, async (req: any, res) => {
     try {
       const userId = req.userId || 'dev-user';
-      const plants = await mockFirebaseStorage.getPlants(userId);
+      const plants = await firebaseStorage.getPlants(userId);
       const hasDemo = plants.some(p => 
         p.babyName === 'Demo Plant' && 
         p.notes?.includes('This is your demo plant to explore the app!')
@@ -323,7 +323,7 @@ export async function registerFirebaseRoutes(app: Express): Promise<Server> {
   app.delete('/api/debug/clear-all-data', requireAuth, async (req: any, res) => {
     try {
       const userId = req.userId || 'dev-user';
-      await mockFirebaseStorage.clearAllData(userId);
+      await firebaseStorage.clearAllData(userId);
       res.json({ success: true, message: 'All data cleared successfully' });
     } catch (error) {
       console.error('Error clearing data:', error);
@@ -335,7 +335,7 @@ export async function registerFirebaseRoutes(app: Express): Promise<Server> {
   app.get('/api/backup/create', requireAuth, async (req: any, res) => {
     try {
       const userId = req.userId || 'dev-user';
-      const plants = await mockFirebaseStorage.getPlants(userId);
+      const plants = await firebaseStorage.getPlants(userId);
       
       const backup = {
         userId: userId,
@@ -380,7 +380,7 @@ export async function registerFirebaseRoutes(app: Express): Promise<Server> {
       console.log(`Importing ${plantsToImport.length} plants for user ${userId}`);
       
       // Clear existing plants first
-      await mockFirebaseStorage.clearUserData(userId);
+      await firebaseStorage.clearUserData(userId);
       
       // Import each plant
       let importedCount = 0;
@@ -398,7 +398,7 @@ export async function registerFirebaseRoutes(app: Express): Promise<Server> {
           // Remove old ID if present, let Firebase create new one
           delete newPlant.id;
           
-          await mockFirebaseStorage.createPlant(userId, newPlant);
+          await firebaseStorage.createPlant(userId, newPlant);
           importedCount++;
         } catch (error) {
           console.error(`Failed to import plant ${plantData.name}:`, error);

@@ -12,9 +12,20 @@ export async function apiRequest(
   url: string,
   data?: unknown
 ): Promise<any> {
+  // Get user ID from localStorage
+  const userId = localStorage.getItem('plantcare_user_id') || 'dev-user';
+  
+  const headers: Record<string, string> = {
+    'X-User-ID': userId,
+  };
+  
+  if (data) {
+    headers['Content-Type'] = 'application/json';
+  }
+
   const res = await fetch(url, {
     method,
-    headers: data ? { "Content-Type": "application/json" } : {},
+    headers,
     body: data ? JSON.stringify(data) : undefined,
     credentials: "include",
   });
@@ -31,8 +42,14 @@ export const getQueryFn: <T>(options: {
   async ({ queryKey }) => {
     const url = queryKey[0] as string;
     
+    // Get user ID from localStorage
+    const userId = localStorage.getItem('plantcare_user_id') || 'dev-user';
+    
     const res = await fetch(url, {
       credentials: "include",
+      headers: {
+        'X-User-ID': userId,
+      },
     });
 
     if (unauthorizedBehavior === "returnNull" && res.status === 401) {
