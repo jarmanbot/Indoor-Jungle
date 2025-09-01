@@ -308,6 +308,26 @@ export class FirebaseStorage implements IFirebaseStorage {
       throw error;
     }
   }
+
+  // Clear all user data (for imports)
+  async clearUserData(userId: string): Promise<void> {
+    console.log(`Firebase: Clearing all data for user ${userId}`);
+    
+    try {
+      // Remove all plants
+      const plantsRef = ref(database, `users/${userId}/plants`);
+      await remove(plantsRef);
+      
+      // Remove all care logs
+      const careLogsRef = ref(database, `users/${userId}/care_logs`);
+      await remove(careLogsRef);
+      
+      console.log(`Firebase: Cleared all data for user ${userId}`);
+    } catch (error) {
+      console.error('Firebase: Error clearing user data:', error);
+      throw error;
+    }
+  }
 }
 
 // Create singleton instance
